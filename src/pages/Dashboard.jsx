@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { CATS, SUPER_CATS, DB, getFilteredVehicles, getRecomonkeyUrl } from '../lib/vehicles'
+import { supabase } from '../lib/supabase'
 
 function shuf(a) { return [...a].sort(() => Math.random() - 0.5) }
 
@@ -15,7 +16,7 @@ function useLocalStorage(key, def) {
   return [val, set]
 }
 
-export default function Dashboard({ onLogout }) {
+export default function Dashboard({ user, onLogout }) {
   const [dark, setDark] = useLocalStorage('tl_dark', true)
   const [fontSize, setFontSize] = useLocalStorage('tl_fs', 15)
   const [superCat, setSuperCat] = useLocalStorage('tl_super', 'russia')
@@ -32,6 +33,13 @@ export default function Dashboard({ onLogout }) {
   const [score, setScore] = useState({ c: 0, t: 0 })
   const [imgIdx, setImgIdx] = useState(0)
   const [notes, setNotes] = useLocalStorage('tl_notes', {})
+  const [homework, setHomework]         = useState(null)    // { vehicle_ids, title } vom Lehrer
+  const [classroom, setClassroom]       = useState(null)    // { name, code, id }
+  const [showJoin, setShowJoin]         = useState(false)
+  const [joinCode, setJoinCode]         = useState('')
+  const [joinError, setJoinError]       = useState('')
+  const [joinLoading, setJoinLoading]   = useState(false)
+  const [hwMode, setHwMode]             = useState(false)   // true = Hausaufgaben-Filter aktiv
 
   const bg      = dark ? '#080b10' : '#f0f4f8'
   const surf    = dark ? '#0a0d14' : '#ffffff'
@@ -59,6 +67,86 @@ export default function Dashboard({ onLogout }) {
     setScore({ c: 0, t: 0 })
     setImgIdx(0)
   }, [activeCat, superCat, selectedIds, shuffle])
+
+  // Klassenraum & Hausaufgaben laden
+  useEffect(() => {
+    if (!user?.userId) return
+    async function loadClassroomData() {
+      // Schüler-Mitgliedschaft abrufen
+      const { data: membership } = await supabase
+        .from('classroom_members')
+        .select('classroom_id, classrooms(id, name, code)')
+        .eq('student_id', user.userId)
+        .limit(1)
+        .single()
+      if (!membership) return
+      const cr = membership.classrooms
+      setClassroom(cr)
+
+      // Hausaufgabe abrufen
+      const { data: hw } = await supabase
+        .from('homework')
+        .select('*')
+        .eq('classroom_id', cr.id)
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .single()
+      if (hw) setHomework(hw)
+    }
+    loadClassroomData()
+  }, [user?.userId])
+
+  // Pool neu aufbauen wenn hwMode wechselt
+  useEffect(() => {
+    let base
+    if (hwMode && homework?.vehicle_ids?.length) {
+      base = DB.filter(v => homework.vehicle_ids.includes(v.id))
+    } else {
+      base = getFilteredVehicles(activeCat, superCat)
+    }
+    let filtered = selectedIds ? base.filter(v => selectedIds.includes(v.id)) : base
+    if (filtered.length === 0) filtered = base
+    const newPool = shuffle ? shuf(filtered) : [...filtered]
+    setPool(newPool)
+    setIdx(0)
+    setChosen(null)
+    setRevealed(false)
+    setOpts(makeOpts(newPool, 0, newPool))
+    setScore({ c: 0, t: 0 })
+    setImgIdx(0)
+  }, [hwMode])
+
+  async function joinClassroom() {
+    if (!joinCode.trim()) return
+    setJoinError('')
+    setJoinLoading(true)
+    const code = joinCode.trim().toUpperCase()
+    const { data: cr } = await supabase
+      .from('classrooms')
+      .select('*')
+      .eq('code', code)
+      .single()
+    if (!cr) { setJoinError('Ungültiger Code. Bitte nochmal prüfen.'); setJoinLoading(false); return }
+
+    const { error } = await supabase.from('classroom_members').insert({
+      classroom_id: cr.id, student_id: user.userId,
+    })
+    setJoinLoading(false)
+    if (error && error.code !== '23505') { setJoinError('Fehler beim Beitreten.'); return }
+    setClassroom(cr)
+    setShowJoin(false)
+    setJoinCode('')
+
+    // Hausaufgabe laden
+    const { data: hw } = await supabase
+      .from('homework')
+      .select('*')
+      .eq('classroom_id', cr.id)
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .single()
+    if (hw) setHomework(hw)
+  }
 
   function makeOpts(p, i, fullBase) {
     if (!p.length) return []
@@ -202,22 +290,57 @@ export default function Dashboard({ onLogout }) {
           <button onClick={() => setDark(d => !d)} style={{ ...btn(false, bord, dim), padding: '5px 10px', fontSize: fontSize - 1 }}>
             {dark ? '☀️' : '🌙'}
           </button>
+          {user?.name && <span style={{ fontSize: fontSize - 3, color: dim }}>{user.name}</span>}
           <button onClick={onLogout} style={{ ...btn(false, bord, dim), padding: '5px 10px', fontSize: fontSize - 3 }}>Abmelden</button>
         </div>
         <div style={{ display: 'flex', overflowX: 'auto', borderTop: `1px solid ${bord}` }}>
           {Object.entries(CATS).map(([k, v]) => (
-            <button key={k} onClick={() => setActiveCat(k)} style={{
+            <button key={k} onClick={() => { setActiveCat(k); setHwMode(false) }} style={{
               flex: '0 0 auto', padding: '8px 10px',
-              background: activeCat === k ? v.color + '22' : 'transparent',
-              border: 'none', borderBottom: `2px solid ${activeCat === k ? v.color : 'transparent'}`,
-              color: activeCat === k ? v.light : dim,
-              fontSize: fontSize - 3, fontWeight: activeCat === k ? 700 : 400,
+              background: !hwMode && activeCat === k ? v.color + '22' : 'transparent',
+              border: 'none', borderBottom: `2px solid ${!hwMode && activeCat === k ? v.color : 'transparent'}`,
+              color: !hwMode && activeCat === k ? v.light : dim,
+              fontSize: fontSize - 3, fontWeight: !hwMode && activeCat === k ? 700 : 400,
               letterSpacing: '0.06em', cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'Arial',
             }}>
               {v.label}<br />
               <span style={{ fontSize: fontSize - 5, opacity: 0.6 }}>{v.sub}</span>
             </button>
           ))}
+          {/* Hausaufgaben-Tab */}
+          {homework && (
+            <button onClick={() => setHwMode(true)} style={{
+              flex: '0 0 auto', padding: '8px 10px',
+              background: hwMode ? '#22c55e22' : 'transparent',
+              border: 'none', borderBottom: `2px solid ${hwMode ? '#22c55e' : 'transparent'}`,
+              color: hwMode ? '#22c55e' : dim,
+              fontSize: fontSize - 3, fontWeight: hwMode ? 700 : 400,
+              letterSpacing: '0.06em', cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'Arial',
+            }}>
+              📋 {homework.title}<br />
+              <span style={{ fontSize: fontSize - 5, opacity: 0.6 }}>{homework.vehicle_ids?.length} Fzg.</span>
+            </button>
+          )}
+          {/* Klasse beitreten */}
+          {!classroom && user?.userId && (
+            <button onClick={() => setShowJoin(true)} style={{
+              flex: '0 0 auto', padding: '8px 10px',
+              background: 'transparent', border: 'none',
+              borderBottom: '2px solid transparent',
+              color: dim, fontSize: fontSize - 3, cursor: 'pointer',
+              whiteSpace: 'nowrap', fontFamily: 'Arial', opacity: 0.6,
+            }}>
+              + Klasse beitreten
+            </button>
+          )}
+          {classroom && !homework && (
+            <span style={{
+              flex: '0 0 auto', padding: '8px 10px', color: dim,
+              fontSize: fontSize - 4, display: 'flex', alignItems: 'center',
+            }}>
+              🏫 {classroom.name}
+            </span>
+          )}
         </div>
       </div>
 
@@ -465,6 +588,62 @@ export default function Dashboard({ onLogout }) {
           )}
         </div>
       </div>
+
+      {/* JOIN-MODAL */}
+      {showJoin && (
+        <div style={{
+          position: 'fixed', inset: 0, background: '#00000090',
+          zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }} onClick={() => setShowJoin(false)}>
+          <div onClick={e => e.stopPropagation()} style={{
+            background: surf, border: `1px solid ${bord}`, borderRadius: 14,
+            padding: '28px 28px', width: '100%', maxWidth: 360, fontFamily: 'Arial',
+          }}>
+            <div style={{ fontSize: 17, fontWeight: 700, color: text, marginBottom: 6 }}>
+              🏫 Klassenraum beitreten
+            </div>
+            <div style={{ fontSize: 12, color: dim, marginBottom: 18 }}>
+              Gib den Code ein, den du von deinem Lehrer erhalten hast.
+            </div>
+            {joinError && (
+              <div style={{
+                background: dark ? '#2a0a0a' : '#fde8e8', border: `1px solid ${dark ? '#6b2200' : '#d93025'}`,
+                borderRadius: 8, padding: '9px 14px', color: dark ? '#f87171' : '#b91c1c',
+                fontSize: 13, marginBottom: 12,
+              }}>{joinError}</div>
+            )}
+            <input
+              value={joinCode}
+              onChange={e => setJoinCode(e.target.value.toUpperCase())}
+              placeholder="z.B. AB12CD"
+              autoFocus
+              style={{
+                width: '100%', background: inputBg, border: `1px solid ${bord}`,
+                borderRadius: 8, padding: '12px 14px', color: text,
+                fontSize: 20, fontWeight: 700, letterSpacing: '0.2em',
+                fontFamily: 'monospace', outline: 'none', boxSizing: 'border-box',
+                textAlign: 'center', marginBottom: 14,
+              }}
+              onKeyDown={e => e.key === 'Enter' && joinClassroom()}
+            />
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button onClick={() => setShowJoin(false)} style={{
+                flex: 1, padding: '10px 0', background: 'transparent',
+                border: `1px solid ${bord}`, borderRadius: 8, color: dim,
+                fontSize: 13, cursor: 'pointer',
+              }}>Abbrechen</button>
+              <button onClick={joinClassroom} disabled={joinLoading || !joinCode.trim()} style={{
+                flex: 2, padding: '10px 0', background: '#3b82f6',
+                border: 'none', borderRadius: 8, color: '#fff',
+                fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                opacity: joinLoading ? 0.6 : 1,
+              }}>
+                {joinLoading ? '…' : 'BEITRETEN'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
