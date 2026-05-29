@@ -32,6 +32,7 @@ export default function TeacherDashboard({ user, onLogout }) {
   const [hwSelected, setHwSelected] = useState(new Set())  // ausgewählte Fahrzeug-IDs
   const [hwTitle, setHwTitle]     = useState('Hausaufgabe')
   const [savedMsg, setSavedMsg]   = useState('')
+  const [createErr, setCreateErr] = useState('')
 
   // Farben
   const bg   = dark ? '#080b10' : '#f0f4f8'
@@ -110,33 +111,38 @@ export default function TeacherDashboard({ user, onLogout }) {
   async function createClassroom() {
     if (!newName.trim()) return
     setCreating(true)
+    setCreateErr('')
 
-    // Session prüfen
-    const { data: sessionData } = await supabase.auth.getSession()
-    if (!sessionData?.session) {
-      alert('Sitzung abgelaufen – bitte neu anmelden.')
-      setCreating(false)
-      return
+    try {
+      const { data: sessionData } = await supabase.auth.getSession()
+      if (!sessionData?.session) {
+        setCreateErr('Sitzung abgelaufen – bitte neu anmelden.')
+        setCreating(false)
+        return
+      }
+
+      const { data, error } = await supabase.from('classrooms').insert({
+        teacher_id: sessionData.session.user.id,
+        name: newName.trim(),
+        code: genCode(),
+      }).select().single()
+
+      if (error) {
+        setCreateErr(`Fehler: ${error.message} (${error.code})`)
+        setCreating(false)
+        return
+      }
+      setNewName('')
+      if (data) setClassrooms(prev => [data, ...prev])
+    } catch (e) {
+      setCreateErr(`Unbekannter Fehler: ${e.message}`)
     }
-
-    const { data, error } = await supabase.from('classrooms').insert({
-      teacher_id: user.userId,
-      name: newName.trim(),
-      code: genCode(),
-    }).select().single()
     setCreating(false)
-    if (error) {
-      alert(`Fehler: ${error.message} (Code: ${error.code})`)
-      return
-    }
-    setNewName('')
-    if (data) {
-      setClassrooms(prev => [data, ...prev])
-    }
   }
 
   async function deleteClassroom(id) {
-    if (!confirm('Klassenraum wirklich löschen? Alle Mitglieder und Hausaufgaben werden entfernt.')) return
+    const ok = window.confirm('Klassenraum wirklich löschen?')
+    if (!ok) return
     await supabase.from('classrooms').delete().eq('id', id)
     setClassrooms(prev => prev.filter(c => c.id !== id))
   }
@@ -246,6 +252,17 @@ export default function TeacherDashboard({ user, onLogout }) {
                 Erstelle Klassenräume und teile den Code mit deinen Schülern.
               </div>
             </div>
+
+            {/* Fehlermeldung */}
+            {createErr && (
+              <div style={{
+                background: dark ? '#2a0a0a' : '#fde8e8',
+                border: `1px solid ${dark ? '#6b2200' : '#d93025'}`,
+                borderRadius: 10, padding: '12px 16px',
+                color: dark ? '#f87171' : '#b91c1c',
+                fontSize: 13, marginBottom: 14,
+              }}>⚠ {createErr}</div>
+            )}
 
             {/* Neue Klasse erstellen */}
             <div style={{
