@@ -110,14 +110,27 @@ export default function TeacherDashboard({ user, onLogout }) {
   async function createClassroom() {
     if (!newName.trim()) return
     setCreating(true)
+
+    // Session prüfen
+    const { data: sessionData } = await supabase.auth.getSession()
+    if (!sessionData?.session) {
+      alert('Sitzung abgelaufen – bitte neu anmelden.')
+      setCreating(false)
+      return
+    }
+
     const { data, error } = await supabase.from('classrooms').insert({
       teacher_id: user.userId,
       name: newName.trim(),
       code: genCode(),
     }).select().single()
     setCreating(false)
+    if (error) {
+      alert(`Fehler: ${error.message} (Code: ${error.code})`)
+      return
+    }
     setNewName('')
-    if (!error && data) {
+    if (data) {
       setClassrooms(prev => [data, ...prev])
     }
   }
