@@ -1,0 +1,459 @@
+import { useState, useEffect, useCallback } from 'react'
+import { CATS, SUPER_CATS, DB, getFilteredVehicles, getRecomonkeyUrl } from '../lib/vehicles'
+
+function shuf(a) { return [...a].sort(() => Math.random() - 0.5) }
+
+function useLocalStorage(key, def) {
+  const [val, setVal] = useState(() => {
+    try { const s = localStorage.getItem(key); return s !== null ? JSON.parse(s) : def }
+    catch { return def }
+  })
+  const set = useCallback(v => {
+    setVal(v)
+    try { localStorage.setItem(key, JSON.stringify(v)) } catch {}
+  }, [key])
+  return [val, set]
+}
+
+export default function Dashboard({ onLogout }) {
+  const [dark, setDark] = useLocalStorage('tl_dark', true)
+  const [fontSize, setFontSize] = useLocalStorage('tl_fs', 15)
+  const [superCat, setSuperCat] = useLocalStorage('tl_super', 'russia')
+  const [activeCat, setActiveCat] = useLocalStorage('tl_cat', 'kpz')
+  const [showSidebar, setShowSidebar] = useState(false)
+  const [selectedIds, setSelectedIds] = useLocalStorage('tl_sel_ids', null)
+  const [mode, setMode] = useLocalStorage('tl_mode', 'flash')
+  const [shuffle, setShuffle] = useLocalStorage('tl_shuffle', true)
+  const [pool, setPool] = useState([])
+  const [idx, setIdx] = useState(0)
+  const [chosen, setChosen] = useState(null)
+  const [opts, setOpts] = useState([])
+  const [revealed, setRevealed] = useState(false)
+  const [score, setScore] = useState({ c: 0, t: 0 })
+  const [imgIdx, setImgIdx] = useState(0)
+  const [notes, setNotes] = useLocalStorage('tl_notes', {})
+
+  const bg      = dark ? '#080b10' : '#f0f4f8'
+  const surf    = dark ? '#0a0d14' : '#ffffff'
+  const bord    = dark ? '#1c2430' : '#d0dce8'
+  const text    = dark ? '#c0d0e0' : '#1a2a3a'
+  const dim     = dark ? '#3d5060' : '#7090a0'
+  const inputBg = dark ? '#0d1117' : '#f8fafb'
+  const cat     = CATS[activeCat]
+  const tc      = cat.color
+  const tl      = cat.light
+
+  const ansCorrect = { bg: dark ? '#0d2a1a' : '#d4f5e4', border: dark ? '#1e5f3e' : '#22a06b', col: dark ? '#4ade80' : '#166534' }
+  const ansWrong   = { bg: dark ? '#2a0d08' : '#fde8e8', border: dark ? '#6b2200' : '#d93025', col: dark ? '#f87171' : '#b91c1c' }
+
+  useEffect(() => {
+    const base = getFilteredVehicles(activeCat, superCat)
+    let filtered = selectedIds ? base.filter(v => selectedIds.includes(v.id)) : base
+    if (filtered.length === 0) filtered = base
+    const newPool = shuffle ? shuf(filtered) : [...filtered]
+    setPool(newPool)
+    setIdx(0)
+    setChosen(null)
+    setRevealed(false)
+    setOpts(makeOpts(newPool, 0, newPool))
+    setScore({ c: 0, t: 0 })
+    setImgIdx(0)
+  }, [activeCat, superCat, selectedIds, shuffle])
+
+  function makeOpts(p, i, fullBase) {
+    if (!p.length) return []
+    const cur = p[i]
+    const others = shuf(fullBase.filter(x => x.id !== cur.id)).slice(0, 3)
+    return shuf([cur, ...others])
+  }
+
+  function goTo(n) {
+    if (!pool.length) return
+    const newIdx = ((n % pool.length) + pool.length) % pool.length
+    setIdx(newIdx)
+    setChosen(null)
+    setRevealed(false)
+    setOpts(makeOpts(pool, newIdx, pool))
+    setImgIdx(0)
+  }
+
+  function pick(vid) {
+    if (chosen !== null) return
+    setChosen(vid)
+    const correct = vid === pool[idx]?.id
+    setScore(s => ({ c: s.c + (correct ? 1 : 0), t: s.t + 1 }))
+  }
+
+  function saveNote(vehicleId, val) {
+    setNotes(prev => ({ ...prev, [vehicleId]: val }))
+  }
+
+  const cur = pool[idx]
+  const pct = score.t > 0 ? Math.round(score.c / score.t * 100) : null
+  const hasImages = cur?.images?.length > 0
+  const poolHasImages = pool.some(v => v.images?.length > 0)
+
+  const btn = (active, color, lightColor) => ({
+    padding: '8px 14px',
+    background: active ? color + '28' : 'transparent',
+    border: `1px solid ${active ? color : bord}`,
+    color: active ? lightColor : dim,
+    borderRadius: 7,
+    fontSize: fontSize - 2,
+    fontWeight: active ? 700 : 400,
+    letterSpacing: '0.08em',
+    cursor: 'pointer',
+    transition: 'all 0.15s',
+    fontFamily: 'Arial',
+  })
+
+  if (!pool.length || !cur) {
+    return (
+      <div style={{ minHeight: '100vh', background: bg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, fontFamily: 'Arial', fontSize }}>
+        <div style={{ color: text, fontWeight: 700, fontSize: fontSize + 1 }}>Keine Fahrzeuge für diese Auswahl.</div>
+        <div style={{ color: dim, fontSize: fontSize - 2 }}>Für diese Kategorie sind noch keine Fahrzeuge eingetragen.</div>
+        <button
+          onClick={() => setSuperCat('russia')}
+          style={{ marginTop: 8, padding: '10px 24px', background: '#1e3a5f', border: '1px solid #2d5080', borderRadius: 8, color: '#7eb8f0', fontSize, fontWeight: 700, cursor: 'pointer', fontFamily: 'Arial' }}
+        >
+          ← Zurück zu Russland/GUS
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <div style={{ minHeight: '100vh', background: bg, fontFamily: 'Arial', fontSize, color: text, position: 'relative' }}>
+
+      {showSidebar && (
+        <div onClick={() => setShowSidebar(false)}
+          style={{ position: 'fixed', inset: 0, background: '#00000080', zIndex: 40 }} />
+      )}
+
+      {/* SIDEBAR */}
+      <div style={{
+        position: 'fixed', top: 0, left: showSidebar ? 0 : '-320px', bottom: 0,
+        width: 300, background: surf, borderRight: `1px solid ${bord}`,
+        zIndex: 50, transition: 'left 0.2s ease', overflowY: 'auto', display: 'flex', flexDirection: 'column',
+      }}>
+        <div style={{ padding: '16px', borderBottom: `1px solid ${bord}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ fontWeight: 700, fontSize: fontSize - 1, color: text, letterSpacing: '0.06em' }}>FAHRZEUG-AUSWAHL</div>
+          <button onClick={() => setShowSidebar(false)} style={{ background: 'none', border: 'none', color: dim, fontSize: 20, cursor: 'pointer', lineHeight: 1 }}>×</button>
+        </div>
+        <div style={{ padding: '10px 16px', borderBottom: `1px solid ${bord}`, display: 'flex', gap: 8 }}>
+          <button onClick={() => setSelectedIds(null)} style={{ ...btn(!selectedIds, tc, tl), flex: 1, fontSize: fontSize - 3 }}>ALLE</button>
+          <button onClick={() => { const base = getFilteredVehicles(activeCat, superCat); setSelectedIds(selectedIds ? null : base.map(v => v.id)) }}
+            style={{ ...btn(false, bord, dim), flex: 1, fontSize: fontSize - 3 }}>AUFHEBEN</button>
+        </div>
+        <div style={{ flex: 1, padding: '8px 0' }}>
+          {getFilteredVehicles(activeCat, superCat).map(v => {
+            const sel = !selectedIds || selectedIds.includes(v.id)
+            return (
+              <div key={v.id} onClick={() => {
+                if (!selectedIds) {
+                  const all = getFilteredVehicles(activeCat, superCat).map(x => x.id).filter(id => id !== v.id)
+                  setSelectedIds(all.length ? all : null)
+                } else {
+                  const next = sel ? selectedIds.filter(id => id !== v.id) : [...selectedIds, v.id]
+                  setSelectedIds(next.length ? next : null)
+                }
+              }} style={{
+                display: 'flex', alignItems: 'center', gap: 10,
+                padding: '8px 16px', cursor: 'pointer',
+                background: sel ? tc + '10' : 'transparent',
+                borderLeft: `3px solid ${sel ? tc : 'transparent'}`,
+                transition: 'all 0.12s',
+              }}>
+                <div style={{
+                  width: 16, height: 16, borderRadius: 4,
+                  border: `2px solid ${sel ? tc : bord}`,
+                  background: sel ? tc : 'transparent',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                }}>
+                  {sel && <span style={{ color: '#fff', fontSize: 10, lineHeight: 1 }}>✓</span>}
+                </div>
+                <span style={{ fontSize: fontSize - 2, color: sel ? tl : dim }}>{v.flag} {v.name}</span>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* HEADER */}
+      <div style={{ background: surf, borderBottom: `1px solid ${bord}`, position: 'sticky', top: 0, zIndex: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', flexWrap: 'wrap' }}>
+          <div style={{ fontWeight: 700, fontSize: fontSize - 1, color: tl, letterSpacing: '0.08em', flexShrink: 0 }}>🪖 TAKTIK</div>
+          <div style={{ display: 'flex', gap: 4, marginLeft: 4 }}>
+            {Object.entries(SUPER_CATS).map(([k, v]) => (
+              <button key={k} onClick={() => setSuperCat(k)} title={v.label} style={{
+                ...btn(superCat === k, '#4a6080', '#90b8d8'),
+                padding: '5px 10px', fontSize: fontSize - 3,
+                opacity: v.nations.length === 0 && k !== 'russia' ? 0.4 : 1,
+              }}>
+                {v.emoji} {v.label}
+              </button>
+            ))}
+          </div>
+          <div style={{ flex: 1 }} />
+          <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+            <button onClick={() => setFontSize(f => Math.max(14, f - 1))} style={{ ...btn(false, bord, dim), padding: '4px 8px', fontSize: 12 }}>A−</button>
+            <button onClick={() => setFontSize(f => Math.min(17, f + 1))} style={{ ...btn(false, bord, dim), padding: '4px 8px', fontSize: 14 }}>A+</button>
+          </div>
+          <button onClick={() => setDark(d => !d)} style={{ ...btn(false, bord, dim), padding: '5px 10px', fontSize: fontSize - 1 }}>
+            {dark ? '☀️' : '🌙'}
+          </button>
+          <button onClick={onLogout} style={{ ...btn(false, bord, dim), padding: '5px 10px', fontSize: fontSize - 3 }}>Abmelden</button>
+        </div>
+        <div style={{ display: 'flex', overflowX: 'auto', borderTop: `1px solid ${bord}` }}>
+          {Object.entries(CATS).map(([k, v]) => (
+            <button key={k} onClick={() => setActiveCat(k)} style={{
+              flex: '0 0 auto', padding: '8px 10px',
+              background: activeCat === k ? v.color + '22' : 'transparent',
+              border: 'none', borderBottom: `2px solid ${activeCat === k ? v.color : 'transparent'}`,
+              color: activeCat === k ? v.light : dim,
+              fontSize: fontSize - 3, fontWeight: activeCat === k ? 700 : 400,
+              letterSpacing: '0.06em', cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'Arial',
+            }}>
+              {v.label}<br />
+              <span style={{ fontSize: fontSize - 5, opacity: 0.6 }}>{v.sub}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* PROGRESS BAR */}
+      <div style={{ height: 2, background: dark ? '#0d1117' : '#e0e8f0' }}>
+        <div style={{ height: '100%', width: `${((idx + 1) / pool.length * 100).toFixed(1)}%`, background: tc, transition: 'width 0.3s' }} />
+      </div>
+
+      {/* MAIN */}
+      <div style={{ maxWidth: 680, margin: '0 auto', padding: '12px 14px 100px' }}>
+
+        {/* Controls */}
+        <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+          <button style={{ ...btn(mode === 'flash', tc, tl) }} onClick={() => { setMode('flash'); setChosen(null); setRevealed(false) }}>◧ LERNKARTE</button>
+          <button
+            style={{ ...btn(mode === 'quiz', tc, tl), opacity: !poolHasImages ? 0.45 : 1 }}
+            onClick={() => { if (poolHasImages) { setMode('quiz'); setChosen(null); setRevealed(false) } }}
+            title={!poolHasImages ? 'Bilder noch nicht verfügbar (Phase 2)' : ''}
+          >◉ BILD-QUIZ</button>
+          <button style={{ ...btn(shuffle, tc, tl), fontSize: fontSize - 1 }} onClick={() => setShuffle(s => !s)} title="Reihenfolge mischen">⇌</button>
+          <button onClick={() => setShowSidebar(true)} style={{ ...btn(!!selectedIds, '#4a6080', '#90b8d8'), display: 'flex', alignItems: 'center', gap: 5 }}>
+            ☑ Auswahl {selectedIds ? `(${selectedIds.length})` : `(alle)`}
+          </button>
+          <div style={{ flex: 1 }} />
+          {score.t > 0 && (
+            <div style={{
+              background: pct >= 70 ? ansCorrect.bg : ansWrong.bg,
+              border: `1px solid ${pct >= 70 ? ansCorrect.border : ansWrong.border}`,
+              borderRadius: 7, padding: '4px 12px', textAlign: 'center',
+            }}>
+              <span style={{ fontSize: fontSize - 1, fontWeight: 700, color: pct >= 70 ? ansCorrect.col : ansWrong.col }}>{pct}%</span>
+              <span style={{ fontSize: fontSize - 4, color: dim, marginLeft: 5 }}>{score.c}/{score.t}</span>
+            </div>
+          )}
+          <button onClick={() => setScore({ c: 0, t: 0 })} style={{ ...btn(false, bord, dim), padding: '5px 8px' }} title="Score zurücksetzen">↺</button>
+        </div>
+
+        {/* Nav */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+          <button onClick={() => goTo(idx - 1)} style={{ ...btn(false, bord, dim), padding: '7px 16px', fontSize: fontSize - 1 }}>← Zurück</button>
+          <div style={{ color: dim, fontSize: fontSize - 3, letterSpacing: '0.1em' }}>{idx + 1} / {pool.length}</div>
+          <button onClick={() => goTo(idx + 1)} style={{ ...btn(false, tc, tl), padding: '7px 16px', fontSize: fontSize - 1 }}>Weiter →</button>
+        </div>
+
+        {/* CARD */}
+        <div className="fade-in" key={cur.id} style={{
+          background: surf, border: `1px solid ${bord}`, borderRadius: 12, overflow: 'hidden', marginBottom: 14,
+        }}>
+          {/* Card header */}
+          <div style={{
+            background: tc + '18', borderBottom: `1px solid ${tc + '40'}`,
+            padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          }}>
+            <div>
+              <div style={{ fontSize: fontSize - 4, color: dim, letterSpacing: '0.14em' }}>
+                {cat.label.toUpperCase()} · {cat.sub}
+              </div>
+              <div style={{ fontSize: fontSize + 2, fontWeight: 700, color: text, letterSpacing: '0.05em', marginTop: 2 }}>
+                {mode === 'quiz' && chosen === null ? '???' : cur.name}
+                {(mode !== 'quiz' || chosen !== null) && (
+                  <span style={{ fontSize: fontSize - 1, marginLeft: 8, opacity: 0.7 }}>{cur.flag}</span>
+                )}
+              </div>
+              {(mode !== 'quiz' || chosen !== null) && (
+                <div style={{ fontSize: fontSize - 3, color: dim, marginTop: 2 }}>{cur.nation}</div>
+              )}
+            </div>
+            <a href={getRecomonkeyUrl(cur, activeCat)} target="_blank" rel="noopener noreferrer"
+              style={{ fontSize: fontSize - 3, color: tl, opacity: 0.7, textDecoration: 'none', border: `1px solid ${tc}40`, borderRadius: 6, padding: '4px 8px', whiteSpace: 'nowrap' }}
+              title="Auf Recomonkey ansehen">📷 Reco</a>
+          </div>
+
+          {/* Image */}
+          <div style={{
+            background: dark ? '#060810' : '#e8eef4',
+            minHeight: hasImages ? 'auto' : 100,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            position: 'relative', flexDirection: 'column',
+          }}>
+            {hasImages ? (
+              <>
+                <img src={cur.images[imgIdx % cur.images.length]} alt={cur.name}
+                  style={{ width: '100%', maxHeight: 320, objectFit: 'contain', display: 'block' }}
+                  onError={e => { e.target.style.display = 'none' }} />
+                {cur.images.length > 1 && (
+                  <div style={{ display: 'flex', gap: 6, padding: 8 }}>
+                    {cur.images.map((_, i) => (
+                      <button key={i} onClick={() => setImgIdx(i)} style={{
+                        width: 8, height: 8, borderRadius: '50%', border: 'none',
+                        background: i === imgIdx % cur.images.length ? tl : dim,
+                        cursor: 'pointer', padding: 0,
+                      }} />
+                    ))}
+                  </div>
+                )}
+              </>
+            ) : (
+              <div style={{ padding: '16px 20px', textAlign: 'center' }}>
+                <div style={{ fontSize: 28, marginBottom: 6, opacity: 0.25 }}>📷</div>
+                <div style={{ fontSize: fontSize - 3, color: dim }}>Bilder folgen in Phase 2</div>
+                <a href={getRecomonkeyUrl(cur, activeCat)} target="_blank" rel="noopener noreferrer"
+                  style={{ fontSize: fontSize - 3, color: tl, marginTop: 4, display: 'inline-block' }}>
+                  → Auf Recomonkey ansehen
+                </a>
+              </div>
+            )}
+          </div>
+
+          {/* QUIZ */}
+          {mode === 'quiz' && (
+            <div style={{ padding: '14px 16px', borderTop: `1px solid ${bord}` }}>
+              {!poolHasImages ? (
+                <div style={{
+                  background: dark ? '#12181f' : '#f0f4f8',
+                  border: `1px solid ${bord}`, borderRadius: 8,
+                  padding: '14px 16px', textAlign: 'center',
+                  fontSize: fontSize - 2, color: dim,
+                }}>
+                  Das Bild-Quiz ist verfügbar sobald Fahrzeugbilder geladen sind (Phase 2).
+                  <br />
+                  <a href={getRecomonkeyUrl(cur, activeCat)} target="_blank" rel="noopener noreferrer"
+                    style={{ color: tl, marginTop: 6, display: 'inline-block' }}>
+                    → Fahrzeug auf Recomonkey ansehen
+                  </a>
+                </div>
+              ) : (
+                <>
+                  <div style={{ fontSize: fontSize - 4, color: dim, letterSpacing: '0.1em', marginBottom: 10 }}>
+                    WELCHES FAHRZEUG IST ABGEBILDET?
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                    {opts.map(o => {
+                      const isCorrect = o.id === cur.id
+                      const isPicked  = chosen === o.id
+                      const showResult = chosen !== null
+                      let bg2 = surf, border2 = bord, col2 = text
+                      if (showResult && isCorrect)              { bg2 = ansCorrect.bg; border2 = ansCorrect.border; col2 = ansCorrect.col }
+                      if (showResult && isPicked && !isCorrect) { bg2 = ansWrong.bg;   border2 = ansWrong.border;   col2 = ansWrong.col }
+                      return (
+                        <button key={o.id} onClick={() => pick(o.id)} style={{
+                          background: bg2, border: `1px solid ${border2}`, borderRadius: 8,
+                          padding: '10px 12px', color: col2, fontSize: fontSize - 2,
+                          fontWeight: (showResult && isCorrect) ? 700 : 400,
+                          textAlign: 'left', cursor: chosen !== null ? 'default' : 'pointer',
+                          transition: 'all 0.15s', fontFamily: 'Arial',
+                        }}>
+                          {o.flag} {o.name}
+                        </button>
+                      )
+                    })}
+                  </div>
+                  {chosen !== null && (
+                    <div style={{ marginTop: 12, fontSize: fontSize - 2, fontWeight: 700,
+                      color: chosen === cur.id ? ansCorrect.col : ansWrong.col }}>
+                      {chosen === cur.id ? '✓ Richtig!' : `✗ Falsch — es war: ${cur.name}`}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          )}
+
+          {/* FLASHCARD */}
+          {mode === 'flash' && (
+            <div style={{ padding: '14px 16px', borderTop: `1px solid ${bord}` }}>
+              {!revealed ? (
+                <>
+                  <div style={{ fontSize: fontSize - 4, color: dim, letterSpacing: '0.1em', marginBottom: 10 }}>
+                    KURZERKENNUNGSMERKMAL
+                  </div>
+                  <div style={{
+                    background: tc + '15', border: `1px solid ${tc + '40'}`, borderRadius: 8,
+                    padding: '12px 14px', fontSize: fontSize - 1, fontWeight: 700,
+                    color: tl, letterSpacing: '0.04em', marginBottom: 12,
+                  }}>
+                    {cur.s}
+                  </div>
+                  <button onClick={() => setRevealed(true)}
+                    style={{ ...btn(false, tc, tl), width: '100%', padding: '10px 0', justifyContent: 'center' }}>
+                    Alle Merkmale anzeigen
+                  </button>
+                </>
+              ) : (
+                <>
+                  <div style={{ fontSize: fontSize - 4, color: dim, letterSpacing: '0.1em', marginBottom: 10 }}>
+                    ERKENNUNGSMERKMALE
+                  </div>
+                  {cur.m.map((feat, i) => (
+                    <div key={i} style={{ display: 'flex', gap: 10, marginBottom: 10, alignItems: 'flex-start' }}>
+                      <div style={{
+                        width: 22, height: 22, borderRadius: '50%', background: tc,
+                        color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: fontSize - 4, fontWeight: 700, flexShrink: 0, marginTop: 1,
+                      }}>{i + 1}</div>
+                      <div style={{ fontSize: fontSize - 1, color: text, lineHeight: 1.5 }}>{feat}</div>
+                    </div>
+                  ))}
+                  <button onClick={() => setRevealed(false)}
+                    style={{ ...btn(false, bord, dim), marginTop: 6, width: '100%', padding: '8px 0' }}>
+                    Verbergen
+                  </button>
+                </>
+              )}
+
+              {/* NOTIZFELD */}
+              <div style={{ marginTop: 16, borderTop: `1px solid ${bord}`, paddingTop: 14 }}>
+                <div style={{ fontSize: fontSize - 4, color: dim, letterSpacing: '0.1em', marginBottom: 8 }}>
+                  MEINE NOTIZEN
+                </div>
+                <textarea
+                  value={notes[cur.id] || ''}
+                  onChange={e => saveNote(cur.id, e.target.value)}
+                  placeholder="Eigene Notizen zu diesem Fahrzeug …"
+                  rows={3}
+                  style={{
+                    width: '100%',
+                    background: inputBg,
+                    border: `1px solid ${bord}`,
+                    borderRadius: 8,
+                    padding: '10px 12px',
+                    color: text,
+                    fontSize: fontSize - 2,
+                    fontFamily: 'Arial',
+                    lineHeight: 1.5,
+                    resize: 'vertical',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                  }}
+                  onFocus={e => e.target.style.borderColor = tc}
+                  onBlur={e => e.target.style.borderColor = bord}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Bottom nav */}
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button onClick={() 
