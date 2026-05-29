@@ -33,13 +33,14 @@ export default function Dashboard({ user, onLogout }) {
   const [score, setScore] = useState({ c: 0, t: 0 })
   const [imgIdx, setImgIdx] = useState(0)
   const [notes, setNotes] = useLocalStorage('tl_notes', {})
-  const [homework, setHomework]         = useState(null)    // { vehicle_ids, title } vom Lehrer
-  const [classroom, setClassroom]       = useState(null)    // { name, code, id }
+  const [homework, setHomework]         = useState(null)
+  const [classroom, setClassroom]       = useState(null)
+  const [classroomLoaded, setClassroomLoaded] = useState(false)  // true sobald DB-Abfrage fertig
   const [showJoin, setShowJoin]         = useState(false)
   const [joinCode, setJoinCode]         = useState('')
   const [joinError, setJoinError]       = useState('')
   const [joinLoading, setJoinLoading]   = useState(false)
-  const [hwMode, setHwMode]             = useState(false)   // true = Hausaufgaben-Filter aktiv
+  const [hwMode, setHwMode]             = useState(false)
 
   const bg      = dark ? '#080b10' : '#f0f4f8'
   const surf    = dark ? '#0a0d14' : '#ffffff'
@@ -79,7 +80,7 @@ export default function Dashboard({ user, onLogout }) {
         .eq('student_id', user.userId)
         .limit(1)
         .single()
-      if (!membership) return
+      if (!membership) { setClassroomLoaded(true); return }
       const cr = membership.classrooms
       setClassroom(cr)
 
@@ -92,6 +93,7 @@ export default function Dashboard({ user, onLogout }) {
         .limit(1)
         .single()
       if (hw) setHomework(hw)
+      setClassroomLoaded(true)
     }
     loadClassroomData()
   }, [user?.userId])
@@ -134,6 +136,7 @@ export default function Dashboard({ user, onLogout }) {
     setJoinLoading(false)
     if (error && error.code !== '23505') { setJoinError('Fehler beim Beitreten.'); return }
     setClassroom(cr)
+    setClassroomLoaded(true)
     setShowJoin(false)
     setJoinCode('')
 
@@ -194,6 +197,71 @@ export default function Dashboard({ user, onLogout }) {
     transition: 'all 0.15s',
     fontFamily: 'Arial',
   })
+
+  // ── JOIN-SCREEN: Schüler noch in keinem Klassenraum ─────────
+  if (classroomLoaded && !classroom) {
+    return (
+      <div style={{
+        minHeight: '100vh', background: bg, fontFamily: 'Arial',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: 20,
+      }}>
+        <div style={{
+          background: surf, border: `1px solid ${bord}`, borderRadius: 14,
+          padding: '40px 36px', width: '100%', maxWidth: 420, textAlign: 'center',
+        }}>
+          <div style={{ fontSize: 44, marginBottom: 12 }}>🏫</div>
+          <div style={{ fontSize: 20, fontWeight: 700, color: text, marginBottom: 8 }}>
+            Klassenraum beitreten
+          </div>
+          <div style={{ fontSize: 13, color: dim, marginBottom: 28, lineHeight: 1.6 }}>
+            Gib den Code ein, den du von deinem Lehrer erhalten hast, um deinem Klassenraum beizutreten.
+          </div>
+
+          {joinError && (
+            <div style={{
+              background: dark ? '#2a0a0a' : '#fde8e8',
+              border: `1px solid ${dark ? '#6b2200' : '#d93025'}`,
+              borderRadius: 8, padding: '10px 14px',
+              color: dark ? '#f87171' : '#b91c1c',
+              fontSize: 13, marginBottom: 14, textAlign: 'left',
+            }}>{joinError}</div>
+          )}
+
+          <input
+            value={joinCode}
+            onChange={e => setJoinCode(e.target.value.toUpperCase())}
+            placeholder="z.B. AB12CD"
+            autoFocus
+            style={{
+              width: '100%', background: inputBg, border: `1px solid ${bord}`,
+              borderRadius: 10, padding: '14px 16px', color: text,
+              fontSize: 24, fontWeight: 700, letterSpacing: '0.25em',
+              fontFamily: 'monospace', outline: 'none', boxSizing: 'border-box',
+              textAlign: 'center', marginBottom: 14,
+            }}
+            onKeyDown={e => e.key === 'Enter' && joinClassroom()}
+          />
+
+          <button onClick={joinClassroom} disabled={joinLoading || !joinCode.trim()} style={{
+            width: '100%', padding: '13px 0', background: '#3b82f6',
+            border: 'none', borderRadius: 10, color: '#fff',
+            fontSize: 15, fontWeight: 700, cursor: 'pointer',
+            letterSpacing: '0.08em', opacity: joinLoading ? 0.6 : 1,
+            marginBottom: 16,
+          }}>
+            {joinLoading ? '…' : 'BEITRETEN'}
+          </button>
+
+          <button onClick={onLogout} style={{
+            background: 'transparent', border: `1px solid ${bord}`,
+            borderRadius: 8, padding: '8px 20px', cursor: 'pointer',
+            color: dim, fontSize: 12,
+          }}>Abmelden</button>
+        </div>
+      </div>
+    )
+  }
 
   if (!pool.length || !cur) {
     return (
