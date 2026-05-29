@@ -98,14 +98,10 @@ export default function Dashboard({ user, onLogout }) {
     loadClassroomData()
   }, [user?.userId])
 
-  // Pool neu aufbauen wenn hwMode wechselt
+  // Pool neu aufbauen wenn hwMode wechselt (hwMode zeigt eigene Ansicht, kein Pool nötig)
   useEffect(() => {
-    let base
-    if (hwMode && homework?.vehicle_ids?.length) {
-      base = DB.filter(v => homework.vehicle_ids.includes(v.id))
-    } else {
-      base = getFilteredVehicles(activeCat, superCat)
-    }
+    if (hwMode) return  // Hausaufgaben-Ansicht übernimmt, kein Pool-Update
+    const base = getFilteredVehicles(activeCat, superCat)
     let filtered = selectedIds ? base.filter(v => selectedIds.includes(v.id)) : base
     if (filtered.length === 0) filtered = base
     const newPool = shuffle ? shuf(filtered) : [...filtered]
@@ -258,6 +254,149 @@ export default function Dashboard({ user, onLogout }) {
             borderRadius: 8, padding: '8px 20px', cursor: 'pointer',
             color: dim, fontSize: 12,
           }}>Abmelden</button>
+        </div>
+      </div>
+    )
+  }
+
+  // ── HAUSAUFGABEN-ANSICHT ─────────────────────────────────────
+  if (hwMode && homework) {
+    const ALL_VEHICLES = Object.values(DB).flat()
+    const hwVehicles = ALL_VEHICLES.filter(v =>
+      homework.vehicle_ids?.includes(String(v.id))
+    )
+
+    function importHomework() {
+      // Hausaufgaben-IDs als selectedIds setzen und normalen Modus aktivieren
+      setSelectedIds(hwVehicles.map(v => v.id))
+      setActiveCat(
+        // Erste passende Kategorie ermitteln oder bei aktiver bleiben
+        (() => {
+          if (hwVehicles.length === 0) return activeCat
+          const firstId = hwVehicles[0].id
+          for (const [k, arr] of Object.entries(DB)) {
+            if (arr.some(v => v.id === firstId)) return k
+          }
+          return activeCat
+        })()
+      )
+      setHwMode(false)
+    }
+
+    return (
+      <div style={{ minHeight: '100vh', background: bg, fontFamily: 'Arial', fontSize, color: text }}>
+        {/* HEADER (gleich wie oben) */}
+        <div style={{ background: surf, borderBottom: `1px solid ${bord}`, position: 'sticky', top: 0, zIndex: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', flexWrap: 'wrap' }}>
+            <div style={{ fontWeight: 700, fontSize: fontSize - 1, color: '#22c55e', letterSpacing: '0.08em', flexShrink: 0 }}>🪖 TAKTIK</div>
+            <div style={{ flex: 1 }} />
+            {user?.name && <span style={{ fontSize: fontSize - 3, color: dim }}>{user.name}</span>}
+            <button onClick={onLogout} style={{ ...btn(false, bord, dim), padding: '5px 10px', fontSize: fontSize - 3 }}>Abmelden</button>
+          </div>
+          <div style={{ display: 'flex', overflowX: 'auto', borderTop: `1px solid ${bord}` }}>
+            {Object.entries(CATS).map(([k, v]) => (
+              <button key={k} onClick={() => { setActiveCat(k); setHwMode(false) }} style={{
+                flex: '0 0 auto', padding: '8px 10px',
+                background: 'transparent', border: 'none', borderBottom: '2px solid transparent',
+                color: dim, fontSize: fontSize - 3, cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'Arial',
+              }}>
+                {v.label}<br /><span style={{ fontSize: fontSize - 5, opacity: 0.6 }}>{v.sub}</span>
+              </button>
+            ))}
+            <button style={{
+              flex: '0 0 auto', padding: '8px 10px',
+              background: '#22c55e22', border: 'none', borderBottom: '2px solid #22c55e',
+              color: '#22c55e', fontSize: fontSize - 3, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'Arial',
+            }}>
+              📋 {homework.title}<br />
+              <span style={{ fontSize: fontSize - 5, opacity: 0.6 }}>{hwVehicles.length} Fzg.</span>
+            </button>
+          </div>
+        </div>
+
+        {/* INHALT */}
+        <div style={{ maxWidth: 680, margin: '0 auto', padding: '20px 14px 80px' }}>
+          {/* Titel + Importieren */}
+          <div style={{
+            background: surf, border: `1px solid ${bord}`, borderRadius: 12,
+            padding: '20px 20px', marginBottom: 16,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+              <div>
+                <div style={{ fontSize: fontSize - 3, color: '#22c55e', letterSpacing: '0.12em', marginBottom: 4 }}>
+                  HAUSAUFGABE · {classroom?.name}
+                </div>
+                <div style={{ fontSize: fontSize + 2, fontWeight: 700, color: text }}>
+                  {homework.title}
+                </div>
+                <div style={{ fontSize: fontSize - 2, color: dim, marginTop: 4 }}>
+                  {hwVehicles.length} Fahrzeuge zugewiesen
+                </div>
+              </div>
+              <button onClick={importHomework} style={{
+                padding: '10px 20px', background: '#22c55e',
+                border: 'none', borderRadius: 10, color: '#fff',
+                fontSize: fontSize - 1, fontWeight: 700, cursor: 'pointer',
+                letterSpacing: '0.06em', whiteSpace: 'nowrap',
+              }}>
+                ▶ IMPORTIEREN
+              </button>
+            </div>
+            <div style={{
+              marginTop: 14, padding: '10px 14px',
+              background: dark ? '#0d2a1a' : '#f0fdf4',
+              border: `1px solid ${dark ? '#1e5f3e' : '#86efac'}`,
+              borderRadius: 8, fontSize: fontSize - 3, color: dark ? '#4ade80' : '#166534',
+            }}>
+              💡 Mit <strong>IMPORTIEREN</strong> werden nur diese Fahrzeuge in der Auswahl aktiviert — du kannst sie dann im Lernkarten- oder Quiz-Modus üben.
+            </div>
+          </div>
+
+          {/* Fahrzeugliste */}
+          <div style={{ fontSize: fontSize - 3, color: dim, letterSpacing: '0.1em', marginBottom: 10 }}>
+            FAHRZEUGE IN DIESER HAUSAUFGABE
+          </div>
+          {hwVehicles.length === 0 ? (
+            <div style={{
+              background: surf, border: `1px solid ${bord}`, borderRadius: 10,
+              padding: '24px', textAlign: 'center', color: dim, fontSize: fontSize - 1,
+            }}>
+              Keine Fahrzeuge in dieser Hausaufgabe gefunden.
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {hwVehicles.map((v, i) => {
+                // Kategorie ermitteln
+                const catKey = Object.entries(DB).find(([, arr]) => arr.some(x => x.id === v.id))?.[0]
+                const catInfo = catKey ? CATS[catKey] : null
+                return (
+                  <div key={v.id} style={{
+                    background: surf, border: `1px solid ${bord}`, borderRadius: 8,
+                    padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 12,
+                  }}>
+                    <div style={{
+                      width: 28, height: 28, borderRadius: '50%',
+                      background: catInfo ? catInfo.color + '30' : bord,
+                      border: `1px solid ${catInfo ? catInfo.color + '60' : bord}`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: fontSize - 4, fontWeight: 700,
+                      color: catInfo ? catInfo.light : dim, flexShrink: 0,
+                    }}>
+                      {i + 1}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: fontSize - 1, fontWeight: 600, color: text }}>
+                        {v.flag} {v.name}
+                      </div>
+                      <div style={{ fontSize: fontSize - 4, color: dim, marginTop: 1 }}>
+                        {v.nation}{catInfo ? ` · ${catInfo.label}` : ''}
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </div>
       </div>
     )
