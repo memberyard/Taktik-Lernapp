@@ -149,19 +149,23 @@ export default function TeacherDashboard({ user, onLogout }) {
 
   async function saveHomework() {
     const ids = Array.from(hwSelected)
-    if (ids.length === 0) { alert('Bitte mindestens ein Fahrzeug auswählen.'); return }
+    if (ids.length === 0) { setSavedMsg('⚠ Kein Fahrzeug ausgewählt.'); return }
     setLoading(true)
     if (homework) {
-      await supabase.from('homework').update({ vehicle_ids: ids, title: hwTitle, updated_at: new Date().toISOString() }).eq('id', homework.id)
+      const { error } = await supabase.from('homework')
+        .update({ vehicle_ids: ids, title: hwTitle, updated_at: new Date().toISOString() })
+        .eq('id', homework.id)
+      if (error) { setSavedMsg(`⚠ Fehler: ${error.message}`); setLoading(false); return }
     } else {
-      const { data } = await supabase.from('homework').insert({
+      const { data, error } = await supabase.from('homework').insert({
         classroom_id: selected.id, vehicle_ids: ids, title: hwTitle,
       }).select().single()
+      if (error) { setSavedMsg(`⚠ Fehler: ${error.message}`); setLoading(false); return }
       setHomework(data)
     }
     setLoading(false)
     setSavedMsg('✓ Gespeichert!')
-    setTimeout(() => setSavedMsg(''), 2500)
+    setTimeout(() => setSavedMsg(''), 3000)
   }
 
   // Fahrzeug-Auswahl für Hausaufgaben
