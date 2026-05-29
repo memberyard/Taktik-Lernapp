@@ -1,11 +1,16 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
 
+// Benutzername wird intern zu einer Pseudo-E-Mail umgewandelt
+// Der Nutzer gibt nur Benutzername + Passwort ein — keine persönlichen Daten
+function toEmail(username) {
+  return `${username.toLowerCase().trim()}@taktik-lernapp.app`
+}
+
 export default function Login({ onLogin }) {
-  const [mode, setMode]       = useState('login')   // 'login' | 'register'
-  const [email, setEmail]     = useState('')
+  const [mode, setMode]       = useState('login')
+  const [username, setUsername] = useState('')
   const [pass, setPass]       = useState('')
-  const [name, setName]       = useState('')
   const [role, setRole]       = useState('student')
   const [error, setError]     = useState('')
   const [loading, setLoading] = useState(false)
@@ -33,40 +38,52 @@ export default function Login({ onLogin }) {
     e.preventDefault()
     setError('')
     setLoading(true)
+    const email = toEmail(username)
     const { data, error: err } = await supabase.auth.signInWithPassword({ email, password: pass })
-    if (err) { setError(err.message); setLoading(false); return }
-
+    if (err) {
+      setError('Benutzername oder Passwort falsch.')
+      setLoading(false)
+      return
+    }
     const { data: profile } = await supabase
       .from('profiles')
       .select('role, display_name')
       .eq('id', data.user.id)
       .single()
-
     setLoading(false)
     if (profile) {
       onLogin({ role: profile.role, name: profile.display_name, userId: data.user.id })
     } else {
-      setError('Profil nicht gefunden. Bitte neu registrieren.')
+      setError('Profil nicht gefunden.')
     }
   }
 
   async function handleRegister(e) {
     e.preventDefault()
     setError('')
+    if (username.trim().length < 3) { setError('Benutzername muss mindestens 3 Zeichen haben.'); return }
+    if (pass.length < 6) { setError('Passwort muss mindestens 6 Zeichen haben.'); return }
     setLoading(true)
-    const { data, error: err } = await supabase.auth.signUp({ email, password: pass })
-    if (err) { setError(err.message); setLoading(false); return }
+    const email = toEmail(username)
 
-    const displayName = name || email.split('@')[0]
+    const { data, error: err } = await supabase.auth.signUp({ email, password: pass })
+    if (err) {
+      setError(err.message === 'User already registered' ? 'Benutzername bereits vergeben.' : err.message)
+      setLoading(false)
+      return
+    }
     const { error: perr } = await supabase.from('profiles').insert({
       id: data.user.id,
       role,
-      display_name: displayName,
+      display_name: username.trim(),
     })
-    if (perr) { setError(perr.message); setLoading(false); return }
-
+    if (perr) {
+      setError('Fehler beim Erstellen des Profils.')
+      setLoading(false)
+      return
+    }
     setLoading(false)
-    onLogin({ role, name: displayName, userId: data.user.id })
+    onLogin({ role, name: username.trim(), userId: data.user.id })
   }
 
   function toggleDark() {
@@ -86,14 +103,13 @@ export default function Login({ onLogin }) {
         background: 'transparent', border: `1px solid ${bord}`,
         borderRadius: 7, padding: '5px 10px', cursor: 'pointer',
         fontSize: 16, color: dim,
-      }} title="Hell/Dunkel umschalten">
+      }}>
         {dark ? '☀️' : '🌙'}
       </button>
 
       <div style={{
         background: surf, border: `1px solid ${bord}`,
         borderRadius: 12, padding: '36px 32px', width: '100%', maxWidth: 400,
-        transition: 'background 0.2s, border-color 0.2s',
       }}>
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
           <div style={{ fontSize: 40, marginBottom: 8 }}>🪖</div>
@@ -117,7 +133,6 @@ export default function Login({ onLogin }) {
               background: mode === m.key ? tc : 'transparent',
               color: mode === m.key ? '#fff' : dim,
               border: `1px solid ${mode === m.key ? tc : bord}`,
-              transition: 'all 0.15s',
             }}>
               {m.label}
             </button>
@@ -137,11 +152,11 @@ export default function Login({ onLogin }) {
         {/* LOGIN */}
         {mode === 'login' && (
           <form onSubmit={handleLogin}>
-            <input style={inputStyle} type="email" placeholder="E-Mail" value={email}
-              onChange={e => setEmail(e.target.value)} required autoFocus />
+            <input style={inputStyle} type="text" placeholder="Benutzername" value={username}
+              onChange={e => setUsername(e.target.value)} required autoFocus autoComplete="username" />
             <input style={{ ...inputStyle, marginBottom: 16 }} type="password"
               placeholder="Passwort" value={pass}
-              onChange={e => setPass(e.target.value)} required />
+              onChange={e => setPass(e.target.value)} required autoComplete="current-password" />
             <button type="submit" disabled={loading} style={{
               width: '100%', background: dark ? '#1e3a5f' : '#1e4a8f',
               border: `1px solid ${dark ? '#2d5080' : '#2d60b0'}`,
@@ -159,15 +174,12 @@ export default function Login({ onLogin }) {
         {/* REGISTER */}
         {mode === 'register' && (
           <form onSubmit={handleRegister}>
-            <input style={inputStyle} type="text" placeholder="Name (Anzeigename)" value={name}
-              onChange={e => setName(e.target.value)} autoFocus />
-            <input style={inputStyle} type="email" placeholder="E-Mail" value={email}
-              onChange={e => setEmail(e.target.value)} required />
+            <input style={inputStyle} type="text" placeholder="Benutzername (mind. 3 Zeichen)"
+              value={username} onChange={e => setUsername(e.target.value)} required autoFocus />
             <input style={{ ...inputStyle, marginBottom: 16 }} type="password"
-              placeholder="Passwort (min. 6 Zeichen)" value={pass}
-              onChange={e => setPass(e.target.value)} required minLength={6} />
+              placeholder="Passwort (mind. 6 Zeichen)" value={pass}
+              onChange={e => setPass(e.target.value)} required />
 
-            {/* Rollenauswahl */}
             <div style={{ marginBottom: 16 }}>
               <div style={{ fontSize: 11, color: dim, marginBottom: 8, letterSpacing: '0.1em' }}>
                 ROLLE WÄHLEN
@@ -182,7 +194,7 @@ export default function Login({ onLogin }) {
                     background: role === r.key ? (dark ? '#0f2a4a' : '#e8f0fe') : 'transparent',
                     border: `2px solid ${role === r.key ? tc : bord}`,
                     color: role === r.key ? tc : dim,
-                    transition: 'all 0.15s', textAlign: 'center',
+                    textAlign: 'center',
                   }}>
                     <div style={{ fontSize: 22, marginBottom: 4 }}>{r.emoji}</div>
                     <div style={{ fontSize: 13, fontWeight: 700 }}>{r.label}</div>
@@ -205,7 +217,7 @@ export default function Login({ onLogin }) {
         )}
 
         <div style={{ marginTop: 20, textAlign: 'center', fontSize: 11, color: dim }}>
-          Bundeswehr · Fahrzeugkennung · Lernplattform
+          Kein E-Mail erforderlich · Anonym · Bundeswehr
         </div>
       </div>
     </div>
