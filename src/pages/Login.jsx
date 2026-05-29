@@ -4,7 +4,8 @@ import { supabase } from '../lib/supabase'
 // Benutzername wird intern zu einer Pseudo-E-Mail umgewandelt
 // Der Nutzer gibt nur Benutzername + Passwort ein — keine persönlichen Daten
 function toEmail(username) {
-  return `${username.toLowerCase().trim()}@taktik-lernapp.app`
+  const clean = username.toLowerCase().trim().replace(/[^a-z0-9]/g, '')
+  return `${clean}@bwlernapp.de`
 }
 
 export default function Login({ onLogin }) {

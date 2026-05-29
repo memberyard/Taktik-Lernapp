@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
-import { DB } from '../lib/vehicles'
+import { DB, CATS } from '../lib/vehicles'
+
+// DB ist ein Objekt {catKey: [vehicles]} → flatten zu Array
+const ALL_VEHICLES = Object.entries(DB).flatMap(([catKey, vehicles]) =>
+  vehicles.map(v => ({ ...v, cat: CATS[catKey]?.label || catKey, catKey }))
+)
 
 // ── Hilfsfunktionen ────────────────────────────────────────
 function genCode() {
@@ -150,7 +155,7 @@ export default function TeacherDashboard({ user, onLogout }) {
   }
 
   function toggleCategory(cat) {
-    const ids = DB.filter(v => v.cat === cat).map(v => v.id)
+    const ids = ALL_VEHICLES.filter(v => v.cat === cat).map(v => v.id)
     const allSelected = ids.every(id => hwSelected.has(id))
     setHwSelected(prev => {
       const next = new Set(prev)
@@ -169,7 +174,7 @@ export default function TeacherDashboard({ user, onLogout }) {
   }
 
   // Kategorien gruppieren
-  const CATS_GROUPED = DB.reduce((acc, v) => {
+  const CATS_GROUPED = ALL_VEHICLES.reduce((acc, v) => {
     if (!acc[v.cat]) acc[v.cat] = []
     acc[v.cat].push(v)
     return acc
