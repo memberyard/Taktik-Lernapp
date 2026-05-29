@@ -148,21 +148,35 @@ export default function TeacherDashboard({ user, onLogout }) {
   }
 
   async function saveHomework() {
-    const ids = Array.from(hwSelected)
+    const ids = Array.from(hwSelected).map(String) // sicherstellen: immer Strings
     if (ids.length === 0) { setSavedMsg('⚠ Kein Fahrzeug ausgewählt.'); return }
     setLoading(true)
+
     if (homework) {
+      // UPDATE — kein .select() nötig
       const { error } = await supabase.from('homework')
         .update({ vehicle_ids: ids, title: hwTitle, updated_at: new Date().toISOString() })
         .eq('id', homework.id)
-      if (error) { setSavedMsg(`⚠ Fehler: ${error.message}`); setLoading(false); return }
+      if (error) { setSavedMsg(`⚠ Update-Fehler: ${error.message}`); setLoading(false); return }
     } else {
-      const { data, error } = await supabase.from('homework').insert({
-        classroom_id: selected.id, vehicle_ids: ids, title: hwTitle,
-      }).select().single()
-      if (error) { setSavedMsg(`⚠ Fehler: ${error.message}`); setLoading(false); return }
-      setHomework(data)
+      // INSERT — kein .select().single() um SELECT-RLS zu umgehen
+      const { error } = await supabase.from('homework').insert({
+        classroom_id: selected.id,
+        vehicle_ids: ids,
+        title: hwTitle,
+      })
+      if (error) { setSavedMsg(`⚠ Insert-Fehler: ${error.message}`); setLoading(false); return }
+
+      // Neu geladene Hausaufgabe separat abrufen
+      const { data: hw } = await supabase.from('homework')
+        .select('*')
+        .eq('classroom_id', selected.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single()
+      if (hw) setHomework(hw)
     }
+
     setLoading(false)
     setSavedMsg('✓ Gespeichert!')
     setTimeout(() => setSavedMsg(''), 3000)
