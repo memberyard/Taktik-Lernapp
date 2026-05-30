@@ -282,120 +282,292 @@ mlrs: [
 
 // ── HANDOUT 700 — ABC-Spürfahrzeuge (CBRN) ──────────────────────────────────────────
 cbrn: [
-  { id:700, nr:700, name:'BRDM-2RKhB',  flag:'🇷🇺', nation:'Russland', images:[],
+  { id:700, nr:700, name:'BRDM-2RKhB',  flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/CBRN-Defence/CBRN-Reconnaissance/BRDM-2RKhB/Walkaround/i-KKmJbp6/0/KSCnXkn6mkWV2VHwBLjXTjm5fHGqZ3w5ZhF8HDJzq/L/BRDM-2RKhB-01-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/CBRN-Defence/CBRN-Reconnaissance/BRDM-2RKhB/Walkaround/i-hmdGBKf/0/NH4SSd6cpWgGGCQv2r7DWFFMCD2f7FVCkXvvB7D6v/L/BRDM-2RKhB-02-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/CBRN-Defence/CBRN-Reconnaissance/BRDM-2RKhB/Walkaround/i-ZzzQFbN/0/L8Z2mSDvbC9g7JZ4tQZ5Wk7wfX8NkFTZT9XzHW7bB/L/BRDM-2RKhB-03-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/CBRN-Defence/CBRN-Reconnaissance/BRDM-2RKhB/Walkaround/i-n8JPgRd/0/K8ZfZ5cpRrwN6f2jVdcLwPjHP4QWXwBx9RW6S9tL5/L/BRDM-2RKhB-04-L.jpg"
+    ],
     m:['Auf BRDM-2-Radwanne (4×4) — niedrige, geschlossene Silhouette ohne Turm','Vier charakteristische Hilfsstützräder seitlich an der Wanne (Grabenüberschreitung)','Detektions-Antennenausleger und Probenahmesysteme am Wannenheck sichtbar'],
     s:'BRDM-2-RADWANNE + STÜTZRÄDER SEITLICH + KEINE KANONE' },
-  { id:701, nr:701, name:'RPM-2',       flag:'🇷🇺', nation:'Russland', images:[],
+  { id:701, nr:701, name:'RPM-2',       flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/CBRN-Defence/CBRN-Reconnaissance/RPM-2/Walkaround/i-LB5bZM9/0/MPqzFtDRMGB4HP7S8V46JNQdVZCR4dRNpmc24hvWG/L/RPM-2-20112018-01-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/CBRN-Defence/CBRN-Reconnaissance/RPM-2/Walkaround/i-RczVC5S/0/L94mXL9crHmv9vBSNbRhvGrx8jBr2wLBRjXQFSPbn/L/RPM-2-20112018-02-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/CBRN-Defence/CBRN-Reconnaissance/RPM-2/Walkaround/i-CMsrxBD/0/KzDWCdPQ2grBzf7Z52zB6jzM8Lq55t5xVD8NVfxD6/L/RPM-2-20112018-03-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/CBRN-Defence/CBRN-Reconnaissance/RPM-2/Walkaround/i-WHtBjb9/0/NbZ29PSpFVJHNmV8nMxCBKc2ZJ477DkVrdfwS2nXd/L/RPM-2-20112018-04-L.jpg"
+    ],
     m:['Auf MT-LBu-Kettenwanne — längliche, niedrige gepanzerte Wanne','Kastenförmiger Aufbau mit verschiedenen Mess-/Detektionsantennen außen','Kein Turm, kein Rohr — reines Spürfahrzeug'],
     s:'MT-LBu-WANNE + KASTENAUFBAU + ANTENNEN OHNE TURM' },
-  { id:702, nr:702, name:'RKhM-4',      flag:'🇷🇺', nation:'Russland', images:[],
+  { id:702, nr:702, name:'RKhM-4',      flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/CBRN-Defence/CBRN-Reconnaissance/RKhM-4/Walkaround/i-9zQdS3j/0/NLZTdH2HH9PrRTWFQnFxhbS8Mf32tzBw79SWb9Str/L/RKhM-4-20112021-22-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/CBRN-Defence/CBRN-Reconnaissance/RKhM-4/Walkaround/i-cRXNjPQ/0/MHZwGzJ5LXdT8X4kgWnCqPZX7dbZ9MbHjmV62QVZ9/L/RKhM-4-20112021-23-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/CBRN-Defence/CBRN-Reconnaissance/RKhM-4/Walkaround/i-4TbBsBp/0/MXt25fZGPhs9WPcjjQ9qtC9nfr2MgbFTDb2gKcwrb/L/RKhM-4-20112021-24-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/CBRN-Defence/CBRN-Reconnaissance/RKhM-4/Walkaround/i-s65HCbb/0/KRnCh8jD86xPxLTvVvqL6JWsSMBQq4kKhcwpfpdPz/L/RKhM-4-20112021-25-L.jpg"
+    ],
     m:['Auf MT-LBu-Kettenwanne mit deutlich höherem, kastenförmigem ABC-Aufbau','Mehrere Antennen-/Sensorausleger am Heck für automatische Probenahme','Großes Fahrzeug — erkennbar breitere und höhere Wanne als BRDM-Varianten'],
     s:'MT-LBu + HOHER KASTEN + SENSORAUSLEGER HECK' },
-  { id:703, nr:703, name:'RKhM-5',      flag:'🇷🇺', nation:'Russland', images:[],
+  { id:703, nr:703, name:'RKhM-5',      flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/CBRN-Defence/CBRN-Reconnaissance/RKhM-5/Walkaround/i-BxfRKwx/0/KNMBSKKz8kpsL75nkMQMMDM8HPHVG8v7x2LQPmNw9/L/RKhM-5-20162018-01-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/CBRN-Defence/CBRN-Reconnaissance/RKhM-5/Walkaround/i-6ZcWgMM/0/MhzmmgwGMgtjbdLWXPS6J5njxW55wrLd3L86cNRB3/L/RKhM-5-20162018-02-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/CBRN-Defence/CBRN-Reconnaissance/RKhM-5/Walkaround/i-6SCkJkq/0/McDBn8xrGhXDNWmTHZCKbNLv9Pk9pKCQ7fj3c3Tgz/L/RKhM-5-20162018-03-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/CBRN-Defence/CBRN-Reconnaissance/RKhM-5/Walkaround/i-ngcWJNC/0/KLVb9gQ9457CVFpwWWtCMx9fTbKqfj6C4zWt2Xgqc/L/RKhM-5-20162018-04-L.jpg"
+    ],
     m:['Auf BMD-3-Luftlandewanne — kompaktere, schmalere Silhouette als MT-LBu-Varianten','Für Luftlandekräfte ausgelegt — airportabler als andere RKhM-Versionen','Erkennbar durch BMD-3-typische Wannenform mit geschwungener Front'],
     s:'BMD-3-LUFTLANDEWANNE + KOMPAKT + SCHMAL' },
-  { id:704, nr:704, name:'RKhM-6',      flag:'🇷🇺', nation:'Russland', images:[],
+  { id:704, nr:704, name:'RKhM-6',      flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/CBRN-Defence/CBRN-Reconnaissance/RKhM-6/Walkaround/i-FcnnCbP/0/MCzpNLvHBSjQdW8xMk4NpHWRDHDvrNFGCsqvBHbrV/L/RKhM-6-20112019-01-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/CBRN-Defence/CBRN-Reconnaissance/RKhM-6/Walkaround/i-jMGbhhx/0/L8bFLTnffn46MB9DD5tcvPMdKHmdpCBp8BnqxPxkh/L/RKhM-6-20112019-02-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/CBRN-Defence/CBRN-Reconnaissance/RKhM-6/Walkaround/i-PTMWpWG/0/NZXMtW5RwFsHJHwcRTdNzdZR4TmpWshN9vwZjkCf7/L/RKhM-6-20112019-03-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/CBRN-Defence/CBRN-Reconnaissance/RKhM-6/Walkaround/i-vT5Ld6n/0/NcGxMQGTdvnDsSDPPS2jqKXCnBrzBKqD7wn4svDQ7/L/RKhM-6-20112019-04-L.jpg"
+    ],
     m:['Auf KAMAZ-63501 (8×8) LKW-Chassis — großes Radfahrzeug mit Allradantrieb','Kubischer Aufbaucontainer auf Ladefläche mit ABC-Labortechnik','Typische LKW-Fahrerhauskabine + Container-Aufbau = kein Kettenfahrzeug'],
     s:'KAMAZ 8×8 LKW + CONTAINER-AUFBAU HINTEN' },
-  { id:705, nr:705, name:'RKhM-8',      flag:'🇷🇺', nation:'Russland', images:[],
+  { id:705, nr:705, name:'RKhM-8',      flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/CBRN-Defence/CBRN-Reconnaissance/RKhM-8/Walkaround/i-Sdf978V/0/Lbq8Vf3JPvrQ6DCtMsQfsQx8C6sqQmX6WTTssPPrH/L/RKhM-8-20182021-01-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/CBRN-Defence/CBRN-Reconnaissance/RKhM-8/Walkaround/i-NtBZKwS/0/KmSWXLQmkznHj4QTjPF4fwztXSpmMJHm5hFjd8tdZ/L/RKhM-8-20182021-02-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/CBRN-Defence/CBRN-Reconnaissance/RKhM-8/Walkaround/i-t8Rwbbc/0/Lk73mMrx8Lx2hSxCLqG6ft9dvGqnRN9Dxd85VRpC8/L/RKhM-8-20182021-03-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/CBRN-Defence/CBRN-Reconnaissance/RKhM-8/Walkaround/i-LvsKhnt/0/KsfwHRRtwhFT6GVkgkGr2jLBWKcGgbMLJHBCxWXpb/L/RKhM-8-20182021-04-L.jpg"
+    ],
     m:['Auf Tigr (UAZ-3163) Radfahrzeug — kleinstes Fahrzeug der RKhM-Familie','Kompakte 4×4-Geländewagenbasis mit kleinem ABC-Detektionsaufbau auf dem Dach','Sehr niedrig und schmal — deutlich kleiner als alle anderen RKhM-Versionen'],
     s:'TIGR/UAZ-BASIS + KLEINSTER RKhM + 4×4 GELÄNDEWAGEN' },
-  { id:706, nr:706, name:'RKhM',        flag:'🇷🇺', nation:'Russland', images:[],
+  { id:706, nr:706, name:'RKhM',        flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/CBRN-Defence/CBRN-Reconnaissance/RKhM/Walkaround/i-QLNh5zM/0/KRN224dq8bpCPJ9JxjDXwd9C942Hn6S2PdfpNHt2P/L/RKhM-01-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/CBRN-Defence/CBRN-Reconnaissance/RKhM/Walkaround/i-JX4HmSp/0/MtkGtkBkQXKx73PfC63gMnthQD4TPNPwJpgRV6pSJ/L/RKhM-02-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/CBRN-Defence/CBRN-Reconnaissance/RKhM/Walkaround/i-Tn2v4cd/0/MLXgbk9LF8pqv4JT6728z5tnjrFRQk7xhFQR6fZDW/L/RKhM-03-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/CBRN-Defence/CBRN-Reconnaissance/RKhM/Walkaround/i-vjN4R7W/0/LxqRF3LpGdRK6dz222NL3B2RBZ3DRhV3gZRBDtn5V/L/RKhM-04-L.jpg"
+    ],
     m:['Auf BRDM-2-Radwanne (4×4) — frühe Version, ähnlich BRDM-2RKhB aber älter','Abgasrohre und Detektionsgstänge hinter dem Fahrerhaus','Einfachere Sensorausstattung als neuere RKhM-Modelle — weniger Anbauten'],
     s:'BRDM-2-BASIS + FRÜHE VERSION + EINFACHE SENSOREN' },
 ],
 
 // ── HANDOUT 800 — Pioniersysteme ──────────────────────────────────────────────
 pio: [
-  { id:800, nr:800, name:'MT-55A',       flag:'🇷🇺', nation:'Russland', images:[],
+  { id:800, nr:800, name:'MT-55A',       flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Bridge-laying-ferry--and-pontoon/MTU-55-MT-55/Walkaround/i-pns9D8n/0/KfhKgtMxdWF23hQqf4DpfKvpng4KFgm2St43JgBvd/L/TechMuseumToliatti-2300-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Bridge-laying-ferry--and-pontoon/MTU-55-MT-55/Walkaround/i-tsRmZ6j/0/NZMkcRgRW4rd94V6THHvb83pGM2JTPMHRkSgMJgs8/L/TechMuseumToliatti-2301-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Bridge-laying-ferry--and-pontoon/MTU-55-MT-55/Walkaround/i-vGj5sfw/0/LQsSFdnhj8GqWd7mjL2HCmJcsVHqxRcDMBFNQ2tZ6/L/TechMuseumToliatti-2302-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Bridge-laying-ferry--and-pontoon/MTU-55-MT-55/Walkaround/i-3LpSKfS/0/LzwktRrvMRPPWvb5X4pMjk6J8Bqh9C5zJvfSf8CRB/L/TechMuseumToliatti-2303-L.jpg"
+    ],
     m:['Brückenlegepanzer auf T-55-Wanne — breite Scherbrücke im zusammengefalteten Zustand oben','Charakteristisches gefaltetes Brückenpaket überragt Breite und Höhe deutlich','Keine Bewaffnung sichtbar — reines Pioniersystem auf Kampfpanzerwanne'],
     s:'T-55-WANNE + GEFALTETE SCHERBRÜCKE OBEN' },
-  { id:801, nr:801, name:'MTU-72',       flag:'🇷🇺', nation:'Russland', images:[],
+  { id:801, nr:801, name:'MTU-72',       flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Bridge-laying-ferry--and-pontoon/MTU-72/Walkaround/i-wnzwxCP/0/Ks5LPj8JScrPvC9GfHJFXwN5vZLmfHLvpqrNGRgHp/L/MTU-72-20142021-01-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Bridge-laying-ferry--and-pontoon/MTU-72/Walkaround/i-5qHdNMc/0/KHwx7cSW7GLV3QtjTKjfgk6sw4FGjV6k3BLTdNQ5P/L/MTU-72-20142021-02-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Bridge-laying-ferry--and-pontoon/MTU-72/Walkaround/i-NSWk2Cq/0/KvQ5gdzpSKtWCbZr7bbpbHzS4grtMVHGHFV5wn2Lq/L/MTU-72-20142021-03-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Bridge-laying-ferry--and-pontoon/MTU-72/Walkaround/i-BcT9tPt/0/KcM692Qzc6gsvK2V2T7XrddzJtQFGSdKNqCv4rbL7/L/MTU-72-20142021-04-L.jpg"
+    ],
     m:['Brückenlegepanzer auf T-72-Wanne — moderne Variante der Scherbrückenfahrzeuge','Kompakteres Brückenpaket als MT-55A durch verbessertes Faltungssystem','T-72-Typisches Fahrgestell mit 6 Laufrollen + deutlich sichtbares Brückenpaket oben'],
     s:'T-72-WANNE + 6 LAUFROLLEN + SCHERBRÜCKE OBEN' },
-  { id:802, nr:802, name:'MTU-90M',      flag:'🇷🇺', nation:'Russland', images:[],
+  { id:802, nr:802, name:'MTU-90M',      flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Bridge-laying-ferry--and-pontoon/MTU-90M/Walkaround/i-bxDLv8L/0/KqLgMsc4pFfzJbxn36rv5Rp7hB22JFQ3k47V6CGDh/L/MTU-90M-082017-01-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Bridge-laying-ferry--and-pontoon/MTU-90M/Walkaround/i-Hb3wQgD/0/LNXpRJ6G4XtZfGTncdQKsFMZWzsSgxV34zg9x5Bp7/L/MTU-90M-03-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Bridge-laying-ferry--and-pontoon/MTU-90M/Walkaround/i-BzsHMrc/0/LsQVH3jTWVvqwkCbkcBJfPCdBR3PgMPwWSDw3mcGf/L/MTU-90M-05-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Bridge-laying-ferry--and-pontoon/MTU-90M/Walkaround/i-MK3K9qR/0/L4W7bTsMzBP7dgmg5tmRJw59HDgXDSWLkCgS37rpf/L/MTU-90M-07-L.jpg"
+    ],
     m:['Brückenlegepanzer auf T-90-Wanne — modernste russische Scherbrückenvariante','Brücke wird hydraulisch aufgerichtet und über Hindernis geschoben (kein Faltsystem)','T-90-typisches Fahrgestell erkennbar + breites Brückenpaket vorne aufgestützt'],
     s:'T-90-WANNE + HYDRAULISCH-BRÜCKE + MODERNSTE VERSION' },
-  { id:803, nr:803, name:'UR-77',        flag:'🇷🇺', nation:'Russland', images:[],
+  { id:803, nr:803, name:'UR-77',        flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Mine-laying-and-clearing/UR-77/Walkaround/i-LfpKLd7/0/MXhq8Fg5fV5LvD54HtP7KSM86WD5qKf3FhfmMDgqj/L/UR-77-20162017-03-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Mine-laying-and-clearing/UR-77/Walkaround/i-kHhxccS/0/KQxsS53MCzzJ3S4KjL8f9s8qqpwQjKMG3CF4tmsmn/L/UR-77-20162017-04-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Mine-laying-and-clearing/UR-77/Walkaround/i-nz5zCTt/0/MZKxTWwSjRLgc2HLFpdWf4NqTm2pgfhNzSVxvLphp/L/UR-77-20162017-06-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Mine-laying-and-clearing/UR-77/Walkaround/i-xmcMtr3/0/L7cpwMm2R2k9bb72RksmjLJvGMvqRdgwsMP3czLk5/L/UR-77-20162017-07-L.jpg"
+    ],
     m:['Auf BMP-1-Wanne — langer kastenförmiger Aufbau ohne Turm','Zwei charakteristische Raketenabschussrohre schräg nach oben am Aufbau (für Gassenschnur)','Feuert Sprengschnur per Rakete aus — erkennbar durch die schrägen Rohre seitlich'],
     s:'BMP-1-WANNE + KASTENAUFBAU + 2 SCHRÄGE ABSCHUSSROHRE' },
-  { id:804, nr:804, name:'UMZ G/K/T',   flag:'🇷🇺', nation:'Russland', images:[],
+  { id:804, nr:804, name:'UMZ G/K/T',   flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Mine-laying-and-clearing/UMZ-G/Walkaround/i-C7d6g2S/0/Mbbf7dsDHcWZ5dSZ9tXtmV2JgzRfKRBVNBXmzvXMT/L/UMZ-G-062019-01-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Mine-laying-and-clearing/UMZ-G/Walkaround/i-sD9Ttzp/0/M5j3C3CDFgmVP4BDx4qqtrTR8FHh2tRzddF7s2rcj/L/UMZ-G%20002-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Mine-laying-and-clearing/UMZ-G/Walkaround/i-GBSHVKL/0/Nb2PRwhNCLmxgTc5bghc5wHxXRPwcVX2DRfRr9pkb/L/UMZ-G-062019-02-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Mine-laying-and-clearing/UMZ-G/Walkaround/i-QcMdxkM/0/McFhMJkGks6JLPqVDpCxgKjcXqtFkKzhhXpMs4CVD/L/UMZ-G%20003-L.jpg"
+    ],
     m:['Streuminenwerfer auf verschiedenen Fahrzeugbasen (Ural/KrAZ/T-Chassis)','Charakteristisches breites Werferpaket mit Ausstreuffnungen hinten','Minen werden seitlich und rückwärts ausgestreut — Werferrahmen gut erkennbar'],
     s:'STREUMINENWERFER + BREITES WERFERPAKET + AUSSTREUÖFFNUNG' },
-  { id:805, nr:805, name:'GMZ-3',        flag:'🇷🇺', nation:'Russland', images:[],
+  { id:805, nr:805, name:'GMZ-3',        flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Mine-laying-and-clearing/GMZ-3/Walkaround/i-ktmpwQv/0/M7pMR7ckhNtwVCzv9D5rLTdTjhWm58Zm4K3rkpDWw/L/GMZ-3-062012-01-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Mine-laying-and-clearing/GMZ-3/Walkaround/i-DS7r4QK/0/LqZDNb4vxg3dLW9J9PRrrXjNSPdw8J3sv4gMVwb3c/L/GMZ-3-062012-02-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Mine-laying-and-clearing/GMZ-3/Walkaround/i-4Sk7pfQ/0/MZbV8F9SPfQ6NQsT7RcKzpNvW49sTcc93h4GtqGsC/L/GMZ-3-062012-03-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Mine-laying-and-clearing/GMZ-3/Walkaround/i-G3VBL4W/0/KgwH5kLPpSwGd75BNbgRHVVcGHczNTqSf3QNFWDC4/L/GMZ-3-062012-04-L.jpg"
+    ],
     m:['Gleiskettenminenleger auf MT-LBu-ähnlicher Wanne — niedriges Fahrzeug','Charakteristischer Minenschacht am Heck — Minen werden einzeln in den Boden gelegt','Kein Turm — langer, gestreckter Wannenkörper mit Verlegevorrichtung hinten'],
     s:'KETTENWANNE + MINENSCHACHT HECK + KEIN TURM' },
-  { id:806, nr:806, name:'TMM-6',        flag:'🇷🇺', nation:'Russland', images:[],
+  { id:806, nr:806, name:'TMM-6',        flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Bridge-laying-ferry--and-pontoon/TMM-7/Walkaround/i-kHsvfXg/0/NDxNMj8srdfjjfT7vNP5r6w366L5NMs5JHnzDLwm6/L/TMM-7-20172020-01-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Bridge-laying-ferry--and-pontoon/TMM-7/Walkaround/i-9bn6dcB/0/KcRJWTW9pCpXLRH3BJkn53p9kW722T7NzfcbPJn3r/L/TMM-7-20172020-02-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Bridge-laying-ferry--and-pontoon/TMM-7/Walkaround/i-mPN9n2h/0/KxQcPN3M9Js5cGqqJf6zQWM6DrT2dfwkxN2xN4hLg/L/TMM-7-20172020-03-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Bridge-laying-ferry--and-pontoon/TMM-7/Walkaround/i-5RgBXHs/0/L6RB5BHT8VHstBF8s5gKM5fvRCjxQqRGCQjT476zT/L/TMM-7-20172020-04-L.jpg"
+    ],
     m:['Schwerlasttragbrücke auf KrAZ-260 LKW-Chassis — 6-achsiges Radfahrzeug','Enormes gefaltetes Brückenpaket auf der Ladefläche (je zwei Brückenelemente)','LKW-Fahrerhaus gut erkennbar — kein Kettenfahrzeug, sondern schwerer Militär-LKW'],
     s:'KRAZ 6-ACHSEN-LKW + RIESIGES BRÜCKENPAKET LADEFLÄCHE' },
-  { id:807, nr:807, name:'PTS-2',        flag:'🇷🇺', nation:'Russland', images:[],
+  { id:807, nr:807, name:'PTS-2',        flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Bridge-laying-ferry--and-pontoon/PTS-2/Walkaround/i-Z44mMR4/0/MZ8SVBhZWfjLnFVc4WKf9r5kk5KfqXzBx3f98K6M8/L/TechMuseumToliatti-2597-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Bridge-laying-ferry--and-pontoon/PTS-2/Walkaround/i-VjJXqWf/0/M4nBQGcd5tbsmzn36KsLWM7d9zFcgJ5rCNcHWn8sZ/L/TechMuseumToliatti-2598-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Bridge-laying-ferry--and-pontoon/PTS-2/Walkaround/i-Csk2gjw/0/Lfs7zwxCznSBTH8c8jkp8NkwZPmmV4sfQVMdKcvRz/L/TechMuseumToliatti-2599-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Bridge-laying-ferry--and-pontoon/PTS-2/Walkaround/i-tG2vPks/0/MWVmGFN84KCS2FKkvhNfNDbDQCJzx3zsH25BnXPnj/L/TechMuseumToliatti-2600-L.jpg"
+    ],
     m:['Schwerer gepanzerter Schwimmtransporter auf Kettenbasis — große kastenförmige Wanne','Charakteristisch große breite Wanne ohne Turm + Propeller am Heck für Schwimmantrieb','Heckrampe für Be- und Entladen + Wellenbrecher vorne am Bug gut erkennbar'],
     s:'GROSSER SCHWIMMTRANSPORTER + KASTENFÖRMIG + HECKRAMPE' },
-  { id:808, nr:808, name:'PTS-4',        flag:'🇷🇺', nation:'Russland', images:[],
+  { id:808, nr:808, name:'PTS-4',        flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Bridge-laying-ferry--and-pontoon/PTS-4/Walkaround/i-nt5p3d6/0/LkkJjDQtrHcD55d2XtGZLwTncDF4rwfjfpsmxpXZ8/L/IMG_0372-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Bridge-laying-ferry--and-pontoon/PTS-4/Walkaround/i-Nw2SdD6/0/M5fF9gLrGt6cxRMrRtsjtnqbRvt9GPqKsttxf5t7S/L/PTS-4-02-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Bridge-laying-ferry--and-pontoon/PTS-4/Walkaround/i-PHLHNQx/0/MGH48X3QKRzPVdgcmKLZgp4WPMD2NRH22jwhKBTSq/L/PTS-4-04-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Bridge-laying-ferry--and-pontoon/PTS-4/Walkaround/i-jTsSPwP/0/MJbjvR5TmLH32t2D225PhtD6FSKfDC7V7k8xQTDJg/L/IMG_0373-L.jpg"
+    ],
     m:['Modernisierter Schwimmtransporter — breitere und höhere Wanne als PTS-2','Verbesserte Antriebsanlage + erhöhte Nutzlast gegenüber PTS-2','Ähnliche Grundform wie PTS-2, aber moderneres Erscheinungsbild + neue Kette'],
     s:'MODERNISIERTER SCHWIMMTRANSPORTER + BREITER ALS PTS-2' },
-  { id:809, nr:809, name:'PMM-2M',       flag:'🇷🇺', nation:'Russland', images:[],
+  { id:809, nr:809, name:'PMM-2M',       flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Bridge-laying-ferry--and-pontoon/PMM-2M/Walkaround/i-cqDwGn9/0/M663tVcsb95Pj5bwwrgvm9bff72XXpvs2fVM33XKN/L/PMM-2M-20172021-01-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Bridge-laying-ferry--and-pontoon/PMM-2M/Walkaround/i-fkNVMrv/0/LBDHXLwMKWvx3kJN2mLMdgLGGGmZcSHJSZpKbgcmF/L/PMM-2M%20002-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Bridge-laying-ferry--and-pontoon/PMM-2M/Walkaround/i-dZnXHm7/0/Kzj8sLgVx77t5p8h2k4DWrD85wSpjddtxHhjrrN4N/L/PMM-2M-20172021-02-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Bridge-laying-ferry--and-pontoon/PMM-2M/Walkaround/i-jrqqjm4/0/Kk5ZHK6kSKvng9Pj3csdXbDcbj9Q2jZFkQ7VC7xk5/L/PMM-2M-20172021-03-L.jpg"
+    ],
     m:['Motorisiertes Pontonferienboot — selbstfahrende Fähre auf Schwimmkörper-Basis','Zwei breite Schwimmkörper links und rechts + Fahrbahntrgr in der Mitte','Im Wasser: koppelt mit anderen Einheiten zu Brücke/Fähre zusammen'],
     s:'PONTONFAHRZEUG + ZWEI SCHWIMMKÖRPER + SELBSTFAHREND' },
-  { id:810, nr:810, name:'PMP/M',        flag:'🇷🇺', nation:'Russland', images:[],
+  { id:810, nr:810, name:'PMP/M',        flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Bridge-laying-ferry--and-pontoon/PMP-M/Walkaround/i-7NknnqC/0/MPLwcprhRBJbW6rRp4kWPJvQfnRhnVjttZtXQFS6m/L/PMP-M-082017-01-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Bridge-laying-ferry--and-pontoon/PMP-M/Walkaround/i-sxVpnWv/0/KmfCfnrWLkVZT76XLxB5n9dbK4vNQGDvq7QQGkKhz/L/PMP-M-082017-02-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Bridge-laying-ferry--and-pontoon/PMP-M/Walkaround/i-MQ2FGbQ/0/MpDhMqx3sNCt44xm3P94kV9N83qgmL3MvZ7R4qtZd/L/PMP-M-082017-03-L.jpg"
+    ],
     m:['Pontonbrückenatz auf Ural/KrAZ LKW — Pontonelemente zusammengefaltet auf Ladefläche','Im Einsatz: Einzelelemente werden entfaltet und zu Schwimmbrücke zusammengekoppelt','LKW mit charakteristisch breitem gefalteten Schwimmelement auf der Ladefläche'],
     s:'LKW + GEFALTETE PONTONELEMENTE AUF LADEFLÄCHE' },
-  { id:811, nr:811, name:'IRM-ZHUK',     flag:'🇷🇺', nation:'Russland', images:[],
+  { id:811, nr:811, name:'IRM-ZHUK',     flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Obstacle-Clearing-Other/IRM-Zhuk/Walkaround/i-C6NtH5s/0/LcT5RWhDzdDn978WNFtbhTCptDj9ZhMhjcTkL2jr9/L/IRM-Zhuk-02-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Obstacle-Clearing-Other/IRM-Zhuk/Walkaround/i-JbJJ7Qq/0/MnW3GsJS6nFMs96Nn7GjmG9TQ4zKWjx2rwJM7S5Q8/L/IRM-Zhuk-03-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Obstacle-Clearing-Other/IRM-Zhuk/Walkaround/i-9mhFbBw/0/NjMG5cfqcZzdxVNsZ5N9WbVW7QCVtsTpxPh5hKmjM/L/IRM-Zhuk-04-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Obstacle-Clearing-Other/IRM-Zhuk/Walkaround/i-3mgHJ9b/0/KQVKNkfWJ8dPTbCcdPBhH6CdZXB3hG4nkzwnFwthf/L/IRM-Zhuk-05-L.jpg"
+    ],
     m:['Ingenieur-Aufklrungsfahrzeug auf BMP-Wanne — Spezialausrüstung außen erkennbar','Zwei charakteristische ausfahrbare Schilder/Sonden an der Wannenfront für Grunduntersuchung','Periskopsensoren und Echolot-Ausrüstung + BMP-1-typisches Fahrgestell'],
     s:'BMP-WANNE + SONDEN AN WANNENFRONT + BODENUNTERSUCHUNG' },
-  { id:812, nr:812, name:'BAT-2',        flag:'🇷🇺', nation:'Russland', images:[],
+  { id:812, nr:812, name:'BAT-2',        flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Field-engineering-Fortification-and-Construction/BAT-2/BAT-2/Action/i-pG5hNB2/0/LJjmB4FXwfJh7sx4Q8zMQCpD6BQG2TBnF3jXS3Wf5/L/BAT-2-062017-08-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Field-engineering-Fortification-and-Construction/BAT-2/BAT-2M/Walkaround/i-GDrc4xg/0/LjNtTKFKzvWNm4f2P8ffkXchGbsm6JRP8N4LcrjRP/L/BAT-2M-082021-08-L.jpg"
+    ],
     m:['Schwere Planierraupe auf T-72-Chassis — breite hydraulische Planierschaufel vorne','Keine Turmöffnung — abgeflachter gepanzerter Führerstand über der Wanne','Charakteristisch breite Schaufel + 6 Laufrollen T-72 + keine Bewaffnung'],
     s:'T-72-CHASSIS + BREITE PLANIERSCHAUFEL + KEIN TURM' },
-  { id:813, nr:813, name:'IMR-3M',       flag:'🇷🇺', nation:'Russland', images:[],
+  { id:813, nr:813, name:'IMR-3M',       flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Obstacle-Clearing-Other/IMR-3M/Walkaround/i-FBKhGMB/0/LhfpK5mZnPKg5gcmM7CdBP7mtBvJjJ6Ws8tvBmM76/L/IMR-3M-20102021-001-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Obstacle-Clearing-Other/IMR-3M/Walkaround/i-KPftMBM/0/MNCmfJ2RT42xtmW66s8gwjzV5g3Tdxv9Shs7JxGMg/L/IMR-3M-20102021-002-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Obstacle-Clearing-Other/IMR-3M/Walkaround/i-jm32jVz/0/MhdntCbB5KwD4n2Gzzwm3K3N44tPfWdpFKDZvZPRD/L/IMR-3M-20102021-003-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Obstacle-Clearing-Other/IMR-3M/Walkaround/i-vS86Ctx/0/LPNvKWsJh7KFc7d7k6spHMGH8DpBvNJqxkBtLwXRw/L/IMR-3M-20102021-004-L.jpg"
+    ],
     m:['Kampfingenieurmaschine auf T-90-Wanne — Greifarm oben + Planierschild vorne','Teleskopausleger mit Greifzange oben auf dem Fahrzeug deutlich erkennbar','Kombinationsgert: Schild vorne fr Trümmer + Arm oben für Greifen/Heben'],
     s:'T-90-WANNE + GREIFARM OBEN + SCHILD VORNE' },
-  { id:814, nr:814, name:'MDK-3',        flag:'🇷🇺', nation:'Russland', images:[],
+  { id:814, nr:814, name:'MDK-3',        flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Field-engineering-Fortification-and-Construction/MDK-3/Walkaround/i-pP6JgMN/0/MrrGbphRtL7QZPBnWhNDH7HfML7qJ6wCT6LwmwWT9/L/MDK-3-082014-01-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Field-engineering-Fortification-and-Construction/MDK-3/Walkaround/i-Krx75ZH/0/M88tj55RMCRkS8RKDDmRjm2n2L5fffnckJh8LjG7C/L/MDK-3-082014-02-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Field-engineering-Fortification-and-Construction/MDK-3/Walkaround/i-MxQtR7h/0/KW9hzkCcgnKVKwRZQM82sVfpxNBSZRHvkMvTh8Q2x/L/MDK-3-082014-03-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Field-engineering-Fortification-and-Construction/MDK-3/Walkaround/i-pXhXqBL/0/McVC7VTsSpL4SmSZQDVmzrPSCrMx3r8dQxnM3qxx6/L/MDK-3-082014-04-L.jpg"
+    ],
     m:['Grabenziehmaschine auf T-80-Fahrgestell — charakteristisches Schneidrad hinten','Rotierende Fräse/Schneidkette am Heck, die senkrecht in den Boden eintaucht','Kein Turm + Schneidrotor am Heck = eindeutiges Erkennungsmerkmal'],
     s:'T-80-CHASSIS + SCHNEIDROTOR HECK + GRABEN ZIEHEN' },
-  { id:815, nr:815, name:'BMR-3M',       flag:'🇷🇺', nation:'Russland', images:[],
+  { id:815, nr:815, name:'BMR-3M',       flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Mine-laying-and-clearing/BMR-3M/Walkaround/i-w5gPfCq/0/LQdjpxPB5skKzpmMn8B7756wmv26jdpTD7cpbWMDN/L/BMR-3M-062012-01-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Mine-laying-and-clearing/BMR-3M/Walkaround/i-JpMhrzM/0/KQQj7JzZM2QRJZ2gsTfBkmNK3ZRHWbSWnqtSBvpLd/L/BMR-3M-062012-02-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Mine-laying-and-clearing/BMR-3M/Walkaround/i-JNrH68h/0/LRzWjHsnRkvJXkd2XHSCKSHCskP8vb5BnkG8m9GSW/L/BMR-3M-062012-03-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Engineer/Mine-laying-and-clearing/BMR-3M/Walkaround/i-2zXMPnK/0/MMc6zzzzZV2qrNZkFsbF4sW27vbx4D8NL8dqNsGgs/L/BMR-3M-062012-04-L.jpg"
+    ],
     m:['Minenräumfahrzeug auf T-90-Wanne — immer in Verbindung mit KMT-Rollensystem','Charakteristische Minenräumrollen vorne (KMT-7/-8) + Pflugräumer','T-90-Basis erkennbar + massive Rollenräumanlage vor der Wanne = typisch BMR-3M'],
     s:'T-90-WANNE + KMT-ROLLEN VORNE + MINENRÄUMSYSTEM' },
 ],
 
 // ── HANDOUT 900 — Panzerabwehrsysteme ──────────────────────────────────────────
 pzabw: [
-  { id:900, nr:900, name:'9P133',        flag:'🇷🇺', nation:'Russland', images:[],
+  { id:900, nr:900, name:'9P133',        flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Anti-Tank-Missile-Systems/Self-Propelled/9P133-Malyutka-P-AT-3C-Sagger-C/Walkaround/i-KtLTNCh/0/Kh3cb5gvTb38C5J8G89v9DjpD3zLKMM4dHb2ST6dr/L/TechMuseumToliatti-1256-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Anti-Tank-Missile-Systems/Self-Propelled/9P133-Malyutka-P-AT-3C-Sagger-C/Walkaround/i-qzhRzcX/0/LpM4GWK3VjGbXmq8rXRzBkRFw4kGmrNQPZ8KNWRKb/L/TechMuseumToliatti-1257-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Anti-Tank-Missile-Systems/Self-Propelled/9P133-Malyutka-P-AT-3C-Sagger-C/Walkaround/i-Tz3bmfc/0/NHpxqRFFmZmkJg4cskj4n389jzN289WBkSqv2ztFm/L/TechMuseumToliatti-1258-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Anti-Tank-Missile-Systems/Self-Propelled/9P133-Malyutka-P-AT-3C-Sagger-C/Walkaround/i-CwnZT7j/0/KsfnB4TM24jMSh94vknSGZqFXbVvs36K54RB623LL/L/TechMuseumToliatti-1259-L.jpg"
+    ],
     m:['Auf BRDM-2-Radwanne (4×4) — versenkbarer Startbehälter in der Wannenmitte','Im Kampf: Turm öffnet sich und 6 Malyutka-Lenkraketen (AT-3 Sagger) werden aufgerichtet','Im Marsch: Startbehälter vollständig in die Wanne versenkt — flache Silhouette'],
     s:'BRDM-2 + VERSENKBARER 6-FACH MALYUTKA-STARTER' },
-  { id:901, nr:901, name:'9P148',        flag:'🇷🇺', nation:'Russland', images:[],
+  { id:901, nr:901, name:'9P148',        flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Anti-Tank-Missile-Systems/Self-Propelled/9P148-Konkurs-AT-5-Spandrel/Walkaround/i-WKDz7FF/0/LnLVcVfvfJrgxSsRx83v348tnW8G5DxddJ7tzhMxd/L/9P149-02_1-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Anti-Tank-Missile-Systems/Self-Propelled/9P148-Konkurs-AT-5-Spandrel/Walkaround/i-tST6HDx/0/Lz9Vvd4FSJKhmsLrmvBPLf3mZGsvnTgC7bPxN8thf/L/9P149-03_1-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Anti-Tank-Missile-Systems/Self-Propelled/9P148-Konkurs-AT-5-Spandrel/Walkaround/i-TmCHKG3/0/KLZsqV4RTx4tGKdt64kKGSvqZGtc8cNCN2RMS3FBh/L/9P149-04_1-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Anti-Tank-Missile-Systems/Self-Propelled/9P148-Konkurs-AT-5-Spandrel/Walkaround/i-q385S84/0/NMssdFWMZQJq7n8qHxMXzg95Vk54Wb4QvRpTQwZ3j/L/9P149-05_1-L.jpg"
+    ],
     m:['Auf BRDM-2-Radwanne — 5 Konkurs-Lenkraketen (AT-5 Spandrel) im aufgerichteten Behälter','Fünfrohriger fächerförmiger Raketenträger oben auf der Wanne — kein klassischer Turm','Deutlich anderes Aussehen als 9P133: Träger breiter + 5 statt 6 Rohre'],
     s:'BRDM-2 + 5-FACH KONKURS-FÄCHER OBEN' },
-  { id:902, nr:902, name:'9P149',        flag:'🇷🇺', nation:'Russland', images:[],
+  { id:902, nr:902, name:'9P149',        flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Anti-Tank-Missile-Systems/Self-Propelled/9P149-Shturm-S-AT-6-Spiral/Walkaround/i-RWz56xw/0/LvbNmdgbJ4Tvf6C8N4Lkmwhb4zs6BT8hNrvktSzdH/L/9P149-02-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Anti-Tank-Missile-Systems/Self-Propelled/9P149-Shturm-S-AT-6-Spiral/Walkaround/i-DwSMnWV/0/Lh9qcWFVrWGSt9QRQCRvG6Xp33xLnpzwCN9h35Mqm/L/9P149-03-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Anti-Tank-Missile-Systems/Self-Propelled/9P149-Shturm-S-AT-6-Spiral/Walkaround/i-sQnd2qQ/0/MV2Kn6WxS3CX2BZ462Ck27XfbbDhj5hgzf4pHc2Vw/L/9P149-04-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Anti-Tank-Missile-Systems/Self-Propelled/9P149-Shturm-S-AT-6-Spiral/Walkaround/i-5S2vZDL/0/KQNj8VjrTnZ7dZQWJJqKcSBp5mLH9tsjRHZVvXXVq/L/9P149-05-L.jpg"
+    ],
     m:['Auf MT-LBu-Kettenwanne — Shturm-S (AT-6 Spiral) Hubschacht mittig oben','Rakete wird aus Schacht senkrecht hochgefahren und dann seitlich ausgerichtet','Niedrige Wannensilhouette + charakteristischer Hubschacht in Wannenmitte'],
     s:'MT-LBu-KETTE + SENKRECHTER HUBSCHACHT MITTE' },
-  { id:903, nr:903, name:'9P157-2',      flag:'🇷🇺', nation:'Russland', images:[],
+  { id:903, nr:903, name:'9P157-2',      flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Anti-Tank-Missile-Systems/Self-Propelled/9P157-2-Khrizantema-S-AT-15-Springer/Walkaround/i-mmMxgmc/0/NVm2x8c7PpsNMKXDM8rfLFt4W7GPkmb8RpdJVt7SP/L/9P157-2-Khrizantema-S-20142019-001-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Anti-Tank-Missile-Systems/Self-Propelled/9P157-2-Khrizantema-S-AT-15-Springer/Walkaround/i-rqrNzqr/0/LrrbgGQLftmWhx3JQ6F4fd38nVG8nRKb3N7jjj4VD/L/9P157-2-Khrizantema-S-20142019-002-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Anti-Tank-Missile-Systems/Self-Propelled/9P157-2-Khrizantema-S-AT-15-Springer/Walkaround/i-Mrd7HJd/0/LS5SksDgXfXhKxwzB3m36K8qQhMCdsNGCLRGBPZrx/L/9P157-2-Khrizantema-S-20142019-003-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Anti-Tank-Missile-Systems/Self-Propelled/9P157-2-Khrizantema-S-AT-15-Springer/Walkaround/i-wgtrB6V/0/LbK5L4fZFKtFXpCcJJmNzZSkM8VKnRcHm336wJhdc/L/9P157-2-Khrizantema-S-20142019-004-L.jpg"
+    ],
     m:['Auf BMP-3-ähnlicher Wanne — Khrizantema-S mit zwei eingeklappten Radarstarter-Armen','Zwei Doppelstarter-Arme beidseitig am Turm — im Marsch eingeklappt, im Einsatz ausgefahren','Radar-gelenkte Rakete: charakteristische Antenne auf dem Turm sichtbar'],
     s:'BMP-3-WANNE + 2 AUSGEKLAPPTE RAKETENSTARTER + RADAR' },
-  { id:904, nr:904, name:'9P162',        flag:'🇷🇺', nation:'Russland', images:[],
+  { id:904, nr:904, name:'9P162',        flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Anti-Tank-Missile-Systems/Self-Propelled/9P162-Kornet-T-AT-14-Spriggan/Walkaround/i-DGcG3fb/0/KPXZwrqghz4k2sfw5TrRSX4N77MP9hPqKFNJprJK4/L/9P162-082014-01-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Anti-Tank-Missile-Systems/Self-Propelled/9P162-Kornet-T-AT-14-Spriggan/Walkaround/i-5Fn32SJ/0/LDkC4cgZ9gDMN84ZW75zc87CBDgjdTshCqLtphwHH/L/9P162-082014-02-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Anti-Tank-Missile-Systems/Self-Propelled/9P162-Kornet-T-AT-14-Spriggan/Walkaround/i-bKRzF8r/0/MjjJLv76XBKXP9BBWtjnRfWMc34d7D3NZZvR9gx3s/L/9P162-082014-03-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Anti-Tank-Missile-Systems/Self-Propelled/9P162-Kornet-T-AT-14-Spriggan/Walkaround/i-rjsZFbq/0/LW5xF42hgX7sbr6NmtXHwDnSWvggP5ZZ2JLfg8XRF/L/9P162-082014-04-L.jpg"
+    ],
     m:['Auf BMP-3-Wanne — Kornet-T mit zwei Doppelstarter-Paketen beidseitig am Turm','Vier Kornet-Raketen (AT-14 Spriggan) in zwei Zweiergruppen auf dem Turm','Laserlenkung: kein Radar — Unterschied zu 9P157-2 durch andere Turmform'],
     s:'BMP-3-WANNE + 4 KORNET-RAKETEN BEIDSEITIG AM TURM' },
-  { id:905, nr:905, name:'BMPT-72 Terminator-2', flag:'🇷🇺', nation:'Russland', images:[],
+  { id:905, nr:905, name:'BMPT-72 Terminator-2', flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Tanks/BMPT/BMPT-72-Object-183/Walkaround/i-ffQw88V/0/NLf8Xw9vMH6cnN3xQSPgfdbQVnSnm9pw6TLFz2XBJ/L/BMPT-72-2018-2022-01-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/BMPT/BMPT-72-Object-183/Walkaround/i-M3p9MwG/0/Kkzb8nFFLPKXDGDCT7gJMz9hgP2qjR2k7HJZB9DwN/L/BMPT-72-2018-2022-02-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/BMPT/BMPT-72-Object-183/Walkaround/i-vz2X5Qm/0/Ln6wDfgGqxnfxzFLk2fxQckkDdTKRBX4ZtVM6Q6Ps/L/BMPT-72-2018-2022-03-L.jpg"
+    ],
     m:['Auf T-72-Wanne — stark bewaffnete Kampfunterstützungsmaschine ohne Hauptkanone','Vier Ataka-Raketenstarter + zwei 30mm-Automatikkanone + AG-17D Granatenwerfer','Sehr breiter, flacher Turm mit viel Bewaffnung — deutlich anderes Aussehen als T-72'],
     s:'T-72-WANNE + FLACHER BREITER TURM + KEINE HAUPTKANONE' },
-  { id:906, nr:906, name:'BTR-RD',       flag:'🇷🇺', nation:'Russland', images:[],
+  { id:906, nr:906, name:'BTR-RD',       flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BTR-D/BTR-RD/Walkaround/i-Qt9pg5x/0/NNDCSgwSxCwNtj6KcJT7tWBM6JCJCLMJBTQXKgDLB/L/BTR-RD-01-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BTR-D/BTR-RD/Walkaround/i-89fgdXN/0/NHhbLRQTXsPTrff6j8LSPT7KvWQf6jZzZTQ6vVmqd/L/BTR-RD-02-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BTR-D/BTR-RD/Walkaround/i-kk4b97R/0/LxqSbgchGMNQ8JMkdpF8bqcXRqp4xgSChPkmksT9j/L/BTR-RD-03-L.jpg"
+    ],
     m:['Auf BTR-D-Luftlandewanne (Kettenpanzer, kürzer als BMP) — gepanzerter PzAbw-Träger','Konkurs-Raketenträger über dem Fahrersitz — aufklappbar aus dem vorderen Bereich','Schmale, leichte Kettenwanne für Luftlandekräfte — deutlich kleiner als BMP-Fahrzeuge'],
     s:'BTR-D-LUFTLANDEWANNE + KONKURS-TRÄGER VORNE OBEN' },
-  { id:907, nr:907, name:'9P163-3 Kornet-EM', flag:'🇷🇺', nation:'Russland', images:[],
+  { id:907, nr:907, name:'9P163-3 Kornet-EM', flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Anti-Tank-Missile-Systems/Self-Propelled/9P163-3-Kornet-D1/Kornet-D1-VPK-233116/Walkaround/i-x8rckJF/0/Mbps3jbhCpXNxGqQ7BvHM6hS2P43frP2dpR2JGs53/L/9P163-3%20Kornet-D1-VPK-233116-20152019-008-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Anti-Tank-Missile-Systems/Self-Propelled/9P163-3-Kornet-D1/Kornet-EM-GAZ-233036-Tigr/Walkaround/i-snCrjMP/0/MDbhVk8nWCCGtC6CxXHbpMtxDRfq6vB9BKqg6jrHM/L/9P163-3%20Kornet-D1-GAZ-233036-20112018-02-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Anti-Tank-Missile-Systems/Self-Propelled/9P163-3-Kornet-D1/Kornet-EM-VPK-233136/Walkaround/i-tjWMz5r/0/Kmd5vSJHtLHr832H84HtgLcs2gzzBrzkVdR4FFvNq/L/9P163-3%20Kornet-EM-VPK-233136-20182021-06-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Anti-Tank-Missile-Systems/Self-Propelled/9P163-3-Kornet-D1/Kornet-EM-K-53949-Typhoon-K/Walkaround/i-rgVG42j/0/LzfdVDWxbDm6SWVW4tfTKgfp7WxkSpKSrP4NtTmdD/L/9P163-3%20Kornet-D1-K-53949-20192023-09-L.jpg"
+    ],
     m:['Auf Tigr-Radfahrzeug (UAZ-Basis) — leichtes 4×4-Geländefahrzeug','Vier Kornet-Drehstarter oben auf dem Fahrzeug (Salve aus 4 Raketen möglich)','Sehr kompakt und leicht — größter Kontrast zu gepanzerten ATGM-Systemen'],
     s:'TIGR-RADFAHRZEUG + 4 KORNET-STARTER OBEN' },
-  { id:908, nr:908, name:'9P163-3 Kornet-D1', flag:'🇷🇺', nation:'Russland', images:[],
+  { id:908, nr:908, name:'9P163-3 Kornet-D1', flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Anti-Tank-Missile-Systems/Self-Propelled/9P163-3-Kornet-D1/Kornet-D1-VPK-233116/Walkaround/i-x8rckJF/0/Mbps3jbhCpXNxGqQ7BvHM6hS2P43frP2dpR2JGs53/L/9P163-3%20Kornet-D1-VPK-233116-20152019-008-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Anti-Tank-Missile-Systems/Self-Propelled/9P163-3-Kornet-D1/Kornet-EM-GAZ-233036-Tigr/Walkaround/i-snCrjMP/0/MDbhVk8nWCCGtC6CxXHbpMtxDRfq6vB9BKqg6jrHM/L/9P163-3%20Kornet-D1-GAZ-233036-20112018-02-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Anti-Tank-Missile-Systems/Self-Propelled/9P163-3-Kornet-D1/Kornet-EM-VPK-233136/Walkaround/i-tjWMz5r/0/Kmd5vSJHtLHr832H84HtgLcs2gzzBrzkVdR4FFvNq/L/9P163-3%20Kornet-EM-VPK-233136-20182021-06-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Anti-Tank-Missile-Systems/Self-Propelled/9P163-3-Kornet-D1/Kornet-EM-K-53949-Typhoon-K/Walkaround/i-rgVG42j/0/LzfdVDWxbDm6SWVW4tfTKgfp7WxkSpKSrP4NtTmdD/L/9P163-3%20Kornet-D1-K-53949-20192023-09-L.jpg"
+    ],
     m:['Auf Tigr-Radfahrzeug — ähnlich Kornet-EM, aber mit anderem Starteraufbau','Doppelstarter-Einheit für gleichzeitigen Abschuss zweier Kornet-Raketen','Kompaktere Startereinheit als beim EM-Modell — Unterschied liegt im Starterpaket'],
     s:'TIGR-BASIS + DOPPELSTARTER KORNET + KOMPAKTERER AUFBAU' },
-  { id:909, nr:909, name:'MT-12',        flag:'🇷🇺', nation:'Russland', images:[],
+  { id:909, nr:909, name:'MT-12',        flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Artillery/Towed/2A29-MT-12-100mm/2A29-MT-12/Walkaround/i-QRg7Wdj/0/NjNqVqN5BtFLN3qJ3T6QwFv8GDbgSK4v5c6V2mSV2/L/100mm-MT-12-03-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Artillery/Towed/2A29-MT-12-100mm/2A29-MT-12/Walkaround/i-RMrGfHb/0/NJqh6zdRHpNFDJKN5Vnqd8rg8BLM9T9mQn5xNkdMd/L/100mm-MT-12-04-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Artillery/Towed/2A29-MT-12-100mm/2A29-MT-12/Walkaround/i-dZ4nLKz/0/M4bD2p5GH9c8tzKLC5FdzmX84GC7Gs99wBPzQNn5B/L/100mm-MT-12-05-L.jpg"
+    ],
     m:['Geschleppte 100mm-Panzerabwehrkanone — kein Fahrzeug, sondern gezogene Waffe','Charakteristisches langes Glattrohr + Spreizschwanzlafette (zwei Holme)','Scheibenräder + niedriger Schwerpunkt — im Schlepp hinter LKW oder Zugmittel'],
     s:'100MM GLATTROHR + SPREIZSCHWANZLAFETTE + GESCHLEPPT' },
-  { id:910, nr:910, name:'9P157-4',      flag:'🇷🇺', nation:'Russland', images:[],
+  { id:910, nr:910, name:'9P157-4',      flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Command-Signal-ArtilleryRecce/Command-Control/9P157-4-Khrizantema-S/Details/i-dvKKMQR/0/M4CsXj5KJ96fTFDDtR4F8LxZbK3wK9qXxCCk8rCd6/L/9P157-4-062012-13-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Command-Signal-ArtilleryRecce/Command-Control/9P157-4-Khrizantema-S/Details/i-sVHM9SQ/0/L95Dxvdr6XsBHDZgNB4L9jMmXvmGMrKm6QzRNNmMV/L/9P157-4-062012-14-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Command-Signal-ArtilleryRecce/Command-Control/9P157-4-Khrizantema-S/Details/i-5mQTJHC/0/KxJgggxg8pGs6wjMJgqNrp937ZWq5935kN6d94kww/L/9P157-4-062012-15-L.jpg"
+    ],
     m:['Modernisierte Khrizantema-S Variante auf aktualisierter Wanne','Verbesserte Starter-Konfiguration gegenüber 9P157-2 — mehr Raketen mitführbar','Ähnliche Grundform wie 9P157-2, erkennbar durch modernere Wannenversion'],
     s:'MODERNISIERTE KHRIZANTEMA + MEHR RAKETEN' },
-  { id:911, nr:911, name:'9P162M Kornet-D1', flag:'🇷🇺', nation:'Russland', images:[],
+  { id:911, nr:911, name:'9P162M Kornet-D1', flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Anti-Tank-Missile-Systems/Self-Propelled/9P162M-Kornet-D1/Walkaround/i-jkvntkv/0/MwvX5VRFNqSngcT8sxQ9P86n2kqgn7Tb5hhVWnNzX/L/9P162M%20Kornet-D1-082023-001-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Anti-Tank-Missile-Systems/Self-Propelled/9P162M-Kornet-D1/Walkaround/i-352mTw6/0/L3BsSxjKdQVfrQCvBzVbP3N75z9K48PNLfjr6FrWr/L/9P162M%20Kornet-D1-082023-002-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Anti-Tank-Missile-Systems/Self-Propelled/9P162M-Kornet-D1/Walkaround/i-8QSpgHM/0/KQvCVMR54gnpFq8FHNwWc4tVRW3FVzhQ6Wx9nXkmv/L/9P162M%20Kornet-D1-082023-003-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Anti-Tank-Missile-Systems/Self-Propelled/9P162M-Kornet-D1/Walkaround/i-DfSFHkH/0/L5znjR7MtDw2pnz5NdP74jGz8qFxnJCcHhtGTzjMf/L/9P162M%20Kornet-D1-082023-004-L.jpg"
+    ],
     m:['Aufgewertete Version des 9P162 auf BMP-3-Wanne — gleiche Grundform wie Vorgänger','Verbesserte Elektronik und Starter-Konfiguration für Kornet-D1-Munition','Turm ähnlich 9P162, erkennbar durch Detail-Änderungen an den Starter-Paketen'],
     s:'BMP-3-WANNE + VERBESSERTE KORNET-STARTER + MODERNISIERT' },
-  { id:912, nr:912, name:'2S25 Sprut-SD', flag:'🇷🇺', nation:'Russland', images:[],
+  { id:912, nr:912, name:'2S25 Sprut-SD', flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Artillery/Self-Propelled/2S25-Sprut-SD/2S25-Sprut-SD/Walkaround/i-SD6Kqhp/0/Nh9ZfGt58CQ8c6qHcVKPvVt9HsKQQZgntL7hvgR4P/L/2S25-082016-01-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Artillery/Self-Propelled/2S25-Sprut-SD/2S25-Sprut-SD/Walkaround/i-cBMVZ9K/0/Kvr2Q94wbVSbjmpjG9Bh7gRTBFjGTnGdtRXt5G9f5/L/2S25-082016-02-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Artillery/Self-Propelled/2S25-Sprut-SD/2S25-Sprut-SD/Walkaround/i-4szRmqC/0/LRddKjSzfp2GwgrtTvsDn9gzKBk42zgVtrfb7scPk/L/2S25-082016-03-L.jpg"
+    ],
     m:['Schwimmfähiger Panzerabwehr-Jagdpanzer auf BMD-ähnlicher Luftlandewanne','125mm-Glattrohr (wie T-72/T-80) auf kompakter Luftlandewanne — sehr niedriges Fahrzeug','Für Luftlandekräfte: schmal, leicht, schwimmfähig — auffälliges Missverhältnis Rohr zu Wanne'],
     s:'LUFTLANDEWANNE + 125MM GLATTROHR + KLEIN UND SCHMAL' },
 ],
