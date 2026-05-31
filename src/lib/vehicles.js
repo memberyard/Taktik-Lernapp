@@ -20,94 +20,233 @@ export const SUPER_CATS = {
 export const DB = {
 
 kpz: [
-  { id:100, nr:100, name:'T-54',     flag:'🇷🇺', nation:'Russland', images:[],
+  { id:100, nr:100, name:'T-54',     flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-54-55/T-54-1949/Walkaround/i-bBNMkvH/0/K4phCWsJZGWv9MFtBDTL5Qfmn8bNp993FHS3hCS2P/L/Padikovo-T-54-49-004-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-54-55/T-54-1949/Walkaround/i-Svm7Pj4/0/LGXVqcnFjBwK3tZ6K5sSM32HPCmGTH3cmD5vN45SR/L/Padikovo-T-54-49-005-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-54-55/T-54-1949/Walkaround/i-dSkH4QW/0/MdWvF8ZKHrJJhv2LP45XZ4hNdRv2HkjsS9pmRhqF4/L/Padikovo-T-54-49-006-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-54-55/T-54-1949/Walkaround/i-Txx2swS/0/KGXwcS78pQ28mHNQdjt8btnpm2KNj4s8P37TdVGLg/L/Padikovo-T-54-49-007-L.jpg"
+    ],
     m:['Halbkugeliger runder Turm – älteste sowjetische Nachkriegsgeneration','Keine Außenpanzerung – schlichte Turmform ohne ERA-Blöcke'],
     s:'RUNDER KUGELTURM – ÄLTESTE GENERATION' },
-  { id:101, nr:101, name:'T-55',     flag:'🇷🇺', nation:'Russland', images:[],
+  { id:101, nr:101, name:'T-55',     flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-54-55/T-55/Walkaround/i-zCBcfSH/0/MLRvdm8MBStwZqjGfBxCbz9KvVkBK66ND3cDRNjPZ/L/Kubinka2018-0534-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-54-55/T-55/Walkaround/i-q6JHX93/0/MXwCpT2tQWBnqVqTMtDJDshSNkr6xBkz9k94nM7gt/L/Kubinka2018-0535-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-54-55/T-55/Walkaround/i-dTBQm46/0/KV567FQbMcPTbVdWc5kG88M85wM9LgbSFj33ZvxXn/L/Kubinka2018-0536-L.jpg"
+    ],
     m:['Wie T-54 + ABC-Schutzventilator hinten rechts auf der Wanne','Kein Kommandantenlupf – flacher Drehkranz auf dem Turm'],
     s:'WIE T-54 + ABC-VENTILATOR HINTEN RECHTS' },
-  { id:102, nr:102, name:'T-62',     flag:'🇷🇺', nation:'Russland', images:[],
+  { id:102, nr:102, name:'T-62',     flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-62/T-62/Walkaround/i-7kfzTW4/0/Lj9vCs7tB96VjtcdHZFsn2X8KbK5KjDDGDxzKGvXj/L/T-62-2-092021-01-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-62/T-62/Walkaround/i-zRhQQGP/0/KLZDnkwbp5kJQbftN42FKMgVPR9BrF48FMsmqnrwW/L/T-62-2-092021-02-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-62/T-62/Walkaround/i-GmQrq3D/0/M8fDkwtQrtWTWWRRTfwSv3mcTHJRwSZbMK7J5p52j/L/T-62-2-092021-03-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-62/T-62/Walkaround/i-VCC7d3L/0/NBGvFvfttwJPRcHK6fzVGML5tFDHHNNWccdPKgSvZ/L/T-62-2-092021-04-L.jpg"
+    ],
     m:['Ovaler/elliptischer Turm + langes 115mm-Glattrohr (erster Glattrohr-MBT)','Hülsenauswurfschacht rechts außen am Turm sichtbar'],
     s:'OVALER TURM + 115MM GLATTROHR + HÜLSENAUSWURF RECHTS' },
-  { id:103, nr:103, name:'T-64A',    flag:'🇷🇺', nation:'Russland', images:[],
+  { id:103, nr:103, name:'T-64A',    flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-64/T-64A/Walkaround/i-FqP3t9t/0/KbgjVPs65TvwPw3LGPRMXK2fXdJkPctKDvfsCT4gw/L/T-64A-092021-02-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-64/T-64A/Walkaround/i-tJJR2db/0/MrzVFHvPkftzMNbJrP2j6bfHn7Kj8R5qZFnXtF3cb/L/T-64A-092021-03-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-64/T-64A/Walkaround/i-W2NFjjC/0/Km8BsL5FFMLPDDf8gt36LtPBgxvPdsL3gW3DRr7P8/L/T-64A-092021-04-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-64/T-64A/Walkaround/i-MTgS687/0/LhcFhqV2fv9D6vZHHkxXLbtSvJTGsRVBWdVHSJSkf/L/T-64A-092021-05-L.jpg"
+    ],
     m:['6 kleine eng beieinanderliegende Laufrollen – kein großer Zwischenraum','Kleiner runder Turm + Gummischürzen an der Wanne'],
     s:'6 KLEINE DICHTE LAUFROLLEN + GUMMISCHÜRZEN' },
-  { id:104, nr:104, name:'T-72',     flag:'🇷🇺', nation:'Russland', images:[],
+  { id:104, nr:104, name:'T-72',     flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-72/T-72-Ural/Walkaround/i-Fcjg33G/0/Lh4X9jnkcjMkjQ2C6JDMbFZD8bMg8RDrrZbKtnd8J/L/T-72-052021-03-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-72/T-72-Ural/Walkaround/i-5LhpCmF/0/KwWJTmDwpcnZDkM4t64t7sdqrqm5ZB5bmqWcxc2XR/L/T-72-052021-04-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-72/T-72-Ural/Walkaround/i-nPkzZ2d/0/M8xVhMZrDwxzkWnS2T5RHtzMnzq5DGk33g7c9R633/L/T-72-052021-05-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-72/T-72-Ural/Walkaround/i-CPZb4FK/0/KzxPKKRPGLsbhBs97FqQcrgv8dfkhnJs2PkHCfqNX/L/T-72-052021-06-L.jpg"
+    ],
     m:['Großer gegossener Pilzturm + 6 Laufrollen','Deutlicher Zwischenraum zwischen 1. und 2. Laufrolle (typisch T-72)'],
     s:'GROSSER PILZTURM + 6 LAUFROLLEN' },
-  { id:105, nr:105, name:'T-72A',    flag:'🇷🇺', nation:'Russland', images:[],
+  { id:105, nr:105, name:'T-72A',    flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-72/T-72A/Walkaround/i-Kz2cDXn/0/MhGD6Vsb6s3QwMWdzhWj2RpTLnrFLMfTCfJmKTFSw/L/T-72A-092021-02-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-72/T-72A/Walkaround/i-rjFKb35/0/K6QvWFHB62hGsG8SWLXmQFJ52Q6RCTT7wmJrbgDhJ/L/T-72A-092021-03-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-72/T-72A/Walkaround/i-zV84ZhV/0/L7t6LcbS8ztH5hTG6Gjp44JXPhN7rJZvBSMs8Vf5t/L/T-72A-092021-04-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-72/T-72A/Walkaround/i-DwgxTdQ/0/LKmGGjtSTBzCqVXP5xzcMZzFDkm7CS984xtZKKk23/L/T-72A-092021-05-L.jpg"
+    ],
     m:['Wie T-72 + Sandguss-Zusatzpanzerung auf Turmfront + IR-Scheinwerfer links am Turm','Gummischürzen + Zusatzpanzerung seitlich an der Wanne'],
     s:'T-72 + SANDGUSS TURMFRONT + IR-SCHEINWERFER LINKS' },
-  { id:106, nr:106, name:'T-72B',    flag:'🇷🇺', nation:'Russland', images:[],
+  { id:106, nr:106, name:'T-72B',    flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-72/T-72B/Walkaround/i-4z6HxpS/0/LBNTnxhMqdS6RQ7rcVN6vxc4CcDzsNknjpcNmSwBN/L/T-72B_01-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-72/T-72B/Walkaround/i-L3S4qgg/0/Kxz2b2xFc22bTTtRvSFJN3Tm9M7DfZfvk3FzVmLQj/L/T-72B_02-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-72/T-72B/Walkaround/i-d6fCMq3/0/KDXGGBF2hZf5tLsg2KhPkQ4NZMQ3T8f5NWHsZL8JV/L/T-72B_03-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-72/T-72B/Walkaround/i-NrdxGQn/0/MrPFTp9F5LXdVwwvmpHJnNh8ZzMz87W8zFDhc4hSs/L/T-72B_04-L.jpg"
+    ],
     m:['NATO: OLCHA / Super Dolly Parton – Kontakt-1 ERA-Blöcke auf Turm und Wanne','Gewölbte Panzerungseinlagen beidseitig der Turmfront (Super Dolly Parton)'],
     s:'ERA KONTAKT-1 + SUPER DOLLY PARTON TURMFRONT' },
-  { id:107, nr:107, name:'T-72B3',   flag:'🇷🇺', nation:'Russland', images:[],
+  { id:107, nr:107, name:'T-72B3',   flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-72/T-72B3/Walkaround/i-97zmbNL/0/M4XCKtt4S9Q32xXCDBJMgwKcckNQpCHqrx3KcGPFJ/L/T-72B3-20152021-001-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-72/T-72B3/Walkaround/i-BQWMs4s/0/NSRXfp54BJZW7HsLMRQLPdDSbsSHLGzGz8WjWNKsf/L/T-72B3-20152021-002-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-72/T-72B3/Walkaround/i-sK9Fh4W/0/LczK65kQGnknZBVkjPgqjhLn2zMNNHqR2CqBfQHZv/L/T-72B3-20152021-003-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-72/T-72B3/Walkaround/i-J5pKz2p/0/M3fXgdrdTzJpWNBrqWLz4BBf2KfZ2XX5LSfk6XVhD/L/T-72B3-20152021-004-L.jpg"
+    ],
     m:['Sosna-U Wärmebildoptik (Vierer-Block rechts am Turm) + modernisierte ERA','Neue Seitenschürzen + Sosna-U Optikanlage deutlich erkennbar'],
     s:'SOSNA-U OPTIK (4-BLOCK) + ERA MODERNISIERT' },
-  { id:108, nr:108, name:'T-72B3M',  flag:'🇷🇺', nation:'Russland', images:[],
+  { id:108, nr:108, name:'T-72B3M',  flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-72/T-72B3-mod2016/Walkaround/i-z8nMhXr/0/LS85QFBFjt6Rjs3JR326Gr2wHx9qzLSHv8Lts2QQ2/L/T-72B3M-20162022-001-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-72/T-72B3-mod2016/Walkaround/i-mxvFGRr/0/LwGSwP8MCfQmgDZbnCSvNf3GjDSN4L5X8BVgrTWPT/L/T-72B3M-20162022-002-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-72/T-72B3-mod2016/Walkaround/i-gPX9vc5/0/MQdFkmz9BdjJC2C9n6JFm3KqWXKWJkP9VkFgMMhdJ/L/T-72B3M-20162022-003-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-72/T-72B3-mod2016/Walkaround/i-hrWFcmr/0/Kpn5SnVbwKtSPrS6zKQfLhSsbPvWx9Q9cSvV5MC46/L/T-72B3M-20162022-004-L.jpg"
+    ],
     m:['Relikt-ERA (deutlich größere Blöcke als Kontakt-5) auf Turm und Wanne','Verbesserte Seitenverkleidung + Sosna-U 2 Optik'],
     s:'RELIKT-ERA GROSSE BLÖCKE + VERBESSERTE SCHÜRZEN' },
   { id:109, nr:109, name:'T-72BM',   flag:'🇷🇺', nation:'Russland', images:[],
     m:['NATO: SMT M1990 – Kontakt-5 ERA + vollständige Seitenschürzen','Kontakt-5 Blöcke auf dem Wannendach + geändertes Turmheck'],
     s:'KONTAKT-5 ERA + VOLLSTÄNDIGE SEITENSCHÜRZEN' },
-  { id:110, nr:110, name:'T-80B',    flag:'🇷🇺', nation:'Russland', images:[],
+  { id:110, nr:110, name:'T-80B',    flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-80/T-80B/Walkaround/i-Dpz644M/0/MrLjqp5kJspKPCGMDd5C2L8D2PHMd7h58vzhj2Bzt/L/T-80B-092021-02-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-80/T-80B/Walkaround/i-MMZvJKW/0/KpT8PtMZzpF9DxCSJqxVxG8CDcB3mpqwFSXRj98jL/L/T-80B-092021-03-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-80/T-80B/Walkaround/i-3KZSDxg/0/KDdRgR9tgBc7FK2JtkxgzS8rs7xbq3HxLtRxspsqV/L/T-80B-092021-04-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-80/T-80B/Walkaround/i-WJkdrCv/0/LtXVdn9f2hS6LjKccsGPXv6wnskdPbX2V5BhnX6RR/L/T-80B-092021-05-L.jpg"
+    ],
     m:['Gasturbinen-Antrieb + 6 kleinere Laufrollen (wie T-64, nicht wie T-72)','Breiterer Turm als T-64 + Scheinwerfer links am Turm'],
     s:'GASTURBINE + 6 KLEINE LAUFROLLEN WIE T-64' },
-  { id:111, nr:111, name:'T-80U',    flag:'🇷🇺', nation:'Russland', images:[],
+  { id:111, nr:111, name:'T-80U',    flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-80/T-80U/Walkaround/i-7ZFNK7C/0/M3xvF7R6T3NDx84Cbz9RWg8VC7LwZmHMtNj8Tr5MS/L/T-80-017-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-80/T-80U/Walkaround/i-5bdQtz4/0/LF4smn8sqFPz4RWmcHnDjxcbDdT6brR8xt7HCJbpg/L/T-80-018-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-80/T-80U/Walkaround/i-gKHX3Wx/0/MBhwG7kTzNpjQSsQJXMR5QwfHbzB2xbZvxHfcL3pS/L/T-80-019-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-80/T-80U/Walkaround/i-gdq7ZbT/0/LGVHGVN3MtK3pqqDPz9RdFfFhbdNGGXdrggGv7g6b/L/T-80-020-L.jpg"
+    ],
     m:['Kontakt-5 ERA auf T-80-Rumpf + Wärmebildgerät rechts am Turm','Modernisierter breiterer Turm gegenüber T-80B'],
     s:'KONTAKT-5 AUF T-80-RUMPF + WBG RECHTS' },
-  { id:112, nr:112, name:'T-80UD',   flag:'🇺🇦', nation:'Ukraine', images:[],
+  { id:112, nr:112, name:'T-80UD',   flag:'🇺🇦', nation:'Ukraine', images:[
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-80/T-80UD/Walkaround/i-M7c233f/0/LDhCHzVQ2MdhSvRhrQJX5pgznpRrwhMqrZ89gGCmJ/L/TulaPatriot-0243-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-80/T-80UD/Walkaround/i-ztcZj2R/0/LVzhM48TMwnRJPmCsHPpmdbx9sfWWQqPBXghVTSXt/L/TulaPatriot-0244-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-80/T-80UD/Walkaround/i-hqNfDw2/0/KbSwJ9tx9F42VDhcGXpPgKZV2HhjM9Vb6HVbRc6gR/L/TulaPatriot-0245-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-80/T-80UD/Walkaround/i-Hfm2WL3/0/LGH75JgXVt9hKqjCphM7dnKgp6DwSvcvWKMWxLPV7/L/TulaPatriot-0246-L.jpg"
+    ],
     m:['Ukrainische Variante: Dieselmotor statt Gasturbine + geänderter Auspuff','Ukrainische Morozov-Konstruktion – kein Turbinenlärm'],
     s:'UKRAINE + DIESEL STATT GASTURBINE' },
-  { id:113, nr:113, name:'T-80BVM',  flag:'🇷🇺', nation:'Russland', images:[],
+  { id:113, nr:113, name:'T-80BVM',  flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-80/T-80BVM/Walkaround/i-jVdG7Q8/0/MgQtcLzTjN72hhxpRQqXMH4dhwvZcKkGtpBNWgFCj/L/T-80BVM-082020-001-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-80/T-80BVM/Walkaround/i-J5knLf5/0/M97P3zfJVCtHfFdKvDzPXnDDrTgRVPQxhtL6tkTbR/L/T-80BVM-082020-002-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-80/T-80BVM/Walkaround/i-DdsBk5R/0/KLkM5GsxxhwXgjW2WrMVPtgcVC9jx95kMSsWQhXWQ/L/T-80BVM-082020-003-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-80/T-80BVM/Walkaround/i-DrGWwxJ/0/MhqDN4Xt5GHprhC72PdngVbVDkKvpVhtff2wZtC2v/L/T-80BVM-082020-005-L.jpg"
+    ],
     m:['NATO: BEREZA – Relikt-ERA + neue Sosna-U-Optik auf T-80B-Rumpf','Modernisierter T-80B: neue Schutzausstattung, gleiches Fahrgestell'],
     s:'RELIKT-ERA + SOSNA-U AUF T-80B-RUMPF' },
-  { id:115, nr:115, name:'T-90',     flag:'🇷🇺', nation:'Russland', images:[],
+  { id:115, nr:115, name:'T-90',     flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-90/T-90-mod1992/Walkaround/i-x6wJXxJ/0/MvQ4rH2RnqkrLpLKGHpkKLgZC5DqL7hF4j59RL72T/L/IMG_8177-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-90/T-90-mod1992/Walkaround/i-qzpmvBp/0/KsTLFLh47QqWSsQ2wCZpPVXFQFwLcCwZ9B7Sshrgp/L/IMG_8179-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-90/T-90-mod1992/Walkaround/i-CZx5kTX/0/KQLGhm7LKBMHg7JfLMgDx9stqQZWDRjXqqWbx63B2/L/IMG_8180-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-90/T-90-mod1992/Walkaround/i-zkN8ZSG/0/LFnqpTT66gKmRcjXG3jf9zvnkRstkrSJtpgPvBvCx/L/IMG_8181-L.jpg"
+    ],
     m:['Shtora-1 IR-Störsystem: zwei charakteristische rote „Augen" vorne am Turm','Kontakt-5 ERA + gegossener Turm ähnlich T-72B'],
     s:'ROTE SHTORA-AUGEN AM TURM (IR-STÖRUNG)' },
-  { id:116, nr:116, name:'T-90A',    flag:'🇷🇺', nation:'Russland', images:[],
+  { id:116, nr:116, name:'T-90A',    flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-90/T-90A/Walkaround/i-mfT9hpv/0/MB6kcvCnWB987GBZCQtLVPgZM9Zz5G6KZxTxpwGC7/L/T-90A-20102019-001-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-90/T-90A/Walkaround/i-88LkMTd/0/KVRZXw5m53ZC9GMvCRrC8TJMFj5v74GvH9SDb3d2B/L/T-90A-20102019-002-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-90/T-90A/Walkaround/i-Dh3qnNj/0/MftHW6GqzQQ2gmFBwpJGC3zqgqGTp2mKm7dVgmVfk/L/T-90A-20102019-003-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-90/T-90A/Walkaround/i-bdTq92B/0/MTKWx8hMc64kgjGsGSvGnTJQQWb6vb6VhxrKFRwz/L/T-90A-20102019-004-L.jpg"
+    ],
     m:['NATO: WLADIMIR – geschweißter Turm (statt gegossen) + Shtora-1-Augen sichtbar','Neue Turmform + überarbeitete Wannenpanzerung + Wärmebildgerät'],
     s:'GESCHWEISSTER TURM + SHTORA ROTE AUGEN' },
-  { id:117, nr:117, name:'T-90M',    flag:'🇷🇺', nation:'Russland', images:[],
+  { id:117, nr:117, name:'T-90M',    flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-90/T-90M/Walkaround/i-GJkmRkW/0/KJ5HR6cFqWGJXBq6S6D4HqJWH6tbnVfZMWDsNBNDb/L/T-90M-082020-001-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-90/T-90M/Walkaround/i-MjLNrGv/0/MTd8GcQv3M7qk6JFhMQRnWvSPpgzPZXXxnj2JVdRC/L/T-90M-082020-002-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-90/T-90M/Walkaround/i-b8bCQx5/0/KXNKtmDtHDSqmWQ4p9xVwQ8tXFPBpSP37GPmRKKdw/L/T-90M-082020-003-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tanks/T-90/T-90M/Walkaround/i-BLXv7Tx/0/LjKmWCwfkvgTNdZSJbLj44dkQ7RC2hf6zGS9rttGX/L/T-90M-082020-004-L.jpg"
+    ],
     m:['Neuer eckiger geschweißter Turm (Proryv-3) + Relikt-ERA auf Turm und Wanne','Panoramasicht-Kuppel für Kommandant + neue Hauptoptik'],
     s:'NEUER ECKIGER TURM + RELIKT-ERA + PANORAMASICHT' },
 ],
 
 spz: [
-  { id:200, nr:200, name:'BMD-1',    flag:'🇷🇺', nation:'Russland', images:[],
+  { id:200, nr:200, name:'BMD-1',    flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMD-1/BMD-1/Walkaround/i-pgxRJG6/0/L9Bn7zML59SDCwH9Hn44TGTXbpTqRs68VRMVWjGPn/L/ZadorozhniyMuseum-0835-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMD-1/BMD-1/Walkaround/i-G8GWdKJ/0/KDxttfQM9vmndHDbRPfL7vpGKggwLrgzDHdv88ZV6/L/ZadorozhniyMuseum-0836-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMD-1/BMD-1/Walkaround/i-ksjPrSL/0/L2NSXzZvLrtXfr6m97Z5BJ3J2RcCHgvP8Vc9kPhXT/L/ZadorozhniyMuseum-0837-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMD-1/BMD-1/Walkaround/i-W86WgQW/0/M4qb669j3PCNGt56qD239wSGXXHdvrKCKtK6JFcVf/L/ZadorozhniyMuseum-0838-L.jpg"
+    ],
     m:['Schiffsform (geschwungene Wannenfront) + kleines Schwallbrett + Waschbrett vor MKF','5 Laufrollen + Hydrojets unter Abgasschlitzen am Heck + vertiefender Einstieg'],
     s:'SCHIFFSFORM + 5 LAUFROLLEN + HYDROJETS HECK' },
-  { id:201, nr:201, name:'BMD-2',    flag:'🇷🇺', nation:'Russland', images:[],
+  { id:201, nr:201, name:'BMD-2',    flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMD-2/BMD-2/Walkaround/i-88W4GD3/0/KZsNJjXSL4TPKsDBPPTPNc5HWwrkQNpCBZDTP82rF/L/BMD-2-001-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMD-2/BMD-2/Walkaround/i-N5hTxRh/0/K6CkrP6jmpwTLJD7ggLpTwkQX7dsg2Fxn3jQNZxFX/L/BMD-2-002-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMD-2/BMD-2/Walkaround/i-VwKQq2B/0/MwrSK9NpZbSSmBgw88jQN6k8vqgphHDHQZW8BntFS/L/BMD-2-003-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMD-2/BMD-2/Walkaround/i-BcK25Bc/0/NMMWx6NRB34dDt4GdPs7VZdWhRRbfn4SXW8zPJqvv/L/BMD-2-004-L.jpg"
+    ],
     m:['Lange schmale Kanone + Zusatzblende rechts neben Kanone','Scheinwerfer rechts oben am Turm + Periskop seitlich links'],
     s:'LANGE SCHMALE KANONE + ZUSATZBLENDE RECHTS' },
-  { id:202, nr:202, name:'BMD-3',    flag:'🇷🇺', nation:'Russland', images:[],
+  { id:202, nr:202, name:'BMD-3',    flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMD-3/BMD-3/Walkaround/i-Mr2M3v6/0/LkggbbqzZxc3GzGwSspWtGxqCxkwfZ3qhKpBKwbVg/L/BMD-3-20182021-01-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMD-3/BMD-3/Walkaround/i-Lg9CKcL/0/KzR4z7bfzQxkVBj4rsQWd37cs3L6dDjbQQGwKLSpC/L/BMD-3-20182021-02-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMD-3/BMD-3/Walkaround/i-RbkT6PB/0/LbWH7hrJqzhwfrx3HVZZwKhDf98FvzQhpCTKMFBHs/L/BMD-3-20182021-03-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMD-3/BMD-3/Walkaround/i-Ckv45R8/0/Nbnb6rGpqh8FDzr6qLNg8z22WKMSqw2gG2WtBLDZp/L/BMD-3-20182021-04-L.jpg"
+    ],
     m:['Kantiger/gerader Front + aufgesetzte MG-Luken + Halterung für Fallschirmpakete links','Hydrojets mit Lamellenklappen am Heck + abgeschrägte Oberkante bis 3. Laufrolle'],
     s:'FALLSCHIRM-HALTERUNG LINKS + HYDROJETS MIT LAMELLEN' },
-  { id:203, nr:203, name:'BMD-4',    flag:'🇷🇺', nation:'Russland', images:[],
+  { id:203, nr:203, name:'BMD-4',    flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMD-4/BMD-4/Walkaround/i-N7T93BM/0/KjL3CfxgwhBXdzq45zPz7ngrnBkxXpm5JDJhKKsN7/L/BMD-4-20092020-001-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMD-4/BMD-4/Walkaround/i-v9CBnXL/0/NcHsNSqxfPtKBFkNdqRhDHhWkbvGvrB8wTF87pMFt/L/BMD-4-20092020-002-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMD-4/BMD-4/Walkaround/i-QKwdWKv/0/Lt4JZBGnPXbJsJ8jxHNsLhNgZhxCpbzdhx9psMXrR/L/BMD-4-20092020-003-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMD-4/BMD-4/Walkaround/i-gFhfR2G/0/MwP93CbKmgmsb3wJ4fBgn4vGR76nmQFdk645WS59W/L/BMD-4-20092020-004-L.jpg"
+    ],
     m:['Doppelkanone: 30mm + 100mm + MG in kantig geschweißtem Turm mit schräger Front','Keine GMW-Luke in der Wannenfront (nur noch MG-Luke)'],
     s:'DOPPELKANONE 30MM+100MM + KEINE GMW-LUKE' },
-  { id:204, nr:204, name:'BMD-4M',   flag:'🇷🇺', nation:'Russland', images:[],
+  { id:204, nr:204, name:'BMD-4M',   flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMD-4/BMD-4M/Walkaround/i-3fv3cXN/0/Nbr4DN4Qb63SHPWgtkNFz9FjCzH7WrF9KPRRT9BwW/L/BMD-4M-20092022-001-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMD-4/BMD-4M/Walkaround/i-7v4CHbq/0/LZXn8qZh6pN6LvVJmx3XL3673b83kV8FBGKLm2LRT/L/BMD-4M-20092022-002-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMD-4/BMD-4M/Walkaround/i-ZV88wG8/0/LgLnLVX87Fd5ND6KnWL4Xx3xcvG5Gxf5wQmTPsr3N/L/BMD-4M-20092022-003-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMD-4/BMD-4M/Walkaround/i-HKXWkNh/0/Km9dMVcwWVxCvvzccvzCntKtmQCBQSx433q9GhPKQ/L/BMD-4M-20092022-004-L.jpg"
+    ],
     m:['Kein Entenschnabel mehr + 2 kleine MG-Luken + kleines Schwallbrett vorne','Turm mit 2 Optiken + geteilter Abgasschacht auf Höhe letzter Laufrolle'],
     s:'KEIN ENTENSCHNABEL + 2 OPTIKEN IM TURM' },
-  { id:205, nr:205, name:'BMP-1',    flag:'🇷🇺', nation:'Russland', images:[],
+  { id:205, nr:205, name:'BMP-1',    flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMP-1/BMP-1/Walkaround/i-QmC9QCN/0/Mcd65PqrQ6jDZpKGbwvFcLZXn9QHrpGssrN3W9Kqc/L/BMP-1-01-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMP-1/BMP-1/Walkaround/i-3bTZmrK/0/MdhvVdCxgVspwQkSK5DvGR549ZSnXf9XHMGpKBWVc/L/BMP-1-02-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMP-1/BMP-1/Walkaround/i-WRHdhvX/0/MF5RgJ2Jp6sjtRPPJdGVTznDL7dStSZNj4jVjnDqj/L/BMP-1-03-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMP-1/BMP-1/Walkaround/i-KptnX7x/0/KD34cqvNgxRxBx3gGFTLqS5mXvLK5xHcxNt8VNWZ6/L/BMP-1-04-L.jpg"
+    ],
     m:['Großes Schwallbrett + Scheinwerfer mit Bügel vorne + waffelförmige Kettenblenden','Ein-Mann-Turm (eine Optik, Scheinwerfer rechts) + 4 Schützenluken rechts'],
     s:'GROSSES SCHWALLBRETT + EIN-MANN-TURM' },
-  { id:206, nr:206, name:'BMP-1AM',  flag:'🇷🇺', nation:'Russland', images:[],
+  { id:206, nr:206, name:'BMP-1AM',  flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMP-1/BMP-1AM-Basurmanin/Walkaround/i-CTZ3p5f/0/LRXQnKb8rmR5pGRx6NBsKZ8653NGXzCgbj2fs8sBX/L/BMP-1AM-20182020-01-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMP-1/BMP-1AM-Basurmanin/Walkaround/i-zgjvC7q/0/K9ZZ4DbNhmFC36fKGjhcTbqdsmz5Gdg7w5njVSMKC/L/BMP-1AM-20182020-02-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMP-1/BMP-1AM-Basurmanin/Walkaround/i-Tvz6Lj7/0/LShWDd8S3f6KkvNN4wW7dDf4JrJRqQjJthtS9FdBQ/L/BMP-1AM-20182020-03-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMP-1/BMP-1AM-Basurmanin/Walkaround/i-KRgG3Jd/0/KVktSTSCt4qbtnWhb4JncPGmkWxThR9h9rv6N4kNk/L/BMP-1AM-20182020-04-L.jpg"
+    ],
     m:['BTR-Scheitellafette (kein klassischer Turm) auf BMP-1-Wanne + Schutzkragen vorne','Frontpanzerung des Turmersatzes 3-geteilt + eckiges MG rechts'],
     s:'BTR-SCHEITELLAFETTE AUF BMP-1-WANNE' },
-  { id:207, nr:207, name:'BMP-2',    flag:'🇷🇺', nation:'Russland', images:[],
+  { id:207, nr:207, name:'BMP-2',    flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMP-2/BMP-2/Walkaround/i-gb84Pgz/0/MdvtzBsnqhm3j4GLV29V7D8RrdNCBjf9GxdgqtXfg/L/BMP-2-20112019-001-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMP-2/BMP-2/Walkaround/i-DxQzBXW/0/KfqGg5rJNs5CHTWzDHPhhPBrHzjqhH6gkrvmkWWRb/L/BMP-2-20112019-002-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMP-2/BMP-2/Walkaround/i-5KZS4WK/0/LZntch8qH5d344HKdrkmKGxjFDFWfkkkKFfXZB7wc/L/BMP-2-20112019-003-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMP-2/BMP-2/Walkaround/i-br7WhBz/0/NQk2d3h9thwp66LtPdk67jjJdSc2bxJtBpNbCgJsh/L/BMP-2-20112019-004-L.jpg"
+    ],
     m:['2-Mann-Turm + breite Kettenblenden + 2 Dämpfer vorne rechts','3 Winkelspiegel + 3 Schießluken links + nur 2 Luken hinter Turm'],
     s:'2-MANN-TURM + BREITE KETTENBLENDEN' },
-  { id:208, nr:208, name:'BMP-2M',   flag:'🇷🇺', nation:'Russland', images:[],
+  { id:208, nr:208, name:'BMP-2M',   flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMP-2/BMP-2M-Berezhok/Walkaround/i-cctkqxv/0/MkDkrKtm7nfm7nvxzg4L3pDd6WQjK47VfvzrtxGMX/L/BMP-2M-Berezhok-20122022-001-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMP-2/BMP-2M-Berezhok/Walkaround/i-tFcj7M6/0/NK7CvcCCHcFtzHzvLL57DQnnds7r7JffWQGzbMMdW/L/BMP-2M-Berezhok-20122022-002-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMP-2/BMP-2M-Berezhok/Walkaround/i-C3WL3np/0/NWKgB8fSLn45wwRVk8s78mc6vj4XmFSKbk8MBKf7V/L/BMP-2M-Berezhok-20122022-003-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMP-2/BMP-2M-Berezhok/Walkaround/i-zLq4Mqq/0/M5d5Wx7MG3MwKjhPpGTNRVLXMN7ZkTbXddmpPx5JZ/L/BMP-2M-Berezhok-20122022-004-L.jpg"
+    ],
     m:['NATO: BEREZHOK – AGS-30 Granatmaschinenwaffe mittig auf dem Turm','Panzerabwehrraketen links und rechts am Turm + große Optiktonne'],
     s:'AGS-30 OBEN + AT-RAKETEN LINKS/RECHTS AM TURM' },
-  { id:209, nr:209, name:'BMP-3',    flag:'🇷🇺', nation:'Russland', images:[],
+  { id:209, nr:209, name:'BMP-3',    flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMP-3/BMP-3/Walkaround/i-3pLJ2MV/0/M78tWP22VKcsqxMJcL79WKN6Rsnzm3h2P4J4TWGGw/L/BMP-3-20082019-010-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMP-3/BMP-3/Walkaround/i-6BxN6mM/0/NPKdRmnRpvmHW8k2TJhNLM4WPNj7xrGJhM62v535G/L/BMP-3-20082019-011-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMP-3/BMP-3/Walkaround/i-7RPzjck/0/Kf8QTD9vzGcvd7KKLwr67kjDvZkS7ShJ6VPwjnR8W/L/BMP-3-20082019-012-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMP-3/BMP-3/Walkaround/i-BdnnVzj/0/LnG6pTJVwPQw4sQSppwZq69gXFn7dbtSQXRn8DQ5L/L/BMP-3-20082019-013-L.jpg"
+    ],
     m:['Zwillingskanone (100mm + 30mm BMK) vorderes Turmbereich + Laserbeam oben auf Kanone','6 Laufrollen + Hydrojet-Antrieb am Heck + Blenden-MG mit Schutzbügel vorne'],
     s:'ZWILLINGSKANONE + 6 LAUFROLLEN + HYDROJET HECK' },
-  { id:210, nr:210, name:'BMP-3M',   flag:'🇷🇺', nation:'Russland', images:[],
+  { id:210, nr:210, name:'BMP-3M',   flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMP-3/BMP-3M-Ataka/Walkaround/i-TZBzNHg/0/LCnSvHRd6RNpQLBFdWMnkPxzDC9ng8g8TwzNDGVZV/L/BMP-3M-Ataka-082017-01-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMP-3/BMP-3M-Ataka/Walkaround/i-RSMK4d4/0/NfX69NtRBScxMBF94j7Qvd9cpKRVBwVkPWJXMSSPH/L/BMP-3M-Ataka-082017-02-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMP-3/BMP-3M-Ataka/Walkaround/i-9vg8KgZ/0/Md9qt8fspJknsNrMR6nCSDZZdTjDLQ8HJVkC5zdpV/L/BMP-3M-Ataka-082017-03-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMP-3/BMP-3M-Ataka/Walkaround/i-KcSmqgg/0/LJ6VRxR955v6JvQCBbdwq6gBM2n7jsPScbwTKQs8s/L/BMP-3M%20Ataka%20003-L.jpg"
+    ],
     m:['WBG (Wärmebildgerät) links hoch am Turm + Laser rechts neben der BMK (nicht drauf)','Ansonsten wie BMP-3 – kein Laserbeam auf der Kanone selbst'],
     s:'WBG LINKS HOCH AM TURM + LASER RECHTS NEBEN BMK' },
-  { id:211, nr:211, name:'BMP-K17',  flag:'🇷🇺', nation:'Russland', images:[],
+  { id:211, nr:211, name:'BMP-K17',  flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/VPK-7829-Bumerang/BMP-K-K-17/Walkaround/i-8HwrMPJ/0/K4m3crSQd3WWdVVLbwbh8JzdH9kSb9B4GqHhqdSZc/L/K-17-Bumerang-20152022-001-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/VPK-7829-Bumerang/BMP-K-K-17/Walkaround/i-j9LCczT/0/M6QP4Kgz7bxFLKGb5m6C87TLmZFKSdWjt4Pzvd7qZ/L/K-17-Bumerang-20152022-002-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/VPK-7829-Bumerang/BMP-K-K-17/Walkaround/i-FgjkqB7/0/NPGWd7rW3w72R4Zs36qLjMnvfVZL5TghxZZcsQwNv/L/K-17-Bumerang-20152022-003-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/VPK-7829-Bumerang/BMP-K-K-17/Walkaround/i-Kz95T8C/0/Kh3rmN75QCR7p7SZkn55pnksSxj5k5sJN89xw2LK6/L/K-17-Bumerang-20152022-004-L.jpg"
+    ],
     m:['NATO: VPK-7829 BUMERANG – 4 AT-Raketen am Turm + 30mm BMK + Datenlink-Antenne','Hydrojet-Turbine am Heck + T-förmige Aufstiegshilfe + moderne eckige Scheinwerfer'],
     s:'4 AT-RAKETEN + DATENLINK-ANTENNE + HYDROJET' },
   { id:212, nr:212, name:'BMP-1M',   flag:'🇷🇺', nation:'Russland', images:[],
@@ -116,40 +255,90 @@ spz: [
 ],
 
 tpz: [
-  { id:300, nr:300, name:'GAZ-233036 TIGR',    flag:'🇷🇺', nation:'Russland', images:[],
+  { id:300, nr:300, name:'GAZ-233036 TIGR',    flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Tactical-and-MRAP-vehicles/2-Axle-Wheeled/GAZ-Tigr/GAZ-233036-SPM-2/Walkaround/i-BmGjKs6/0/NLrqkNnXC5F6nnMxSKTbqhV7bgrb92bM6JhqcrTMW/L/GAZ-233036-SPM-2-20092016-001-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tactical-and-MRAP-vehicles/2-Axle-Wheeled/GAZ-Tigr/GAZ-233036-SPM-2/Walkaround/i-VZnSMs3/0/MZ8qqkCBWBFRvjD66dx8sBQXvDLmTtfS6bjDjhD8r/L/GAZ-233036-SPM-2-20092016-002-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tactical-and-MRAP-vehicles/2-Axle-Wheeled/GAZ-Tigr/GAZ-233036-SPM-2/Walkaround/i-Hk3SZf8/0/K9tMQ6gL5ZkvrDmWRMDkhj3fRSpHp2cQW6SssL9dR/L/GAZ-233036-SPM-2-20092016-003-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tactical-and-MRAP-vehicles/2-Axle-Wheeled/GAZ-Tigr/GAZ-233036-SPM-2/Walkaround/i-nfK954r/0/KRSK8jJZf5Btvq2CsP69VzdCstGTt5FnGg36XfJDs/L/GAZ-233036-SPM-2-20092016-004-L.jpg"
+    ],
     m:['Flache Motorhaube (kein Buckel) – Unterschied zu TIGR-M','Nur eine Tür pro Seite'],
     s:'FLACHE HAUBE + NUR 1 TÜR/SEITE' },
-  { id:301, nr:301, name:'AMN 233114 TIGR-M',  flag:'🇷🇺', nation:'Russland', images:[],
+  { id:301, nr:301, name:'AMN 233114 TIGR-M',  flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Tactical-and-MRAP-vehicles/2-Axle-Wheeled/GAZ-Tigr/Tigr-6A/Walkaround/i-gcg6xNm/0/NfhXX7MpgqL3mNXmbTLQLsd2NGCpT5Fw4qpVnbWFq/L/Tigr-6A-20112012-01-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tactical-and-MRAP-vehicles/2-Axle-Wheeled/GAZ-Tigr/Tigr-6A/Walkaround/i-27RhBnh/0/Lm8XJK79qmB77wFMfh2tGV2CPqkkwLzDF6WgLPrCL/L/Tigr-6A-20112012-02-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tactical-and-MRAP-vehicles/2-Axle-Wheeled/GAZ-Tigr/Tigr-6A/Walkaround/i-3Dg6TbF/0/MgBx49kzGtW9jkx5TncrV8spT6nThj2PC5RnJZZR3/L/Tigr-6A-20112012-03-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tactical-and-MRAP-vehicles/2-Axle-Wheeled/GAZ-Tigr/Tigr-6A/Walkaround/i-Q5drTSg/0/K7KR7zpps7VBkfm56QNTL2Wc5qSs5tPc38CG4w86n/L/Tigr-6A-20112012-04-L.jpg"
+    ],
     m:['Motorhaube mit charakteristischem Buckel (Gegenteil zu TIGR)','ABC-Schutzfilter am Heck sichtbar'],
     s:'BUCKELHAUBE + ABC-FILTER HECK' },
   { id:302, nr:302, name:'TYPHOON-K 4x4',      flag:'🇷🇺', nation:'Russland', images:[],
     m:['Haube überlappt Kühlergrill + Seilwinde unter Kühler + 2 Kupplungsmäuler','2 Türen pro Seite (vorderes Fenster größer) + kantig großer Radkasten hinten'],
     s:'HAUBE ÜBERLAPPT KÜHLER + SEILWINDE + 2 KUPPLUNGSMÄULER' },
-  { id:303, nr:303, name:'TYPHOON-K 6x6',      flag:'🇷🇺', nation:'Russland', images:[],
+  { id:303, nr:303, name:'TYPHOON-K 6x6',      flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Tactical-and-MRAP-vehicles/3-Axle-Wheeled/Typhoon-K-KAMAZ-63968/KAMAZ-63968-Typhoon-K/Walkaround/i-x84dkTK/0/KbM588Wf9bB7DBCG6kJcPfBPrxZQ98h8JjZvGBFqW/L/KAMAZ-63968-Typhoon-K-20142017-001-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tactical-and-MRAP-vehicles/3-Axle-Wheeled/Typhoon-K-KAMAZ-63968/KAMAZ-63968-Typhoon-K/Walkaround/i-6fkSLHV/0/NbQTsNQRR8KKZNMtrrkGsN57gfg2qt2pXg4Rg48wq/L/KAMAZ-63968-Typhoon-K-20142017-002-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tactical-and-MRAP-vehicles/3-Axle-Wheeled/Typhoon-K-KAMAZ-63968/KAMAZ-63968-Typhoon-K/Walkaround/i-WZnSrVJ/0/NHpDKRx6MhK72ZJPJK27S2bVxQFPLgdxFqfQLxxcB/L/KAMAZ-63968-Typhoon-K-20142017-003-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tactical-and-MRAP-vehicles/3-Axle-Wheeled/Typhoon-K-KAMAZ-63968/KAMAZ-63968-Typhoon-K/Walkaround/i-xdjngsB/0/Mb9qq85XPgGvhqPVB76P6fnf8KsJWcrg926sbZwMc/L/KAMAZ-63968-Typhoon-K-20142017-004-L.jpg"
+    ],
     m:['Dreieck nach unten zeigendes Element an der Front + flache Schnauze','6 Räder + 2 Fenster für Kampfraum + 2 Belüftungsgitter links'],
     s:'DREIECK-FRONT NACH UNTEN + FLACHE SCHNAUZE + 6 RÄDER' },
   { id:304, nr:304, name:'TYPHOON-VDV 4x4',    flag:'🇷🇺', nation:'Russland', images:[],
     m:['4 Scheibenwischer von oben (einzigartiges Merkmal!)','Seil-Steighilfe rechts + Kraftstofftank links + optionaler Turm'],
     s:'4 SCHEIBENWISCHER VON OBEN' },
-  { id:305, nr:305, name:'TYPHOON-U 6x6',      flag:'🇷🇺', nation:'Russland', images:[],
+  { id:305, nr:305, name:'TYPHOON-U 6x6',      flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/Tactical-and-MRAP-vehicles/3-Axle-Wheeled/Typhoon-U/Ural-63095-Typhoon-U/Walkaround/i-XfWXPdg/0/MHjsCZx5ksBPJqRjjGCJzkwhPtgv3wgzGTWzJkDcr/L/Ural-63095-Typhoon-U-20152023-001-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tactical-and-MRAP-vehicles/3-Axle-Wheeled/Typhoon-U/Ural-63095-Typhoon-U/Walkaround/i-gDQMWS4/0/M8rLWjKMgrwHT95jmdtFCz79PgvDKJg4Kh8swrKBg/L/Ural-63095-Typhoon-U-20152023-002-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tactical-and-MRAP-vehicles/3-Axle-Wheeled/Typhoon-U/Ural-63095-Typhoon-U/Walkaround/i-2GbVhRf/0/NCjKvXnSnM68T4kxhDhLNDGRzKBX6RcQVM5Wbd6kx/L/Ural-63095-Typhoon-U-20152023-003-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/Tactical-and-MRAP-vehicles/3-Axle-Wheeled/Typhoon-U/Ural-63095-Typhoon-U/Walkaround/i-kRNRF6D/0/MGjWhnXLRdw9ZvJXPh9sz3PQ48x4BMJQXdWL9RPWW/L/Ural-63095-Typhoon-U-20152023-004-L.jpg"
+    ],
     m:['LKW-Haube langgezogen + Doppel-Kupplungsmaul + Wartungsklappe','Kampfraum vom Fahrerhaus entkoppelt + Tritt nach oben abstehend an Heckrampentür'],
     s:'LKW-HAUBE + ENTKOPPELTER KAMPFRAUM' },
-  { id:306, nr:306, name:'BTR-60PB',           flag:'🇷🇺', nation:'Russland', images:[],
+  { id:306, nr:306, name:'BTR-60PB',           flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BTR-60/BTR-60PB/Walkaround/i-pdNSj92/0/LmjVb5Q53stqDTvdQvtqfb5tW3r9nBWCdMqs4ZHxL/L/BTR-60PB-072015-01-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BTR-60/BTR-60PB/Walkaround/i-GPwR3Mw/0/NCBZvQ4psVZLJHLZz7LhT35QcGNVwd8mnCFqB76hh/L/BTR-60PB-072015-02-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BTR-60/BTR-60PB/Walkaround/i-Nvjh6sc/0/MWmfNPBqRt7QQGJCWZmK3vLNrMBHxSrPGpc67zVCK/L/BTR-60PB-072015-03-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BTR-60/BTR-60PB/Walkaround/i-KdgSZ4m/0/Kp8FCvMFNcDtqmdZSM4Dh7bhHTrfNBmpHD8xnRVrZ/L/BTR-60PB-072015-04-L.jpg"
+    ],
     m:['Winkelspiegel als Krone über den Frontfenstern + langer Bug mit Schwallbrett','Abgas steil schräg nach unten rechts + Hydrojet mit 2 Hecktüren'],
     s:'WINKELSPIEGEL-KRONE ÜBER FRONTFENSTERN' },
-  { id:307, nr:307, name:'BTR-70',             flag:'🇷🇺', nation:'Russland', images:[],
+  { id:307, nr:307, name:'BTR-70',             flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BTR-70/BTR-70/Walkaround/i-CtG83B5/0/KtcLG6rQVbcmRpWm239tRX4jJBCWXtrDJLrX9svvW/L/BTR-70-02-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BTR-70/BTR-70/Walkaround/i-xRVWbCS/0/Mn6KLZRnPGsMJpM2LL8VtmDRv4Jw3DgjkXnSzbZmv/L/BTR-70-03-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BTR-70/BTR-70/Walkaround/i-X4zrP89/0/LhLX3kdCKHkwSdrHV9V2fRkZbWcJFT6jD8gp9D3nb/L/BTR-70-04-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BTR-70/BTR-70/Walkaround/i-DZbLSNJ/0/MPg6pbJRQJKqFBFTsfbsTMxJHVkPJdhDD6dmxPc3B/L/BTR-70-05-L.jpg"
+    ],
     m:['Einstieg/Absitzen zwischen 2. und 3. Achse (Schießluke über Einstiegstür)','Tropfenförmiger Hydrojet mittig am Heck + grade flache Front'],
     s:'EINSTIEG ZWISCHEN ACHSE 2+3 + TROPFEN-HYDROJET' },
-  { id:308, nr:308, name:'BTR-80',             flag:'🇷🇺', nation:'Russland', images:[],
+  { id:308, nr:308, name:'BTR-80',             flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BTR-80/BTR-80/Walkaround/i-QhKgsK5/0/KxXzXm3K9SVL9ZDWxsqR7VJ4DNjvw4n9QFRVL6DB3/L/BTR-80-01-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BTR-80/BTR-80/Walkaround/i-MJGmS5K/0/MrFMPWRMVLmShd45X39RRsLF3svPw4pRPVpmzzB2P/L/BTR-80-02-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BTR-80/BTR-80/Walkaround/i-fmmWqbf/0/L99ctfL6BTswjkK3bvt72n86mLGGpq3PhDNhDX3Dh/L/BTR-80-03-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BTR-80/BTR-80/Walkaround/i-5NBxB8d/0/KgGmKGF2NfG4CtkWz9CNML86BqJSnrrWg8KZx5jvD/L/BTR-80-04-L.jpg"
+    ],
     m:['Tür 2-geteilt + Schießluke mit runder Kappe links + Beifahrer-Schießluke mit runder Blende','Abgasrohr liegende Zigarrenform + Prallbleche + Schutzbügel hinter Turmdrehkranz'],
     s:'GETEILTE TÜR + RUNDE SCHIESSLUKE-KAPPE' },
-  { id:309, nr:309, name:'BTR-80A',            flag:'🇷🇺', nation:'Russland', images:[],
+  { id:309, nr:309, name:'BTR-80A',            flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BTR-80/BTR-80A/Walkaround/i-33wNdLn/0/L3V9hgtb6Cr9k3G9kBDz7rgtzZXbFdB5WC6QR4DKd/L/IMG_0103-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BTR-80/BTR-80A/Walkaround/i-nf7Wm4F/0/KRTFmJZd3Lw29NvRpMTh4h22DNQX9nCQRhS3p2kqS/L/IMG_0104-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BTR-80/BTR-80A/Walkaround/i-fm5bJfw/0/Mr2fnSWWFgRhCqRCDmTjmW6nd7ZqrHfzbGrJjGx5C/L/IMG_0105-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BTR-80/BTR-80A/Walkaround/i-7CJpJ7c/0/L5BSGx4kHCTTqvqJ9z5M3j74G3n2ch364tmpK5n9j/L/IMG_0106-L.jpg"
+    ],
     m:['Scheitellafette mit rundem Scheinwerfer + schaufelförmiger Zusatzpanzer am Turm','3 Schießluken rechts + keine Halterung über Abgasrohr am Heck'],
     s:'SCHEITELLAFETTE + SCHAUFELFÖRMIGER ZUSATZPANZER' },
-  { id:310, nr:310, name:'BTR-82A',            flag:'🇷🇺', nation:'Russland', images:[],
+  { id:310, nr:310, name:'BTR-82A',            flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BTR-82/BTR-82A/Walkaround/i-hGWsX9S/0/NTZ9wptqGxCXLRVZ3P4ZVx8DwF9NHMrwVjbVK82CM/L/BTR-82A-20122021-001-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BTR-82/BTR-82A/Walkaround/i-H9xhG3Z/0/NRn2Md5SQncgQvmD5ggGk7R2L4pc3ZzBdTSc3QFG8/L/BTR-82A-20122021-002-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BTR-82/BTR-82A/Walkaround/i-BfFVLqZ/0/NLw4Vkh3bSCW7n95JZppKFnSf5c3qrWXRR4kCBNsx/L/BTR-82A-20122021-003-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BTR-82/BTR-82A/Walkaround/i-NFCksjZ/0/KtCqWtqN9QsfCwt9PVb3JGw89cRWFxb5HBWFZfTjh/L/BTR-82A-20122021-004-L.jpg"
+    ],
     m:['Laserkasten auf der BMK (Bordmaschinenkanone) + Panzerung unterhalb der BMK','Schnorchel-Aufnahme am Heck sichtbar'],
     s:'LASERKASTEN AUF BMK + SCHNORCHEL-AUFNAHME HECK' },
-  { id:311, nr:311, name:'BTR-MDM',            flag:'🇷🇺', nation:'Russland', images:[],
+  { id:311, nr:311, name:'BTR-MDM',            flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMD-4/BTR-MDM/Walkaround/i-N9rJvj2/0/KmDLVJGLC9Qm276qRxpVftsZ4gqzzgf7fpTWGpkqq/L/BTR-MDM-20152022-001-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMD-4/BTR-MDM/Walkaround/i-P5cP6Mr/0/M673vM6Dh93hQpFVJQxwpqP8f6RTbZqK4wwzzNx9g/L/BTR-MDM-20152022-002-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMD-4/BTR-MDM/Walkaround/i-qbvVfDx/0/K6Qdd8tCQ3zZRqRpdTrRMMdQZ8hSmkt3N7TRqXmNK/L/BTR-MDM-20152022-003-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BMD-4/BTR-MDM/Walkaround/i-gHfT6tj/0/M9nKnGVh33qVXb4mcDpKN9GTvWmWN2BwnxDKVdNm5/L/BTR-MDM-20152022-004-L.jpg"
+    ],
     m:['Kastenförmiger Aufbau (Kettenfahrzeug!) + 5 Laufrollen + kein klassischer Turm','2× Doppel-Nebelwurfbecher + 1 Blenden-MG vorne + kleines Schwallbrett'],
     s:'KASTENFÖRMIG + 5 LAUFROLLEN (KETTE) + 2× NEBELWURF' },
   { id:312, nr:312, name:'BTR-3',              flag:'🇺🇦', nation:'Ukraine', images:[],
@@ -158,16 +347,36 @@ tpz: [
   { id:313, nr:313, name:'BTR-4',              flag:'🇺🇦', nation:'Ukraine', images:[],
     m:['Ukrainischer Radschützenpanzer – moderne Variante','Handout-Merkmale eintragen'],
     s:'UKRAINE – HANDOUT AUSSTEHEND' },
-  { id:314, nr:314, name:'BTR-D',              flag:'🇷🇺', nation:'Russland', images:[],
+  { id:314, nr:314, name:'BTR-D',              flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BTR-D/BTR-D/Walkaround/i-TS2k9wL/0/KvqbPrvghMjZWsf8vvzHffdwrrLTm8FdrHXNj8sz7/L/BTR-D-01-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BTR-D/BTR-D/Walkaround/i-p6TGHtS/0/MZdgDqXzmnBPFZc9R85Srff532jVKHVQmwqLwVVHx/L/BTR-D-09-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BTR-D/BTR-D/Walkaround/i-sCLmrbM/0/NH7SpVS2fTStvWQM62XT2mfKz3b3fbJPMNkmmHfsn/L/BTR-D-07-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/BTR-D/BTR-D/Walkaround/i-Hg5mxSm/0/Kwjr72xTQN2ccpN6CsjxbPpbfBVSzctc6NMnmC8Hz/L/BTR-D-06-L.jpg"
+    ],
     m:['Kleiner flacher Buckel ohne Waffe (kein echter Turm) + Handlauf entlang dem Buckel','2 Blenden-MG vorne in der Wanne + 6 Laufrollen (+1 mehr als BMD-1)'],
     s:'FLACHER BUCKEL OHNE WAFFE + 2 BLENDEN-MG VORNE' },
-  { id:315, nr:315, name:'MT-LB',              flag:'🇷🇺', nation:'Russland', images:[],
+  { id:315, nr:315, name:'MT-LB',              flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/MT-LB/MT-LB/Walkaround/i-k86BZLS/0/MzvKMSTfFKXDbtLp84b42H3kwrFTQPzj7LChNRS5H/L/IMG_8249-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/MT-LB/MT-LB/Walkaround/i-fLbX8pK/0/KgwZfXZ9mBx4Z2h8F3bzGLDgBrP85jwZBnk6LKDHj/L/IMG_8250-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/MT-LB/MT-LB/Walkaround/i-HPWwRpv/0/K3CwbRQzdRC4R2CRvfMq5q7TjMGsCrDSCfvHLSnf2/L/IMG_8251-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/MT-LB/MT-LB/Walkaround/i-s4v278c/0/MRTFvJcmm6J5x3SbLrFTg9B7QXFvDFTvkvWZQXX4k/L/IMG_8252-L.jpg"
+    ],
     m:['Flache langgezogene Wannenfront mit Klappe + Fenster weit auseinander','6 große Laufrollen OHNE Stützrollen + kleiner Ein-Mann-Turm weit vorne (Beifahrerhöhe!)'],
     s:'6 GROSSE LAUFROLLEN OHNE STÜTZE + EIN-MANN-TURM VORNE' },
-  { id:316, nr:316, name:'MT-LB VMK',          flag:'🇷🇺', nation:'Russland', images:[],
+  { id:316, nr:316, name:'MT-LB VMK',          flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/MT-LB/MT-LBVMK/Walkaround/i-hzPN35v/0/L6hFn3PfhrFkFPJ5hKSXGWR4nx8NKQPJXdc7hVJVK/L/MT-LBVMK-2011-2020-01-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/MT-LB/MT-LBVMK/Walkaround/i-CTm9S76/0/K6zZfwwBJHbbPcNHDxfXbnxmSqSpdcwbm6KF79KX8/L/MT-LBVMK-2011-2020-02-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/MT-LB/MT-LBVMK/Walkaround/i-zLm9rxb/0/NfQc3NcfgD4dX4QhnDFNMJVZjXPmSgB7DV7dBTSQR/L/MT-LBVMK-2011-2020-03-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/MT-LB/MT-LBVMK/Walkaround/i-ZWRcFDf/0/L3jsk8NW87QRm3cQd7wDqS77RQxMp792dn7CHKFvM/L/MT-LBVMK-2011-2020-04-L.jpg"
+    ],
     m:['Wie MT-LB – identische Wanne und Laufrollen','Kanone vorne auf dem Turm (statt nur MG wie bei MT-LB)'],
     s:'WIE MT-LB + KANONE AUF VORDEREM TURM' },
-  { id:317, nr:317, name:'MT-LBu',             flag:'🇷🇺', nation:'Russland', images:[],
+  { id:317, nr:317, name:'MT-LBu',             flag:'🇷🇺', nation:'Russland', images:[
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/MT-LB/MT-LBM-6MA/Walkaround/i-CVNCjd3/0/MVnWcnKXGhHnBb88MnPvdfxKdzXHm39DWfhBdDLqP/L/MT-LBM-6MA-062011-01-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/MT-LB/MT-LBM-6MA/Walkaround/i-bW2HbzN/0/M94cTwxb65BSpHnkXRbwFg6gsDqHLQsZTHrNCDrPj/L/MT-LBM-6MA-062011-02-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/MT-LB/MT-LBM-6MA/Walkaround/i-gCZ4zXv/0/M8KCt3QZMFhBC6j9pvxvMVVkmQhbHBXvZr92QD9PJ/L/MT-LBM-6MA-062011-03-L.jpg",
+      "https://photos.smugmug.com/Land-Platforms/IFV-APC/MT-LB/MT-LBM-6MA/Walkaround/i-dt5NXsd/0/K4KgDFw49XdvBhTqMVWBBdP2vh23V6f4cRm8KRg7j/L/MT-LBM-6MA-062011-04-L.jpg"
+    ],
     m:['Kompletter oberer Wannenteil sargförmig aufgesetzt (markant größer als MT-LB)','Großer Abstand zwischen Laufrollen und Wannenkörper'],
     s:'SARGFÖRMIGER AUFBAU OBEN + GROSSER ROLLEN-ABSTAND' },
 ],
