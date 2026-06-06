@@ -108,6 +108,18 @@ export default function TeacherDashboard({ user, onLogout }) {
     setLoading(false)
   }
 
+  async function refreshProgress() {
+    if (!members.length) return
+    setLoading(true)
+    const studentIds = members.map(m => m.student_id)
+    const { data: prog } = await supabase
+      .from('student_progress')
+      .select('*')
+      .in('student_id', studentIds)
+    setProgress(prog || [])
+    setLoading(false)
+  }
+
   async function createClassroom() {
     if (!newName.trim()) return
     setCreating(true)
@@ -424,8 +436,17 @@ export default function TeacherDashboard({ user, onLogout }) {
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <div style={{ fontSize: 12, color: dim, marginBottom: 4 }}>
-                  {members.length} Schüler in diesem Klassenraum
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                  <div style={{ fontSize: 12, color: dim }}>
+                    {members.length} Schüler in diesem Klassenraum
+                  </div>
+                  <button onClick={refreshProgress} style={{
+                    padding: '5px 12px', borderRadius: 7, border: `1px solid ${bord}`,
+                    background: 'transparent', color: dim, fontSize: 12, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', gap: 5,
+                  }}>
+                    {loading ? '⏳' : '🔄'} Aktualisieren
+                  </button>
                 </div>
                 {members.map(m => {
                   const stats = studentStats(m.student_id)

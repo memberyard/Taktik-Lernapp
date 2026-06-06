@@ -56,10 +56,16 @@ export default function Dashboard({ user, onLogout }) {
   const ansWrong   = { bg: dark ? '#2a0d08' : '#fde8e8', border: dark ? '#6b2200' : '#d93025', col: dark ? '#f87171' : '#b91c1c' }
 
   useEffect(() => {
-    const base = getFilteredVehicles(activeCat, superCat)
-    let filtered = selectedIds ? base.filter(v => selectedIds.includes(v.id)) : base
-    if (filtered.length === 0) filtered = base
-    const newPool = shuffle ? shuf(filtered) : [...filtered]
+    let base
+    if (selectedIds && selectedIds.length > 0) {
+      // Auswahl aktiv → alle Kategorien durchsuchen (z.B. nach Hausaufgaben-Import)
+      const allVehicles = Object.values(DB).flat()
+      base = allVehicles.filter(v => selectedIds.includes(v.id))
+      if (base.length === 0) base = getFilteredVehicles(activeCat, superCat)
+    } else {
+      base = getFilteredVehicles(activeCat, superCat)
+    }
+    const newPool = shuffle ? shuf(base) : [...base]
     setPool(newPool)
     setIdx(0)
     setChosen(null)
@@ -164,11 +170,44 @@ export default function Dashboard({ user, onLogout }) {
     setImgIdx(0)
   }
 
-  function pick(vid) {
+  async function pick(vid) {
     if (chosen !== null) return
     setChosen(vid)
-    const correct = vid === pool[idx]?.id
+    const vehicleId = pool[idx]?.id
+    const correct = vid === vehicleId
     setScore(s => ({ c: s.c + (correct ? 1 : 0), t: s.t + 1 }))
+
+    // Fortschritt in Supabase speichern (nur wenn Schüler einer Klasse angehört)
+    if (classroom && user?.userId && vehicleId) {
+      try {
+        // Vorhandenen Eintrag laden
+        const { data: existing } = await supabase
+          .from('student_progress')
+          .select('attempts, correct')
+          .eq('student_id', user.userId)
+          .eq('vehicle_id', vehicleId)
+          .single()
+
+        if (existing) {
+          // Aktualisieren
+          await supabase.from('student_progress').update({
+            attempts: existing.attempts + 1,
+            correct:  existing.correct  + (correct ? 1 : 0),
+            updated_at: new Date().toISOString(),
+          }).eq('student_id', user.userId).eq('vehicle_id', vehicleId)
+        } else {
+          // Neu anlegen
+          await supabase.from('student_progress').insert({
+            student_id: user.userId,
+            vehicle_id: vehicleId,
+            attempts:   1,
+            correct:    correct ? 1 : 0,
+          })
+        }
+      } catch (e) {
+        console.warn('Fortschritt konnte nicht gespeichert werden:', e)
+      }
+    }
   }
 
   function saveNote(vehicleId, val) {
@@ -629,9 +668,27 @@ export default function Dashboard({ user, onLogout }) {
           }}>
             {hasImages ? (
               <>
-                <img src={cur.images[imgIdx % cur.images.length]} alt={cur.name}
-                  style={{ width: '100%', maxHeight: 320, objectFit: 'contain', display: 'block' }}
-                  onError={e => { e.target.style.display = 'none' }} />
+                <div style={{ position: 'relative', width: '100%' }}>
+                  <img src={cur.images[imgIdx % cur.images.length]} alt={cur.name}
+                    style={{ width: '100%', maxHeight: 320, objectFit: 'contain', display: 'block' }}
+                    onError={e => { e.target.style.display = 'none' }} />
+                  {cur.images.length > 1 && (<>
+                    <button onClick={() => setImgIdx(i => ((i - 1 + cur.images.length) % cur.images.length))}
+                      style={{
+                        position: 'absolute', left: 6, top: '50%', transform: 'translateY(-50%)',
+                        background: 'rgba(0,0,0,0.45)', border: 'none', borderRadius: '50%',
+                        width: 32, height: 32, color: '#fff', fontSize: 18, cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1,
+                      }}>‹</button>
+                    <button onClick={() => setImgIdx(i => (i + 1) % cur.images.length)}
+                      style={{
+                        position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)',
+                        background: 'rgba(0,0,0,0.45)', border: 'none', borderRadius: '50%',
+                        width: 32, height: 32, color: '#fff', fontSize: 18, cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1,
+                      }}>›</button>
+                  </>)}
+                </div>
                 {cur.images.length > 1 && (
                   <div style={{ display: 'flex', gap: 6, padding: 8 }}>
                     {cur.images.map((_, i) => (
