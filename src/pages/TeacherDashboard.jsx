@@ -19,7 +19,7 @@ export default function TeacherDashboard({ user, onLogout }) {
     catch { return true }
   })
 
-  // Navigation: 'classrooms' | 'classroom-detail' | 'homework'
+  // Navigation: 'classrooms' | 'classroom-detail' | 'homework' | 'lernkarten' | 'hinzufuegen'
   const [view, setView]           = useState('classrooms')
   const [classrooms, setClassrooms] = useState([])
   const [selected, setSelected]   = useState(null)   // aktiver Klassenraum
@@ -31,8 +31,17 @@ export default function TeacherDashboard({ user, onLogout }) {
   const [creating, setCreating]   = useState(false)
   const [hwSelected, setHwSelected] = useState(new Set())  // ausgewählte Fahrzeug-IDs
   const [hwTitle, setHwTitle]     = useState('Hausaufgabe')
-  const [savedMsg, setSavedMsg]   = useState('')
-  const [createErr, setCreateErr] = useState('')
+  const [savedMsg, setSavedMsg]     = useState('')
+  const [createErr, setCreateErr]   = useState('')
+  const [expandedStudent, setExpandedStudent] = useState(null)  // student_id des offenen Dropdowns
+
+  // Lernkarten-Tool
+  const [lkVehicle, setLkVehicle]   = useState(null)   // ausgewähltes Fahrzeug
+  const [lkSearch, setLkSearch]     = useState('')
+  const [lkNotes, setLkNotes]       = useState([])     // aktuelle Notizen für dieses Fahrzeug
+  const [lkInput, setLkInput]       = useState('')
+  const [lkSaving, setLkSaving]     = useState(false)
+  const [lkMsg, setLkMsg]           = useState('')
 
   // Farben
   const bg   = dark ? '#080b10' : '#f0f4f8'
@@ -118,6 +127,28 @@ export default function TeacherDashboard({ user, onLogout }) {
       .in('student_id', studentIds)
     setProgress(prog || [])
     setLoading(false)
+  }
+
+  async function loadLkNotes(vehicleId) {
+    const { data } = await supabase
+      .from('teacher_vehicle_notes')
+      .select('notes')
+      .eq('teacher_id', user.userId)
+      .eq('vehicle_id', vehicleId)
+      .single()
+    setLkNotes(data?.notes || [])
+  }
+
+  async function saveLkNotes(vehicleId, notes) {
+    setLkSaving(true)
+    const { error } = await supabase
+      .from('teacher_vehicle_notes')
+      .upsert({ teacher_id: user.userId, vehicle_id: vehicleId, notes, updated_at: new Date().toISOString() },
+        { onConflict: 'teacher_id,vehicle_id' })
+    setLkSaving(false)
+    setLkMsg(error ? '❌ Fehler beim Speichern' : '✅ Gespeichert')
+    setTimeout(() => setLkMsg(''), 2000)
+    if (!error) setLkNotes(notes)
   }
 
   async function createClassroom() {
@@ -213,13 +244,29 @@ export default function TeacherDashboard({ user, onLogout }) {
     })
   }
 
-  // Schüler-Fortschritt berechnen
+  // Schüler-Gesamtfortschritt
   function studentStats(studentId) {
     const entries = progress.filter(p => p.student_id === studentId)
     const total = entries.reduce((s, p) => s + p.attempts, 0)
     const correct = entries.reduce((s, p) => s + p.correct, 0)
     const pct = total > 0 ? Math.round(correct / total * 100) : 0
     return { vehicles: entries.length, total, correct, pct }
+  }
+
+  // Schüler-Fortschritt nach Kategorie
+  function studentCatStats(studentId) {
+    const entries = progress.filter(p => p.student_id === studentId)
+    const byCat = {}
+    entries.forEach(p => {
+      const vehicle = ALL_VEHICLES.find(v => v.id === p.vehicle_id)
+      if (!vehicle) return
+      const key = vehicle.catKey
+      if (!byCat[key]) byCat[key] = { label: vehicle.cat, attempts: 0, correct: 0, count: 0 }
+      byCat[key].attempts += p.attempts
+      byCat[key].correct  += p.correct
+      byCat[key].count    += 1
+    })
+    return byCat
   }
 
   // Kategorien gruppieren
@@ -244,7 +291,7 @@ export default function TeacherDashboard({ user, onLogout }) {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           {view !== 'classrooms' && (
-            <button onClick={() => setView('classrooms')} style={{
+            <button onClick={() => { setView('classrooms'); setLkVehicle(null); setLkSearch('') }} style={{
               background: 'transparent', border: `1px solid ${bord}`,
               borderRadius: 7, padding: '5px 12px', cursor: 'pointer',
               color: dim, fontSize: 13,
@@ -253,11 +300,17 @@ export default function TeacherDashboard({ user, onLogout }) {
           <span style={{ fontWeight: 700, fontSize: 15, letterSpacing: '0.07em' }}>
             📋 LEHRER-DASHBOARD
           </span>
-          {selected && view !== 'classrooms' && (
+          {selected && view === 'classroom-detail' && (
             <span style={{ color: tc, fontSize: 13 }}>— {selected.name}</span>
           )}
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <button onClick={() => setView('lernkarten')} style={{
+            background: view === 'lernkarten' ? tc + '22' : 'transparent',
+            border: `1px solid ${view === 'lernkarten' ? tc : bord}`,
+            borderRadius: 7, padding: '5px 12px', cursor: 'pointer',
+            color: view === 'lernkarten' ? tc : dim, fontSize: 12,
+          }}>📝 Lernkarten</button>
           <span style={{ fontSize: 12, color: dim }}>{user.name}</span>
           <button onClick={toggleDark} style={{
             background: 'transparent', border: `1px solid ${bord}`,
@@ -450,28 +503,74 @@ export default function TeacherDashboard({ user, onLogout }) {
                 </div>
                 {members.map(m => {
                   const stats = studentStats(m.student_id)
+                  const catStats = studentCatStats(m.student_id)
+                  const isOpen = expandedStudent === m.student_id
                   return (
                     <div key={m.student_id} style={{
-                      background: surf, border: `1px solid ${bord}`, borderRadius: 10,
-                      padding: '14px 18px', display: 'flex', alignItems: 'center',
-                      justifyContent: 'space-between',
+                      background: surf, border: `1px solid ${isOpen ? tc : bord}`,
+                      borderRadius: 10, overflow: 'hidden',
+                      transition: 'border-color 0.2s',
                     }}>
-                      <div>
-                        <div style={{ fontWeight: 700, fontSize: 14 }}>
-                          {m.profiles?.display_name || 'Unbekannt'}
+                      {/* Kopfzeile — klickbar */}
+                      <div
+                        onClick={() => setExpandedStudent(isOpen ? null : m.student_id)}
+                        style={{
+                          padding: '14px 18px', display: 'flex', alignItems: 'center',
+                          justifyContent: 'space-between', cursor: 'pointer',
+                        }}
+                      >
+                        <div>
+                          <div style={{ fontWeight: 700, fontSize: 14 }}>
+                            {m.profiles?.display_name || 'Unbekannt'}
+                          </div>
+                          <div style={{ fontSize: 11, color: dim, marginTop: 3 }}>
+                            Beigetreten: {new Date(m.joined_at).toLocaleDateString('de-DE')}
+                          </div>
                         </div>
-                        <div style={{ fontSize: 11, color: dim, marginTop: 3 }}>
-                          Beigetreten: {new Date(m.joined_at).toLocaleDateString('de-DE')}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                          <div style={{ textAlign: 'right' }}>
+                            <div style={{ fontSize: 20, fontWeight: 700, color: stats.pct >= 70 ? '#22c55e' : stats.pct >= 40 ? '#f59e0b' : dim }}>
+                              {stats.pct}%
+                            </div>
+                            <div style={{ fontSize: 10, color: dim }}>
+                              {stats.correct}/{stats.total} richtig · {stats.vehicles} Fzg.
+                            </div>
+                          </div>
+                          <span style={{ color: dim, fontSize: 12, transition: 'transform 0.2s', display: 'inline-block', transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
                         </div>
                       </div>
-                      <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: 20, fontWeight: 700, color: stats.pct >= 70 ? '#22c55e' : stats.pct >= 40 ? '#f59e0b' : dim }}>
-                          {stats.pct}%
+
+                      {/* Kategorie-Dropdown */}
+                      {isOpen && (
+                        <div style={{ borderTop: `1px solid ${bord}`, padding: '12px 18px', background: surf2 }}>
+                          {Object.keys(catStats).length === 0 ? (
+                            <div style={{ color: dim, fontSize: 12, textAlign: 'center', padding: '8px 0' }}>
+                              Noch keine Quiz-Antworten in dieser Klasse.
+                            </div>
+                          ) : (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                              <div style={{ fontSize: 11, color: dim, marginBottom: 2, fontWeight: 600, letterSpacing: '0.06em' }}>
+                                FORTSCHRITT NACH KATEGORIE
+                              </div>
+                              {Object.entries(catStats).map(([key, cs]) => {
+                                const pct = cs.attempts > 0 ? Math.round(cs.correct / cs.attempts * 100) : 0
+                                const color = pct >= 70 ? '#22c55e' : pct >= 40 ? '#f59e0b' : '#ef4444'
+                                return (
+                                  <div key={key}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}>
+                                      <span style={{ color: text }}>{cs.label}</span>
+                                      <span style={{ color, fontWeight: 700 }}>{pct}% · {cs.correct}/{cs.attempts}</span>
+                                    </div>
+                                    <div style={{ height: 5, borderRadius: 3, background: bord, overflow: 'hidden' }}>
+                                      <div style={{ height: '100%', width: `${pct}%`, background: color, borderRadius: 3, transition: 'width 0.4s' }} />
+                                    </div>
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          )}
                         </div>
-                        <div style={{ fontSize: 10, color: dim }}>
-                          {stats.correct}/{stats.total} richtig · {stats.vehicles} Fahrzeuge
-                        </div>
-                      </div>
+                      )}
                     </div>
                   )
                 })}
@@ -480,108 +579,93 @@ export default function TeacherDashboard({ user, onLogout }) {
           </>
         )}
 
-        {/* ── HAUSAUFGABEN VERGEBEN ─────────────────────────── */}
-        {view === 'homework' && selected && (
-          <>
-            <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        {/* ── LERNKARTEN-TOOL ──────────────────────────────── */}
+        {view === 'lernkarten' && (
+          <div>
+            <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 4 }}>📝 Lernkarten bearbeiten</div>
+            <div style={{ fontSize: 13, color: dim, marginBottom: 20 }}>
+              Füge eigene Merkmale zu Fahrzeugen hinzu. Diese gelten für alle deine Klassenräume.
+            </div>
+
+            {/* Fahrzeug-Suche */}
+            {!lkVehicle ? (
               <div>
-                <div style={{ fontSize: 16, fontWeight: 700 }}>Hausaufgaben für: {selected.name}</div>
-                <div style={{ fontSize: 12, color: dim, marginTop: 3 }}>
-                  {hwSelected.size} Fahrzeuge ausgewählt
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                {savedMsg && <span style={{ color: '#22c55e', fontSize: 13 }}>{savedMsg}</span>}
-                <button onClick={saveHomework} disabled={loading} style={{
-                  background: tc, border: 'none', borderRadius: 8,
-                  padding: '10px 20px', color: '#fff', fontWeight: 700,
-                  fontSize: 13, cursor: 'pointer', letterSpacing: '0.06em',
-                }}>
-                  💾 SPEICHERN
-                </button>
-              </div>
-            </div>
-
-            {/* Titel der Hausaufgabe */}
-            <input
-              value={hwTitle}
-              onChange={e => setHwTitle(e.target.value)}
-              placeholder="Titel der Hausaufgabe"
-              style={{
-                width: '100%', background: inputBg, border: `1px solid ${bord}`,
-                borderRadius: 8, padding: '10px 14px', color: text,
-                fontSize: 14, outline: 'none', boxSizing: 'border-box',
-                fontFamily: 'Arial', marginBottom: 16,
-              }}
-            />
-
-            {/* Fahrzeuge nach Kategorie */}
-            {Object.entries(CATS_GROUPED).map(([cat, vehicles]) => {
-              const allSel = vehicles.every(v => hwSelected.has(v.id))
-              const someSel = vehicles.some(v => hwSelected.has(v.id))
-              return (
-                <div key={cat} style={{
-                  background: surf, border: `1px solid ${bord}`,
-                  borderRadius: 12, marginBottom: 12, overflow: 'hidden',
-                }}>
-                  {/* Kategorie-Header */}
-                  <div
-                    onClick={() => toggleCategory(cat)}
-                    style={{
-                      padding: '12px 18px', cursor: 'pointer',
-                      display: 'flex', alignItems: 'center', gap: 10,
-                      background: allSel ? (dark ? '#0f2a1a' : '#d4f5e4') : 'transparent',
-                      borderBottom: `1px solid ${bord}`,
-                    }}
-                  >
-                    <div style={{
-                      width: 18, height: 18, borderRadius: 4,
-                      border: `2px solid ${allSel ? '#22c55e' : someSel ? tc : bord}`,
-                      background: allSel ? '#22c55e' : someSel ? `${tc}40` : 'transparent',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      flexShrink: 0,
-                    }}>
-                      {allSel && <span style={{ color: '#fff', fontSize: 11 }}>✓</span>}
-                      {someSel && !allSel && <span style={{ color: tc, fontSize: 11 }}>−</span>}
-                    </div>
-                    <div style={{ fontWeight: 700, fontSize: 13, flex: 1 }}>{cat}</div>
-                    <div style={{ fontSize: 11, color: dim }}>
-                      {vehicles.filter(v => hwSelected.has(v.id)).length}/{vehicles.length}
-                    </div>
-                  </div>
-
-                  {/* Fahrzeug-Liste */}
-                  <div style={{ padding: '8px 18px 12px', display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                    {vehicles.map(v => {
-                      const sel = hwSelected.has(v.id)
-                      return (
-                        <button key={v.id} onClick={() => toggleVehicle(v.id)} style={{
-                          padding: '5px 12px', borderRadius: 20, cursor: 'pointer',
-                          fontSize: 12, fontWeight: sel ? 700 : 400,
-                          background: sel ? (dark ? '#0f2a4a' : '#dbeafe') : 'transparent',
-                          border: `1px solid ${sel ? tc : bord}`,
-                          color: sel ? tc : dim, transition: 'all 0.1s',
+                <input
+                  value={lkSearch}
+                  onChange={e => setLkSearch(e.target.value)}
+                  placeholder="Fahrzeug suchen (z.B. T-72, BMP-2 ...)"
+                  style={{
+                    width: '100%', boxSizing: 'border-box', padding: '10px 14px',
+                    background: surf, border: `1px solid ${bord}`, borderRadius: 8,
+                    color: text, fontSize: 14, marginBottom: 12, outline: 'none',
+                  }}
+                />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {ALL_VEHICLES
+                    .filter(v => !lkSearch || v.name.toLowerCase().includes(lkSearch.toLowerCase()))
+                    .slice(0, 20)
+                    .map(v => (
+                      <button key={v.id} onClick={async () => { setLkVehicle(v); await loadLkNotes(v.id) }}
+                        style={{
+                          background: surf, border: `1px solid ${bord}`, borderRadius: 8,
+                          padding: '10px 14px', cursor: 'pointer', textAlign: 'left',
+                          color: text, fontSize: 13, display: 'flex', justifyContent: 'space-between',
                         }}>
-                          {v.name}
-                        </button>
-                      )
-                    })}
-                  </div>
+                        <span style={{ fontWeight: 600 }}>{v.name}</span>
+                        <span style={{ color: dim, fontSize: 11 }}>{v.cat}</span>
+                      </button>
+                    ))}
                 </div>
-              )
-            })}
+              </div>
+            ) : (
+              <div>
+                {/* Zurück-Button */}
+                <button onClick={() => { setLkVehicle(null); setLkNotes([]); setLkInput('') }}
+                  style={{ background: 'transparent', border: `1px solid ${bord}`, borderRadius: 7, padding: '5px 12px', cursor: 'pointer', color: dim, fontSize: 12, marginBottom: 16 }}>
+                  ← Andere Fahrzeug wählen
+                </button>
 
-            <div style={{ marginTop: 16, textAlign: 'right' }}>
-              <button onClick={saveHomework} disabled={loading} style={{
-                background: tc, border: 'none', borderRadius: 8,
-                padding: '12px 28px', color: '#fff', fontWeight: 700,
-                fontSize: 14, cursor: 'pointer', letterSpacing: '0.06em',
-              }}>
-                💾 HAUSAUFGABE SPEICHERN
-              </button>
-            </div>
-          </>
+                <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>{lkVehicle.name}</div>
+                <div style={{ fontSize: 12, color: dim, marginBottom: 16 }}>{lkVehicle.cat}</div>
+
+                {/* Vorhandene Merkmale */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 16 }}>
+                  {lkNotes.length === 0 ? (
+                    <div style={{ color: dim, fontSize: 13, fontStyle: 'italic' }}>Noch keine eigenen Merkmale eingetragen.</div>
+                  ) : lkNotes.map((note, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, background: surf, border: `1px solid ${bord}`, borderRadius: 8, padding: '8px 12px' }}>
+                      <span style={{ flex: 1, fontSize: 13, color: text }}>• {note}</span>
+                      <button onClick={() => saveLkNotes(lkVehicle.id, lkNotes.filter((_, j) => j !== i))}
+                        style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: 16, padding: '0 4px' }}>×</button>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Neues Merkmal hinzufügen */}
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <input
+                    value={lkInput}
+                    onChange={e => setLkInput(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter' && lkInput.trim()) { saveLkNotes(lkVehicle.id, [...lkNotes, lkInput.trim()]); setLkInput('') }}}
+                    placeholder="Neues Merkmal eingeben …"
+                    style={{
+                      flex: 1, padding: '9px 12px', background: surf, border: `1px solid ${bord}`,
+                      borderRadius: 7, color: text, fontSize: 13, outline: 'none',
+                    }}
+                  />
+                  <button
+                    onClick={() => { if (lkInput.trim()) { saveLkNotes(lkVehicle.id, [...lkNotes, lkInput.trim()]); setLkInput('') }}}
+                    disabled={!lkInput.trim() || lkSaving}
+                    style={{ padding: '9px 18px', background: tc, border: 'none', borderRadius: 7, color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: 13 }}>
+                    + Hinzufügen
+                  </button>
+                </div>
+                {lkMsg && <div style={{ fontSize: 12, color: dim, marginTop: 8 }}>{lkMsg}</div>}
+              </div>
+            )}
+          </div>
         )}
+
       </div>
     </div>
   )
