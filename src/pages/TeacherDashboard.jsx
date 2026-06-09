@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { DB, CATS } from '../lib/vehicles'
 
@@ -36,12 +36,18 @@ export default function TeacherDashboard({ user, onLogout }) {
   const [expandedStudent, setExpandedStudent] = useState(null)  // student_id des offenen Dropdowns
 
   // Lernkarten-Tool
-  const [lkVehicle, setLkVehicle]   = useState(null)   // ausgewähltes Fahrzeug
+  const [lkVehicle, setLkVehicle]   = useState(null)
   const [lkSearch, setLkSearch]     = useState('')
-  const [lkNotes, setLkNotes]       = useState([])     // aktuelle Notizen für dieses Fahrzeug
+  const [lkNotes, setLkNotes]       = useState([])
   const [lkInput, setLkInput]       = useState('')
   const [lkSaving, setLkSaving]     = useState(false)
   const [lkMsg, setLkMsg]           = useState('')
+
+  // Hinzufügen-Tool (Community-Fahrzeuge)
+  const [hvList, setHvList]         = useState([])      // alle eigenen Community-Fahrzeuge
+  const [hvEdit, setHvEdit]         = useState(null)    // null = Liste, {} = Bearbeitung
+  const [hvSaving, setHvSaving]     = useState(false)
+  const [hvMsg, setHvMsg]           = useState('')
 
   // Farben
   const bg   = dark ? '#080b10' : '#f0f4f8'
@@ -149,6 +155,46 @@ export default function TeacherDashboard({ user, onLogout }) {
     setLkMsg(error ? '❌ Fehler beim Speichern' : '✅ Gespeichert')
     setTimeout(() => setLkMsg(''), 2000)
     if (!error) setLkNotes(notes)
+  }
+
+  async function loadHvList() {
+    const { data } = await supabase
+      .from('community_vehicles')
+      .select('*')
+      .eq('created_by', user.userId)
+      .order('created_at', { ascending: false })
+    setHvList(data || [])
+  }
+
+  async function saveHv(hv) {
+    setHvSaving(true)
+    let error
+    if (hv.id) {
+      // Bearbeiten
+      const { error: e } = await supabase
+        .from('community_vehicles')
+        .update({ name: hv.name, category: hv.category, cat_key: hv.cat_key, features: hv.features, image_urls: hv.image_urls, updated_at: new Date().toISOString() })
+        .eq('id', hv.id)
+      error = e
+    } else {
+      // Neu erstellen
+      const { error: e } = await supabase
+        .from('community_vehicles')
+        .insert({ created_by: user.userId, name: hv.name, category: hv.category, cat_key: hv.cat_key, features: hv.features, image_urls: hv.image_urls })
+      error = e
+    }
+    setHvSaving(false)
+    if (error) { setHvMsg('❌ Fehler: ' + error.message); return }
+    setHvMsg('✅ Gespeichert!')
+    setTimeout(() => setHvMsg(''), 2000)
+    await loadHvList()
+    setHvEdit(null)
+  }
+
+  async function deleteHv(id) {
+    if (!window.confirm('Lernkarte wirklich löschen?')) return
+    await supabase.from('community_vehicles').delete().eq('id', id)
+    await loadHvList()
   }
 
   async function createClassroom() {
@@ -317,6 +363,12 @@ export default function TeacherDashboard({ user, onLogout }) {
             borderRadius: 7, padding: '5px 12px', cursor: 'pointer',
             color: view === 'lernkarten' ? tc : dim, fontSize: 12,
           }}>📝 Lernkarten</button>
+          <button onClick={() => { setView('hinzufuegen'); loadHvList() }} style={{
+            background: view === 'hinzufuegen' ? tc + '22' : 'transparent',
+            border: `1px solid ${view === 'hinzufuegen' ? tc : bord}`,
+            borderRadius: 7, padding: '5px 12px', cursor: 'pointer',
+            color: view === 'hinzufuegen' ? tc : dim, fontSize: 12,
+          }}>➕ Hinzufügen</button>
           <span style={{ fontSize: 12, color: dim }}>{user.name}</span>
           <button onClick={toggleDark} style={{
             background: 'transparent', border: `1px solid ${bord}`,
@@ -630,16 +682,12 @@ export default function TeacherDashboard({ user, onLogout }) {
               </div>
             ) : (
               <div>
-                {/* Zurück-Button */}
                 <button onClick={() => { setLkVehicle(null); setLkNotes([]); setLkInput('') }}
                   style={{ background: 'transparent', border: `1px solid ${bord}`, borderRadius: 7, padding: '5px 12px', cursor: 'pointer', color: dim, fontSize: 12, marginBottom: 16 }}>
-                  ← Andere Fahrzeug wählen
+                  ← Anderes Fahrzeug wählen
                 </button>
-
                 <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>{lkVehicle.name}</div>
                 <div style={{ fontSize: 12, color: dim, marginBottom: 16 }}>{lkVehicle.cat}</div>
-
-                {/* Vorhandene Merkmale */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 16 }}>
                   {lkNotes.length === 0 ? (
                     <div style={{ color: dim, fontSize: 13, fontStyle: 'italic' }}>Noch keine eigenen Merkmale eingetragen.</div>
@@ -651,21 +699,12 @@ export default function TeacherDashboard({ user, onLogout }) {
                     </div>
                   ))}
                 </div>
-
-                {/* Neues Merkmal hinzufügen */}
                 <div style={{ display: 'flex', gap: 8 }}>
-                  <input
-                    value={lkInput}
-                    onChange={e => setLkInput(e.target.value)}
+                  <input value={lkInput} onChange={e => setLkInput(e.target.value)}
                     onKeyDown={e => { if (e.key === 'Enter' && lkInput.trim()) { saveLkNotes(lkVehicle.id, [...lkNotes, lkInput.trim()]); setLkInput('') }}}
                     placeholder="Neues Merkmal eingeben …"
-                    style={{
-                      flex: 1, padding: '9px 12px', background: surf, border: `1px solid ${bord}`,
-                      borderRadius: 7, color: text, fontSize: 13, outline: 'none',
-                    }}
-                  />
-                  <button
-                    onClick={() => { if (lkInput.trim()) { saveLkNotes(lkVehicle.id, [...lkNotes, lkInput.trim()]); setLkInput('') }}}
+                    style={{ flex: 1, padding: '9px 12px', background: surf, border: `1px solid ${bord}`, borderRadius: 7, color: text, fontSize: 13, outline: 'none' }} />
+                  <button onClick={() => { if (lkInput.trim()) { saveLkNotes(lkVehicle.id, [...lkNotes, lkInput.trim()]); setLkInput('') }}}
                     disabled={!lkInput.trim() || lkSaving}
                     style={{ padding: '9px 18px', background: tc, border: 'none', borderRadius: 7, color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: 13 }}>
                     + Hinzufügen
@@ -677,7 +716,145 @@ export default function TeacherDashboard({ user, onLogout }) {
           </div>
         )}
 
+        {/* ── HINZUFÜGEN-TOOL ─────────────────────────────── */}
+        {view === 'hinzufuegen' && (
+          <HvTool
+            hvList={hvList} hvEdit={hvEdit} setHvEdit={setHvEdit}
+            hvSaving={hvSaving} hvMsg={hvMsg}
+            saveHv={saveHv} deleteHv={deleteHv}
+            surf={surf} surf2={surf2} bord={bord} text={text} dim={dim} tc={tc}
+            CATS={CATS}
+          />
+        )}
+
       </div>
+    </div>
+  )
+}
+
+// ── HINZUFÜGEN COMPONENT ──────────────────────────────────────
+function HvTool({ hvList, hvEdit, setHvEdit, hvSaving, hvMsg, saveHv, deleteHv, surf, surf2, bord, text, dim, tc, CATS }) {
+  const emptyForm = { name: '', category: '', cat_key: '', features: [], image_urls: [] }
+  const [form, setForm] = React.useState(emptyForm)
+  const [featInput, setFeatInput] = React.useState('')
+  const [imgInput, setImgInput] = React.useState('')
+
+  React.useEffect(() => {
+    if (hvEdit === 'new') setForm(emptyForm)
+    else if (hvEdit) setForm({ ...hvEdit })
+  }, [hvEdit])
+
+  if (!hvEdit) {
+    // ── LISTE ──
+    return (
+      <div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+          <div>
+            <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 4 }}>➕ Eigene Lernkarten</div>
+            <div style={{ fontSize: 13, color: dim }}>Erstelle neue Fahrzeug-Lernkarten. Diese sind für alle Lehrer sichtbar.</div>
+          </div>
+          <button onClick={() => setHvEdit('new')} style={{
+            padding: '9px 18px', background: tc, border: 'none', borderRadius: 8,
+            color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: 13,
+          }}>+ Neue Lernkarte</button>
+        </div>
+        {hvList.length === 0 ? (
+          <div style={{ background: surf, border: `1px solid ${bord}`, borderRadius: 12, padding: 40, textAlign: 'center', color: dim }}>
+            Noch keine eigenen Lernkarten erstellt.
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {hvList.map(hv => (
+              <div key={hv.id} style={{ background: surf, border: `1px solid ${bord}`, borderRadius: 10, padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 14, color: text }}>{hv.name}</div>
+                  <div style={{ fontSize: 11, color: dim, marginTop: 2 }}>{hv.category} · {hv.features?.length || 0} Merkmale · {hv.image_urls?.length || 0} Bilder</div>
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button onClick={() => setHvEdit(hv)} style={{ padding: '5px 12px', borderRadius: 7, border: `1px solid ${bord}`, background: 'transparent', color: dim, fontSize: 12, cursor: 'pointer' }}>✏️ Bearbeiten</button>
+                  <button onClick={() => deleteHv(hv.id)} style={{ padding: '5px 12px', borderRadius: 7, border: '1px solid #ef4444', background: 'transparent', color: '#ef4444', fontSize: 12, cursor: 'pointer' }}>🗑️ Löschen</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  // ── FORMULAR (Neu / Bearbeiten) ──
+  const isNew = hvEdit === 'new'
+  return (
+    <div>
+      <button onClick={() => setHvEdit(null)} style={{ background: 'transparent', border: `1px solid ${bord}`, borderRadius: 7, padding: '5px 12px', cursor: 'pointer', color: dim, fontSize: 12, marginBottom: 20 }}>
+        ← Zurück zur Liste
+      </button>
+      <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 20 }}>{isNew ? 'Neue Lernkarte erstellen' : `"${form.name}" bearbeiten`}</div>
+
+      {/* Name */}
+      <label style={{ fontSize: 12, color: dim, letterSpacing: '0.06em' }}>FAHRZEUGNAME</label>
+      <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+        placeholder="z.B. T-55AM2"
+        style={{ display: 'block', width: '100%', boxSizing: 'border-box', padding: '10px 14px', background: surf, border: `1px solid ${bord}`, borderRadius: 8, color: text, fontSize: 14, marginTop: 6, marginBottom: 16, outline: 'none' }} />
+
+      {/* Kategorie */}
+      <label style={{ fontSize: 12, color: dim, letterSpacing: '0.06em' }}>KATEGORIE</label>
+      <select value={form.cat_key} onChange={e => {
+        const key = e.target.value
+        setForm(f => ({ ...f, cat_key: key, category: CATS[key]?.label || key }))
+      }} style={{ display: 'block', width: '100%', padding: '10px 14px', background: surf, border: `1px solid ${bord}`, borderRadius: 8, color: text, fontSize: 14, marginTop: 6, marginBottom: 16, outline: 'none' }}>
+        <option value="">Kategorie wählen …</option>
+        {Object.entries(CATS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+      </select>
+
+      {/* Merkmale */}
+      <label style={{ fontSize: 12, color: dim, letterSpacing: '0.06em' }}>ERKENNUNGSMERKMALE</label>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 6, marginBottom: 8 }}>
+        {form.features.map((f, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, background: surf, border: `1px solid ${bord}`, borderRadius: 7, padding: '7px 12px' }}>
+            <span style={{ flex: 1, fontSize: 13, color: text }}>• {f}</span>
+            <button onClick={() => setForm(fm => ({ ...fm, features: fm.features.filter((_, j) => j !== i) }))}
+              style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: 16 }}>×</button>
+          </div>
+        ))}
+      </div>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+        <input value={featInput} onChange={e => setFeatInput(e.target.value)}
+          onKeyDown={e => { if (e.key === 'Enter' && featInput.trim()) { setForm(f => ({ ...f, features: [...f.features, featInput.trim()] })); setFeatInput('') }}}
+          placeholder="Merkmal eingeben …"
+          style={{ flex: 1, padding: '9px 12px', background: surf, border: `1px solid ${bord}`, borderRadius: 7, color: text, fontSize: 13, outline: 'none' }} />
+        <button onClick={() => { if (featInput.trim()) { setForm(f => ({ ...f, features: [...f.features, featInput.trim()] })); setFeatInput('') }}}
+          style={{ padding: '9px 14px', background: surf, border: `1px solid ${bord}`, borderRadius: 7, color: text, cursor: 'pointer', fontSize: 13 }}>+ Merkmal</button>
+      </div>
+
+      {/* Bilder */}
+      <label style={{ fontSize: 12, color: dim, letterSpacing: '0.06em' }}>BILD-LINKS (URLs)</label>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 6, marginBottom: 8 }}>
+        {form.image_urls.map((url, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, background: surf, border: `1px solid ${bord}`, borderRadius: 7, padding: '7px 12px' }}>
+            <img src={url} alt="" style={{ width: 48, height: 36, objectFit: 'cover', borderRadius: 4, flexShrink: 0 }} onError={e => e.target.style.display='none'} />
+            <span style={{ flex: 1, fontSize: 11, color: dim, wordBreak: 'break-all' }}>{url}</span>
+            <button onClick={() => setForm(fm => ({ ...fm, image_urls: fm.image_urls.filter((_, j) => j !== i) }))}
+              style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: 16 }}>×</button>
+          </div>
+        ))}
+      </div>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
+        <input value={imgInput} onChange={e => setImgInput(e.target.value)}
+          onKeyDown={e => { if (e.key === 'Enter' && imgInput.trim()) { setForm(f => ({ ...f, image_urls: [...f.image_urls, imgInput.trim()] })); setImgInput('') }}}
+          placeholder="https://... Bild-URL einfügen"
+          style={{ flex: 1, padding: '9px 12px', background: surf, border: `1px solid ${bord}`, borderRadius: 7, color: text, fontSize: 13, outline: 'none' }} />
+        <button onClick={() => { if (imgInput.trim()) { setForm(f => ({ ...f, image_urls: [...f.image_urls, imgInput.trim()] })); setImgInput('') }}}
+          style={{ padding: '9px 14px', background: surf, border: `1px solid ${bord}`, borderRadius: 7, color: text, cursor: 'pointer', fontSize: 13 }}>+ Bild</button>
+      </div>
+
+      {/* Speichern */}
+      <button onClick={() => saveHv({ ...form, id: isNew ? undefined : hvEdit.id })}
+        disabled={!form.name.trim() || !form.cat_key || hvSaving}
+        style={{ width: '100%', padding: '12px 0', background: tc, border: 'none', borderRadius: 8, color: '#fff', fontWeight: 700, fontSize: 15, cursor: 'pointer' }}>
+        {hvSaving ? 'Speichern …' : isNew ? '✅ Lernkarte erstellen' : '✅ Änderungen speichern'}
+      </button>
+      {hvMsg && <div style={{ fontSize: 13, color: dim, marginTop: 10, textAlign: 'center' }}>{hvMsg}</div>}
     </div>
   )
 }
