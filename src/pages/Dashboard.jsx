@@ -549,6 +549,12 @@ export default function Dashboard({ user, onLogout }) {
           <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
             <button onClick={() => setFontSize(f => Math.max(14, f - 1))} style={{ ...btn(false, bord, dim), padding: '4px 8px', fontSize: 12 }}>A−</button>
             <button onClick={() => setFontSize(f => Math.min(17, f + 1))} style={{ ...btn(false, bord, dim), padding: '4px 8px', fontSize: 14 }}>A+</button>
+            {classroom && (
+              <button onClick={loadClassroomData} disabled={refreshing} title="Hausaufgaben & Lehrer-Merkmale aktualisieren"
+                style={{ ...btn(false, bord, dim), padding: '4px 9px', fontSize: 14 }}>
+                {refreshing ? '⏳' : '🔄'}
+              </button>
+            )}
           </div>
           <button onClick={() => setDark(d => !d)} style={{ ...btn(false, bord, dim), padding: '5px 10px', fontSize: fontSize - 1 }}>
             {dark ? '☀️' : '🌙'}
@@ -596,21 +602,10 @@ export default function Dashboard({ user, onLogout }) {
               + Klasse beitreten
             </button>
           )}
-          {classroom && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              {!homework && (
-                <span style={{ padding: '8px 10px', color: dim, fontSize: fontSize - 4 }}>
-                  🏫 {classroom.name}
-                </span>
-              )}
-              <button onClick={loadClassroomData} disabled={refreshing} style={{
-                background: 'transparent', border: `1px solid ${bord}`,
-                borderRadius: 7, padding: '5px 10px', cursor: 'pointer',
-                color: dim, fontSize: fontSize - 4, display: 'flex', alignItems: 'center', gap: 4,
-              }}>
-                {refreshing ? '⏳' : '🔄'} Aktualisieren
-              </button>
-            </div>
+          {classroom && !homework && (
+            <span style={{ flex: '0 0 auto', padding: '8px 10px', color: dim, fontSize: fontSize - 4 }}>
+              🏫 {classroom.name}
+            </span>
           )}
         </div>
       </div>
