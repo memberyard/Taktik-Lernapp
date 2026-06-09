@@ -35,7 +35,8 @@ export default function Dashboard({ user, onLogout }) {
   const [notes, setNotes] = useLocalStorage('tl_notes', {})
   const [homework, setHomework]         = useState(null)
   const [classroom, setClassroom]       = useState(null)
-  const [classroomLoaded, setClassroomLoaded] = useState(false)  // true sobald DB-Abfrage fertig
+  const [classroomLoaded, setClassroomLoaded] = useState(false)
+  const [teacherNotes, setTeacherNotes] = useState({})  // { vehicle_id: [note1, note2] }
   const [showJoin, setShowJoin]         = useState(false)
   const [joinCode, setJoinCode]         = useState('')
   const [joinError, setJoinError]       = useState('')
@@ -82,13 +83,26 @@ export default function Dashboard({ user, onLogout }) {
       // Schüler-Mitgliedschaft abrufen
       const { data: membership } = await supabase
         .from('classroom_members')
-        .select('classroom_id, classrooms(id, name, code)')
+        .select('classroom_id, classrooms(id, name, code, teacher_id)')
         .eq('student_id', user.userId)
         .limit(1)
         .single()
       if (!membership) { setClassroomLoaded(true); return }
       const cr = membership.classrooms
       setClassroom(cr)
+
+      // Lehrer-Notizen laden
+      if (cr.teacher_id) {
+        const { data: notes } = await supabase
+          .from('teacher_vehicle_notes')
+          .select('vehicle_id, notes')
+          .eq('teacher_id', cr.teacher_id)
+        if (notes) {
+          const map = {}
+          notes.forEach(n => { map[Number(n.vehicle_id)] = n.notes || [] })
+          setTeacherNotes(map)
+        }
+      }
 
       // Hausaufgabe abrufen
       const { data: hw } = await supabase
@@ -802,6 +816,24 @@ export default function Dashboard({ user, onLogout }) {
                       <div style={{ fontSize: fontSize - 1, color: text, lineHeight: 1.5 }}>{feat}</div>
                     </div>
                   ))}
+                  {/* Lehrer-Notizen */}
+                  {(teacherNotes[cur.id] || []).length > 0 && (
+                    <>
+                      <div style={{ fontSize: fontSize - 4, color: '#f59e0b', letterSpacing: '0.1em', marginBottom: 8, marginTop: 4 }}>
+                        📌 ZUSATZ VOM LEHRER
+                      </div>
+                      {teacherNotes[cur.id].map((note, i) => (
+                        <div key={i} style={{ display: 'flex', gap: 10, marginBottom: 10, alignItems: 'flex-start' }}>
+                          <div style={{
+                            width: 22, height: 22, borderRadius: '50%', background: '#f59e0b',
+                            color: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontSize: fontSize - 4, fontWeight: 700, flexShrink: 0, marginTop: 1,
+                          }}>★</div>
+                          <div style={{ fontSize: fontSize - 1, color: text, lineHeight: 1.5 }}>{note}</div>
+                        </div>
+                      ))}
+                    </>
+                  )}
                   <button onClick={() => setRevealed(false)}
                     style={{ ...btn(false, bord, dim), marginTop: 6, width: '100%', padding: '8px 0' }}>
                     Verbergen
