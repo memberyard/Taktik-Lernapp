@@ -255,10 +255,16 @@ export default function TeacherDashboard({ user, onLogout }) {
 
   // Schüler-Fortschritt nach Kategorie
   function studentCatStats(studentId) {
-    const entries = progress.filter(p => p.student_id === studentId)
+    // Alle Kategorien mit 0 initialisieren
     const byCat = {}
+    Object.entries(CATS).forEach(([key, catObj]) => {
+      byCat[key] = { label: catObj.label || key, attempts: 0, correct: 0, count: 0 }
+    })
+
+    const entries = progress.filter(p => p.student_id === studentId)
     entries.forEach(p => {
-      const vehicle = ALL_VEHICLES.find(v => v.id === p.vehicle_id)
+      // Typ-Sicherheit: vehicle_id kann String oder Zahl sein
+      const vehicle = ALL_VEHICLES.find(v => v.id === Number(p.vehicle_id))
       if (!vehicle) return
       const key = vehicle.catKey
       if (!byCat[key]) byCat[key] = { label: vehicle.cat, attempts: 0, correct: 0, count: 0 }
@@ -542,33 +548,38 @@ export default function TeacherDashboard({ user, onLogout }) {
 
                       {/* Kategorie-Dropdown */}
                       {isOpen && (
-                        <div style={{ borderTop: `1px solid ${bord}`, padding: '12px 18px', background: surf2 }}>
-                          {Object.keys(catStats).length === 0 ? (
-                            <div style={{ color: dim, fontSize: 12, textAlign: 'center', padding: '8px 0' }}>
-                              Noch keine Quiz-Antworten in dieser Klasse.
-                            </div>
-                          ) : (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                              <div style={{ fontSize: 11, color: dim, marginBottom: 2, fontWeight: 600, letterSpacing: '0.06em' }}>
-                                FORTSCHRITT NACH KATEGORIE
-                              </div>
-                              {Object.entries(catStats).map(([key, cs]) => {
-                                const pct = cs.attempts > 0 ? Math.round(cs.correct / cs.attempts * 100) : 0
-                                const color = pct >= 70 ? '#22c55e' : pct >= 40 ? '#f59e0b' : '#ef4444'
-                                return (
-                                  <div key={key}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}>
-                                      <span style={{ color: text }}>{cs.label}</span>
-                                      <span style={{ color, fontWeight: 700 }}>{pct}% · {cs.correct}/{cs.attempts}</span>
-                                    </div>
-                                    <div style={{ height: 5, borderRadius: 3, background: bord, overflow: 'hidden' }}>
-                                      <div style={{ height: '100%', width: `${pct}%`, background: color, borderRadius: 3, transition: 'width 0.4s' }} />
-                                    </div>
+                        <div style={{ borderTop: `1px solid ${bord}`, padding: '16px 18px', background: surf2 }}>
+                          <div style={{ fontSize: 11, color: dim, marginBottom: 10, fontWeight: 600, letterSpacing: '0.06em' }}>
+                            FORTSCHRITT NACH KATEGORIE
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                            {Object.entries(catStats).map(([key, cs]) => {
+                              const pct = cs.attempts > 0 ? Math.round(cs.correct / cs.attempts * 100) : 0
+                              const errPct = cs.attempts > 0 ? Math.round((cs.attempts - cs.correct) / cs.attempts * 100) : 0
+                              const color = cs.attempts === 0 ? dim : pct >= 70 ? '#22c55e' : pct >= 40 ? '#f59e0b' : '#ef4444'
+                              return (
+                                <div key={key}>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12, marginBottom: 5 }}>
+                                    <span style={{ color: text, fontWeight: 600 }}>{cs.label}</span>
+                                    {cs.attempts === 0 ? (
+                                      <span style={{ color: dim, fontSize: 11 }}>Noch nicht geübt</span>
+                                    ) : (
+                                      <span style={{ display: 'flex', gap: 10, fontSize: 11 }}>
+                                        <span style={{ color: '#22c55e' }}>✓ {cs.correct} richtig ({pct}%)</span>
+                                        <span style={{ color: '#ef4444' }}>✗ {cs.attempts - cs.correct} falsch ({errPct}%)</span>
+                                      </span>
+                                    )}
                                   </div>
-                                )
-                              })}
-                            </div>
-                          )}
+                                  <div style={{ height: 6, borderRadius: 3, background: bord, overflow: 'hidden', display: 'flex' }}>
+                                    {cs.attempts > 0 && <>
+                                      <div style={{ height: '100%', width: `${pct}%`, background: '#22c55e', transition: 'width 0.4s' }} />
+                                      <div style={{ height: '100%', width: `${errPct}%`, background: '#ef4444', transition: 'width 0.4s' }} />
+                                    </>}
+                                  </div>
+                                </div>
+                              )
+                            })}
+                          </div>
                         </div>
                       )}
                     </div>
