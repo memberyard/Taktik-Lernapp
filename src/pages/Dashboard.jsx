@@ -77,46 +77,49 @@ export default function Dashboard({ user, onLogout }) {
   }, [activeCat, superCat, selectedIds, shuffle])
 
   // Klassenraum & Hausaufgaben laden
-  useEffect(() => {
+  const [refreshing, setRefreshing] = useState(false)
+
+  async function loadClassroomData() {
     if (!user?.userId) return
-    async function loadClassroomData() {
-      // Schüler-Mitgliedschaft abrufen
-      const { data: membership } = await supabase
-        .from('classroom_members')
-        .select('classroom_id, classrooms(id, name, code, teacher_id)')
-        .eq('student_id', user.userId)
-        .limit(1)
-        .single()
-      if (!membership) { setClassroomLoaded(true); return }
-      const cr = membership.classrooms
-      setClassroom(cr)
+    setRefreshing(true)
+    // Schüler-Mitgliedschaft abrufen
+    const { data: membership } = await supabase
+      .from('classroom_members')
+      .select('classroom_id, classrooms(id, name, code, teacher_id)')
+      .eq('student_id', user.userId)
+      .limit(1)
+      .single()
+    if (!membership) { setClassroomLoaded(true); setRefreshing(false); return }
+    const cr = membership.classrooms
+    setClassroom(cr)
 
-      // Lehrer-Notizen laden
-      if (cr.teacher_id) {
-        const { data: notes } = await supabase
-          .from('teacher_vehicle_notes')
-          .select('vehicle_id, notes')
-          .eq('teacher_id', cr.teacher_id)
-        if (notes) {
-          const map = {}
-          notes.forEach(n => { map[Number(n.vehicle_id)] = n.notes || [] })
-          setTeacherNotes(map)
-        }
+    // Lehrer-Notizen laden
+    if (cr.teacher_id) {
+      const { data: notes } = await supabase
+        .from('teacher_vehicle_notes')
+        .select('vehicle_id, notes')
+        .eq('teacher_id', cr.teacher_id)
+      if (notes) {
+        const map = {}
+        notes.forEach(n => { map[Number(n.vehicle_id)] = n.notes || [] })
+        setTeacherNotes(map)
       }
-
-      // Hausaufgabe abrufen
-      const { data: hw } = await supabase
-        .from('homework')
-        .select('*')
-        .eq('classroom_id', cr.id)
-        .order('updated_at', { ascending: false })
-        .limit(1)
-        .single()
-      if (hw) setHomework(hw)
-      setClassroomLoaded(true)
     }
-    loadClassroomData()
-  }, [user?.userId])
+
+    // Hausaufgabe abrufen
+    const { data: hw } = await supabase
+      .from('homework')
+      .select('*')
+      .eq('classroom_id', cr.id)
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .single()
+    if (hw) setHomework(hw)
+    setClassroomLoaded(true)
+    setRefreshing(false)
+  }
+
+  useEffect(() => { loadClassroomData() }, [user?.userId])
 
   // Pool neu aufbauen wenn hwMode wechselt (hwMode zeigt eigene Ansicht, kein Pool nötig)
   useEffect(() => {
@@ -593,13 +596,21 @@ export default function Dashboard({ user, onLogout }) {
               + Klasse beitreten
             </button>
           )}
-          {classroom && !homework && (
-            <span style={{
-              flex: '0 0 auto', padding: '8px 10px', color: dim,
-              fontSize: fontSize - 4, display: 'flex', alignItems: 'center',
-            }}>
-              🏫 {classroom.name}
-            </span>
+          {classroom && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              {!homework && (
+                <span style={{ padding: '8px 10px', color: dim, fontSize: fontSize - 4 }}>
+                  🏫 {classroom.name}
+                </span>
+              )}
+              <button onClick={loadClassroomData} disabled={refreshing} style={{
+                background: 'transparent', border: `1px solid ${bord}`,
+                borderRadius: 7, padding: '5px 10px', cursor: 'pointer',
+                color: dim, fontSize: fontSize - 4, display: 'flex', alignItems: 'center', gap: 4,
+              }}>
+                {refreshing ? '⏳' : '🔄'} Aktualisieren
+              </button>
+            </div>
           )}
         </div>
       </div>
