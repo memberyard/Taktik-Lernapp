@@ -88,6 +88,14 @@ export default function Dashboard({ user, onLogout }) {
 
   useEffect(() => { loadCommunityVehicles() }, [])
 
+  // Fallback: Custom-Kategorie ohne Fahrzeuge → zurück zur ersten Kategorie
+  useEffect(() => {
+    if (!classroomLoaded && communityVehicles.length === 0) return
+    if (!CATS[activeCat] && !communityVehicles.some(v => v.catKey === activeCat)) {
+      setActiveCat(Object.keys(CATS)[0])
+    }
+  }, [communityVehicles, classroomLoaded])
+
   // Alle Fahrzeuge (built-in + community) für aktive Kategorie
   function getPoolBase(catKey, superCatKey) {
     const community = communityVehicles.filter(v =>
@@ -349,11 +357,19 @@ export default function Dashboard({ user, onLogout }) {
   }
 
   if (!pool.length || !cur) {
+    // Noch beim Laden — kurz warten bevor Fehlermeldung
+    if (refreshing) {
+      return (
+        <div style={{ minHeight: '100vh', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Arial', color: dim, fontSize }}>
+          Laden …
+        </div>
+      )
+    }
     return (
       <div style={{ minHeight: '100vh', background: bg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, fontFamily: 'Arial', fontSize }}>
         <div style={{ color: text, fontWeight: 700, fontSize: fontSize + 1 }}>Keine Fahrzeuge für diese Auswahl.</div>
         <div style={{ color: dim, fontSize: fontSize - 2 }}>Für diese Kategorie sind noch keine Fahrzeuge eingetragen.</div>
-        <button onClick={() => setSuperCat('russia')} style={{ marginTop: 8, padding: '10px 24px', background: '#1e3a5f', border: '1px solid #2d5080', borderRadius: 8, color: '#7eb8f0', fontSize, fontWeight: 700, cursor: 'pointer', fontFamily: 'Arial' }}>
+        <button onClick={() => { setSuperCat('russia'); setActiveCat(Object.keys(CATS)[0]) }} style={{ marginTop: 8, padding: '10px 24px', background: '#1e3a5f', border: '1px solid #2d5080', borderRadius: 8, color: '#7eb8f0', fontSize, fontWeight: 700, cursor: 'pointer', fontFamily: 'Arial' }}>
           Zurück zu Russland/GUS
         </button>
       </div>
