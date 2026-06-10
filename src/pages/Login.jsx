@@ -96,7 +96,7 @@ export default function Login({ onLogin }) {
   return (
     <div style={{
       minHeight: '100vh',
-      backgroundImage: 'url(https://bundeswehr-lexikon.de/wp-content/uploads/2017/06/banner.jpg)',
+      backgroundImage: 'url(https://i.pinimg.com/564x/66/10/4c/66104cd228d8925efbfdf8bbd612050d.jpg)',
       backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       padding: 20, fontFamily: 'Arial', transition: 'background 0.2s',
@@ -115,12 +115,9 @@ export default function Login({ onLogin }) {
         borderRadius: 12, padding: '36px 32px', width: '100%', maxWidth: 400,
       }}>
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
-          <img src="/med-logo.png" alt="MED Logo" style={{ width: 110, height: 110, objectFit: 'contain', marginBottom: 8 }} />
+          <img src="/med-logo.png" alt="MED Logo" style={{ width: 180, height: 180, objectFit: 'contain', marginBottom: 8 }} />
           <div style={{ fontSize: 20, fontWeight: 700, color: text, letterSpacing: '0.07em' }}>
             MED LERNAPP
-          </div>
-          <div style={{ fontSize: 11, color: dim, letterSpacing: '0.14em', marginTop: 5 }}>
-            FAHRZEUGKENNUNG · BUNDESWEHR
           </div>
         </div>
 
