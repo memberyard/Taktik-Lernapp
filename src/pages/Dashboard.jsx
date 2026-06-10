@@ -286,7 +286,7 @@ export default function Dashboard({ user, onLogout }) {
   // ── JOIN-SCREEN ─────────────────────────────────────────────
   if (classroomLoaded && !classroom) {
     return (
-      <div style={{ minHeight: '100vh', backgroundImage: 'linear-gradient(rgba(10,13,20,0.82), rgba(10,13,20,0.82)), url(https://i.pinimg.com/564x/66/10/4c/66104cd228d8925efbfdf8bbd612050d.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed', fontFamily: 'Arial', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+      <div style={{ minHeight: '100vh', backgroundImage: `linear-gradient(${dark ? 'rgba(10,13,20,0.82)' : 'rgba(220,228,236,0.60)'}, ${dark ? 'rgba(10,13,20,0.82)' : 'rgba(220,228,236,0.60)'}), url(https://i.pinimg.com/564x/66/10/4c/66104cd228d8925efbfdf8bbd612050d.jpg)`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed', fontFamily: 'Arial', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
         <div style={{ background: surf, border: `1px solid ${bord}`, borderRadius: 14, padding: '40px 36px', width: '100%', maxWidth: 420, textAlign: 'center' }}>
           <div style={{ fontSize: 44, marginBottom: 12 }}>🏫</div>
           <div style={{ fontSize: 20, fontWeight: 700, color: text, marginBottom: 8 }}>Klassenraum beitreten</div>
@@ -322,7 +322,7 @@ export default function Dashboard({ user, onLogout }) {
     }
 
     return (
-      <div style={{ minHeight: '100vh', backgroundImage: 'linear-gradient(rgba(10,13,20,0.82), rgba(10,13,20,0.82)), url(https://i.pinimg.com/564x/66/10/4c/66104cd228d8925efbfdf8bbd612050d.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed', fontFamily: 'Arial', fontSize, color: text }}>
+      <div style={{ minHeight: '100vh', backgroundImage: `linear-gradient(${dark ? 'rgba(10,13,20,0.82)' : 'rgba(220,228,236,0.60)'}, ${dark ? 'rgba(10,13,20,0.82)' : 'rgba(220,228,236,0.60)'}), url(https://i.pinimg.com/564x/66/10/4c/66104cd228d8925efbfdf8bbd612050d.jpg)`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed', fontFamily: 'Arial', fontSize, color: text }}>
         <div style={{ background: surf, borderBottom: `1px solid ${bord}`, position: 'sticky', top: 0, zIndex: 20 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', flexWrap: 'wrap' }}>
             <div style={{ fontWeight: 700, fontSize: fontSize - 1, color: '#22c55e', letterSpacing: '0.08em', flexShrink: 0 }}>MED</div>
@@ -378,13 +378,13 @@ export default function Dashboard({ user, onLogout }) {
     // Noch beim Laden — kurz warten bevor Fehlermeldung
     if (refreshing) {
       return (
-        <div style={{ minHeight: '100vh', backgroundImage: 'linear-gradient(rgba(10,13,20,0.82), rgba(10,13,20,0.82)), url(https://i.pinimg.com/564x/66/10/4c/66104cd228d8925efbfdf8bbd612050d.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Arial', color: dim, fontSize }}>
+        <div style={{ minHeight: '100vh', backgroundImage: `linear-gradient(${dark ? 'rgba(10,13,20,0.82)' : 'rgba(220,228,236,0.60)'}, ${dark ? 'rgba(10,13,20,0.82)' : 'rgba(220,228,236,0.60)'}), url(https://i.pinimg.com/564x/66/10/4c/66104cd228d8925efbfdf8bbd612050d.jpg)`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Arial', color: dim, fontSize }}>
           Laden …
         </div>
       )
     }
     return (
-      <div style={{ minHeight: '100vh', backgroundImage: 'linear-gradient(rgba(10,13,20,0.82), rgba(10,13,20,0.82)), url(https://i.pinimg.com/564x/66/10/4c/66104cd228d8925efbfdf8bbd612050d.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, fontFamily: 'Arial', fontSize }}>
+      <div style={{ minHeight: '100vh', backgroundImage: `linear-gradient(${dark ? 'rgba(10,13,20,0.82)' : 'rgba(220,228,236,0.60)'}, ${dark ? 'rgba(10,13,20,0.82)' : 'rgba(220,228,236,0.60)'}), url(https://i.pinimg.com/564x/66/10/4c/66104cd228d8925efbfdf8bbd612050d.jpg)`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, fontFamily: 'Arial', fontSize }}>
         <div style={{ color: text, fontWeight: 700, fontSize: fontSize + 1 }}>Keine Fahrzeuge für diese Auswahl.</div>
         <div style={{ color: dim, fontSize: fontSize - 2 }}>Für diese Kategorie sind noch keine Fahrzeuge eingetragen.</div>
         <button onClick={() => { setSuperCat('all'); setSelectedIds(null); setActiveCat(Object.keys(CATS)[0]) }} style={{ marginTop: 8, padding: '10px 24px', background: '#1e3a5f', border: '1px solid #2d5080', borderRadius: 8, color: '#7eb8f0', fontSize, fontWeight: 700, cursor: 'pointer', fontFamily: 'Arial' }}>
@@ -395,7 +395,7 @@ export default function Dashboard({ user, onLogout }) {
   }
 
   return (
-    <div style={{ minHeight: '100vh', backgroundImage: 'linear-gradient(rgba(10,13,20,0.82), rgba(10,13,20,0.82)), url(https://i.pinimg.com/564x/66/10/4c/66104cd228d8925efbfdf8bbd612050d.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed', fontFamily: 'Arial', fontSize, color: text, position: 'relative' }}>
+    <div style={{ minHeight: '100vh', backgroundImage: `linear-gradient(${dark ? 'rgba(10,13,20,0.82)' : 'rgba(220,228,236,0.60)'}, ${dark ? 'rgba(10,13,20,0.82)' : 'rgba(220,228,236,0.60)'}), url(https://i.pinimg.com/564x/66/10/4c/66104cd228d8925efbfdf8bbd612050d.jpg)`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed', fontFamily: 'Arial', fontSize, color: text, position: 'relative' }}>
 
       {showSidebar && <div onClick={() => setShowSidebar(false)} style={{ position: 'fixed', inset: 0, background: '#00000080', zIndex: 40 }} />}
 
