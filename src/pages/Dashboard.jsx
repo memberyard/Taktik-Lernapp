@@ -65,9 +65,9 @@ export default function Dashboard({ user, onLogout }) {
 
   const bg      = dark ? '#080b10' : '#f0f4f8'
   const surf    = dark ? '#0a0d14' : '#ffffff'
-  const bord    = dark ? '#1c2430' : '#d0dce8'
+  const bord    = dark ? '#1c2430' : '#8090a8'
   const text    = dark ? '#c0d0e0' : '#1a2a3a'
-  const dim     = dark ? '#3d5060' : '#7090a0'
+  const dim     = dark ? '#3d5060' : '#3a5060'
   const inputBg = dark ? '#0d1117' : '#f8fafb'
   const _customCatFallback = communityVehicles.find(v => v.catKey === activeCat)
   const cat = CATS[activeCat] || {
@@ -274,9 +274,10 @@ export default function Dashboard({ user, onLogout }) {
 
   const btn = (active, color, lightColor) => ({
     padding: '8px 14px',
-    background: active ? color + '28' : 'transparent',
+    background: active ? color + '28' : (dark ? 'transparent' : 'rgba(255,255,255,0.85)'),
     border: `1px solid ${active ? color : bord}`,
     color: active ? lightColor : dim,
+    boxShadow: (!dark && !active) ? '0 1px 3px rgba(0,0,0,0.15)' : 'none',
     borderRadius: 7, fontSize: fontSize - 2,
     fontWeight: active ? 700 : 400,
     letterSpacing: '0.08em', cursor: 'pointer',
