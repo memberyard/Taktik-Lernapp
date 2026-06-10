@@ -2,79 +2,77 @@ import React, { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { DB, CATS } from '../lib/vehicles'
 
-// DB ist ein Objekt {catKey: [vehicles]} → flatten zu Array
 const ALL_VEHICLES = Object.entries(DB).flatMap(([catKey, vehicles]) =>
   vehicles.map(v => ({ ...v, cat: CATS[catKey]?.label || catKey, catKey }))
 )
 
-// ── Hilfsfunktionen ────────────────────────────────────────
 function genCode() {
   return Math.random().toString(36).substring(2, 8).toUpperCase()
 }
 
-// ── Haupt-Komponente ───────────────────────────────────────
 export default function TeacherDashboard({ user, onLogout }) {
   const [dark, setDark] = useState(() => {
     try { const s = localStorage.getItem('tl_dark'); return s !== null ? JSON.parse(s) : true }
     catch { return true }
   })
 
-  // Navigation: 'classrooms' | 'classroom-detail' | 'homework' | 'lernkarten' | 'hinzufuegen'
-  const [view, setView]           = useState('classrooms')
+  const [view, setView]             = useState('classrooms')
   const [classrooms, setClassrooms] = useState([])
-  const [selected, setSelected]   = useState(null)   // aktiver Klassenraum
-  const [members, setMembers]     = useState([])
-  const [homework, setHomework]   = useState(null)   // aktuelle Hausaufgabe
-  const [progress, setProgress]   = useState([])
-  const [loading, setLoading]     = useState(false)
-  const [newName, setNewName]     = useState('')
-  const [creating, setCreating]   = useState(false)
-  const [hwSelected, setHwSelected] = useState(new Set())  // ausgewählte Fahrzeug-IDs
-  const [hwTitle, setHwTitle]     = useState('Hausaufgabe')
+  const [selected, setSelected]     = useState(null)
+  const [members, setMembers]       = useState([])
+  const [homework, setHomework]     = useState(null)
+  const [progress, setProgress]     = useState([])
+  const [loading, setLoading]       = useState(false)
+  const [newName, setNewName]       = useState('')
+  const [creating, setCreating]     = useState(false)
+  const [hwSelected, setHwSelected] = useState(new Set())
+  const [hwTitle, setHwTitle]       = useState('Hausaufgabe')
+  const [hwCat, setHwCat]           = useState(null)   // null = Kategorieübersicht, string = Fahrzeugliste
   const [savedMsg, setSavedMsg]     = useState('')
   const [createErr, setCreateErr]   = useState('')
-  const [expandedStudent, setExpandedStudent] = useState(null)  // student_id des offenen Dropdowns
+  const [expandedStudent, setExpandedStudent] = useState(null)
 
   // Lernkarten-Tool
-  const [lkVehicle, setLkVehicle]   = useState(null)
-  const [lkSearch, setLkSearch]     = useState('')
-  const [lkNotes, setLkNotes]       = useState([])
-  const [lkInput, setLkInput]       = useState('')
-  const [lkSaving, setLkSaving]     = useState(false)
-  const [lkMsg, setLkMsg]           = useState('')
+  const [lkVehicle, setLkVehicle] = useState(null)
+  const [lkSearch, setLkSearch]   = useState('')
+  const [lkNotes, setLkNotes]     = useState([])
+  const [lkInput, setLkInput]     = useState('')
+  const [lkSaving, setLkSaving]   = useState(false)
+  const [lkMsg, setLkMsg]         = useState('')
 
-  // Hinzufügen-Tool (Community-Fahrzeuge)
-  const [hvList, setHvList]         = useState([])      // alle eigenen Community-Fahrzeuge
-  const [hvEdit, setHvEdit]         = useState(null)    // null = Liste, {} = Bearbeitung
-  const [hvSaving, setHvSaving]     = useState(false)
-  const [hvMsg, setHvMsg]           = useState('')
+  // Hinzufügen-Tool
+  const [hvList, setHvList]   = useState([])
+  const [hvEdit, setHvEdit]   = useState(null)
+  const [hvSaving, setHvSaving] = useState(false)
+  const [hvMsg, setHvMsg]     = useState('')
 
-  // Farben
-  const bg   = dark ? '#080b10' : '#f0f4f8'
-  const surf = dark ? '#0a0d14' : '#ffffff'
-  const surf2= dark ? '#0d1117' : '#f8fafb'
-  const bord = dark ? '#1c2430' : '#d0dce8'
-  const text = dark ? '#c0d0e0' : '#1a2a3a'
-  const dim  = dark ? '#3d5060' : '#7090a0'
-  const tc   = '#3b82f6'
+  const bg      = dark ? '#080b10' : '#f0f4f8'
+  const surf    = dark ? '#0a0d14' : '#ffffff'
+  const surf2   = dark ? '#0d1117' : '#f8fafb'
+  const bord    = dark ? '#1c2430' : '#d0dce8'
+  const text    = dark ? '#c0d0e0' : '#1a2a3a'
+  const dim     = dark ? '#3d5060' : '#7090a0'
+  const tc      = '#3b82f6'
   const inputBg = dark ? '#0d1117' : '#f8fafb'
 
   function toggleDark() {
-    const next = !dark
-    setDark(next)
+    const next = !dark; setDark(next)
     try { localStorage.setItem('tl_dark', JSON.stringify(next)) } catch {}
   }
 
-  // ── Klassen laden ─────────────────────────────────────────
+  // Kategorien gruppiert: { "Kampfpanzer": [{...}, ...], ... }
+  const CATS_GROUPED = ALL_VEHICLES.reduce((acc, v) => {
+    if (!acc[v.cat]) acc[v.cat] = []
+    acc[v.cat].push(v)
+    return acc
+  }, {})
+
   useEffect(() => { loadClassrooms() }, [])
 
   async function loadClassrooms() {
     setLoading(true)
-    const { data } = await supabase
-      .from('classrooms')
-      .select('*')
-      .eq('teacher_id', user.userId)
-      .order('created_at', { ascending: false })
+    const { data } = await supabase.from('classrooms').select('*')
+      .eq('teacher_id', user.userId).order('created_at', { ascending: false })
     setClassrooms(data || [])
     setLoading(false)
   }
@@ -82,75 +80,46 @@ export default function TeacherDashboard({ user, onLogout }) {
   async function loadClassroomDetail(classroom) {
     setSelected(classroom)
     setView('classroom-detail')
+    setHwCat(null)
     setLoading(true)
-
-    // Mitglieder laden
-    const { data: mems } = await supabase
-      .from('classroom_members')
+    const { data: mems } = await supabase.from('classroom_members')
       .select('student_id, joined_at, profiles(display_name)')
       .eq('classroom_id', classroom.id)
     setMembers(mems || [])
-
-    // Hausaufgabe laden
-    const { data: hw } = await supabase
-      .from('homework')
-      .select('*')
-      .eq('classroom_id', classroom.id)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single()
+    const { data: hw } = await supabase.from('homework').select('*')
+      .eq('classroom_id', classroom.id).order('created_at', { ascending: false }).limit(1).single()
     setHomework(hw || null)
-    if (hw) {
-      setHwSelected(new Set(hw.vehicle_ids))
-      setHwTitle(hw.title)
-    } else {
-      setHwSelected(new Set())
-      setHwTitle('Hausaufgabe')
-    }
-
-    // Fortschritt aller Schüler
-    if (mems && mems.length > 0) {
-      const studentIds = mems.map(m => m.student_id)
-      const { data: prog } = await supabase
-        .from('student_progress')
-        .select('*')
-        .in('student_id', studentIds)
+    if (hw) { setHwSelected(new Set(hw.vehicle_ids)); setHwTitle(hw.title) }
+    else { setHwSelected(new Set()); setHwTitle('Hausaufgabe') }
+    if (mems?.length > 0) {
+      const { data: prog } = await supabase.from('student_progress').select('*')
+        .in('student_id', mems.map(m => m.student_id))
       setProgress(prog || [])
-    } else {
-      setProgress([])
-    }
-
+    } else { setProgress([]) }
     setLoading(false)
   }
 
   async function refreshProgress() {
     if (!members.length) return
     setLoading(true)
-    const studentIds = members.map(m => m.student_id)
-    const { data: prog } = await supabase
-      .from('student_progress')
-      .select('*')
-      .in('student_id', studentIds)
+    const { data: prog } = await supabase.from('student_progress').select('*')
+      .in('student_id', members.map(m => m.student_id))
     setProgress(prog || [])
     setLoading(false)
   }
 
   async function loadLkNotes(vehicleId) {
-    const { data } = await supabase
-      .from('teacher_vehicle_notes')
-      .select('notes')
-      .eq('teacher_id', user.userId)
-      .eq('vehicle_id', vehicleId)
-      .single()
+    const { data } = await supabase.from('teacher_vehicle_notes').select('notes')
+      .eq('teacher_id', user.userId).eq('vehicle_id', vehicleId).single()
     setLkNotes(data?.notes || [])
   }
 
   async function saveLkNotes(vehicleId, notes) {
     setLkSaving(true)
-    const { error } = await supabase
-      .from('teacher_vehicle_notes')
-      .upsert({ teacher_id: user.userId, vehicle_id: vehicleId, notes, updated_at: new Date().toISOString() },
-        { onConflict: 'teacher_id,vehicle_id' })
+    const { error } = await supabase.from('teacher_vehicle_notes').upsert(
+      { teacher_id: user.userId, vehicle_id: vehicleId, notes, updated_at: new Date().toISOString() },
+      { onConflict: 'teacher_id,vehicle_id' }
+    )
     setLkSaving(false)
     setLkMsg(error ? '❌ Fehler beim Speichern' : '✅ Gespeichert')
     setTimeout(() => setLkMsg(''), 2000)
@@ -158,11 +127,8 @@ export default function TeacherDashboard({ user, onLogout }) {
   }
 
   async function loadHvList() {
-    const { data } = await supabase
-      .from('community_vehicles')
-      .select('*')
-      .eq('created_by', user.userId)
-      .order('created_at', { ascending: false })
+    const { data } = await supabase.from('community_vehicles').select('*')
+      .eq('created_by', user.userId).order('created_at', { ascending: false })
     setHvList(data || [])
   }
 
@@ -170,25 +136,21 @@ export default function TeacherDashboard({ user, onLogout }) {
     setHvSaving(true)
     let error
     if (hv.id) {
-      // Bearbeiten
-      const { error: e } = await supabase
-        .from('community_vehicles')
-        .update({ name: hv.name, category: hv.category, cat_key: hv.cat_key, features: hv.features, image_urls: hv.image_urls, updated_at: new Date().toISOString() })
-        .eq('id', hv.id)
+      const { error: e } = await supabase.from('community_vehicles').update(
+        { name: hv.name, category: hv.category, cat_key: hv.cat_key, features: hv.features, image_urls: hv.image_urls, updated_at: new Date().toISOString() }
+      ).eq('id', hv.id)
       error = e
     } else {
-      // Neu erstellen
-      const { error: e } = await supabase
-        .from('community_vehicles')
-        .insert({ created_by: user.userId, name: hv.name, category: hv.category, cat_key: hv.cat_key, features: hv.features, image_urls: hv.image_urls })
+      const { error: e } = await supabase.from('community_vehicles').insert(
+        { created_by: user.userId, name: hv.name, category: hv.category, cat_key: hv.cat_key, features: hv.features, image_urls: hv.image_urls }
+      )
       error = e
     }
     setHvSaving(false)
     if (error) { setHvMsg('❌ Fehler: ' + error.message); return }
     setHvMsg('✅ Gespeichert!')
     setTimeout(() => setHvMsg(''), 2000)
-    await loadHvList()
-    setHvEdit(null)
+    await loadHvList(); setHvEdit(null)
   }
 
   async function deleteHv(id) {
@@ -199,160 +161,142 @@ export default function TeacherDashboard({ user, onLogout }) {
 
   async function createClassroom() {
     if (!newName.trim()) return
-    setCreating(true)
-    setCreateErr('')
-
+    setCreating(true); setCreateErr('')
     try {
       const { data: sessionData } = await supabase.auth.getSession()
-      if (!sessionData?.session) {
-        setCreateErr('Sitzung abgelaufen – bitte neu anmelden.')
-        setCreating(false)
-        return
-      }
-
+      if (!sessionData?.session) { setCreateErr('Sitzung abgelaufen – bitte neu anmelden.'); setCreating(false); return }
       const { data, error } = await supabase.from('classrooms').insert({
-        teacher_id: sessionData.session.user.id,
-        name: newName.trim(),
-        code: genCode(),
+        teacher_id: sessionData.session.user.id, name: newName.trim(), code: genCode(),
       }).select().single()
-
-      if (error) {
-        setCreateErr(`Fehler: ${error.message} (${error.code})`)
-        setCreating(false)
-        return
-      }
+      if (error) { setCreateErr(`Fehler: ${error.message}`); setCreating(false); return }
       setNewName('')
       if (data) setClassrooms(prev => [data, ...prev])
-    } catch (e) {
-      setCreateErr(`Unbekannter Fehler: ${e.message}`)
-    }
+    } catch (e) { setCreateErr(`Fehler: ${e.message}`) }
     setCreating(false)
   }
 
   async function deleteClassroom(id) {
-    const ok = window.confirm('Klassenraum wirklich löschen?')
-    if (!ok) return
+    if (!window.confirm('Klassenraum wirklich löschen?')) return
     await supabase.from('classrooms').delete().eq('id', id)
     setClassrooms(prev => prev.filter(c => c.id !== id))
   }
 
   async function saveHomework() {
-    const ids = Array.from(hwSelected).map(String) // sicherstellen: immer Strings
+    const ids = Array.from(hwSelected).map(String)
     if (ids.length === 0) { setSavedMsg('⚠ Kein Fahrzeug ausgewählt.'); return }
     setLoading(true)
-
     if (homework) {
-      // UPDATE — kein .select() nötig
       const { error } = await supabase.from('homework')
         .update({ vehicle_ids: ids, title: hwTitle, updated_at: new Date().toISOString() })
         .eq('id', homework.id)
-      if (error) { setSavedMsg(`⚠ Update-Fehler: ${error.message}`); setLoading(false); return }
+      if (error) { setSavedMsg(`⚠ ${error.message}`); setLoading(false); return }
     } else {
-      // INSERT — kein .select().single() um SELECT-RLS zu umgehen
-      const { error } = await supabase.from('homework').insert({
-        classroom_id: selected.id,
-        vehicle_ids: ids,
-        title: hwTitle,
-      })
-      if (error) { setSavedMsg(`⚠ Insert-Fehler: ${error.message}`); setLoading(false); return }
-
-      // Neu geladene Hausaufgabe separat abrufen
-      const { data: hw } = await supabase.from('homework')
-        .select('*')
-        .eq('classroom_id', selected.id)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single()
+      const { error } = await supabase.from('homework').insert(
+        { classroom_id: selected.id, vehicle_ids: ids, title: hwTitle }
+      )
+      if (error) { setSavedMsg(`⚠ ${error.message}`); setLoading(false); return }
+      const { data: hw } = await supabase.from('homework').select('*')
+        .eq('classroom_id', selected.id).order('created_at', { ascending: false }).limit(1).single()
       if (hw) setHomework(hw)
     }
-
     setLoading(false)
-    setSavedMsg('✓ Gespeichert!')
-    setTimeout(() => setSavedMsg(''), 3000)
+    setSavedMsg('✅ Hausaufgabe wurde an alle Schüler übermittelt!')
+    setTimeout(() => setSavedMsg(''), 4000)
   }
 
-  // Fahrzeug-Auswahl für Hausaufgaben
   function toggleVehicle(id) {
+    setHwSelected(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
+  }
+
+  function toggleAllInCat(cat) {
+    const ids = (CATS_GROUPED[cat] || []).map(v => v.id)
+    const allSel = ids.every(id => hwSelected.has(id))
     setHwSelected(prev => {
-      const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
-      return next
+      const n = new Set(prev)
+      ids.forEach(id => allSel ? n.delete(id) : n.add(id))
+      return n
     })
   }
 
-  function toggleCategory(cat) {
-    const ids = ALL_VEHICLES.filter(v => v.cat === cat).map(v => v.id)
-    const allSelected = ids.every(id => hwSelected.has(id))
-    setHwSelected(prev => {
-      const next = new Set(prev)
-      ids.forEach(id => allSelected ? next.delete(id) : next.add(id))
-      return next
-    })
-  }
-
-  // Schüler-Gesamtfortschritt
   function studentStats(studentId) {
     const entries = progress.filter(p => p.student_id === studentId)
     const total = entries.reduce((s, p) => s + p.attempts, 0)
     const correct = entries.reduce((s, p) => s + p.correct, 0)
-    const pct = total > 0 ? Math.round(correct / total * 100) : 0
-    return { vehicles: entries.length, total, correct, pct }
+    return { vehicles: entries.length, total, correct, pct: total > 0 ? Math.round(correct / total * 100) : 0 }
   }
 
-  // Schüler-Fortschritt nach Kategorie
   function studentCatStats(studentId) {
-    // Alle Kategorien mit 0 initialisieren
     const byCat = {}
     Object.entries(CATS).forEach(([key, catObj]) => {
-      byCat[key] = { label: catObj.label || key, attempts: 0, correct: 0, count: 0 }
+      byCat[key] = { label: catObj.label || key, attempts: 0, correct: 0 }
     })
-
-    const entries = progress.filter(p => p.student_id === studentId)
-    entries.forEach(p => {
-      // Typ-Sicherheit: vehicle_id kann String oder Zahl sein
+    progress.filter(p => p.student_id === studentId).forEach(p => {
       const vehicle = ALL_VEHICLES.find(v => v.id === Number(p.vehicle_id))
       if (!vehicle) return
-      const key = vehicle.catKey
-      if (!byCat[key]) byCat[key] = { label: vehicle.cat, attempts: 0, correct: 0, count: 0 }
-      byCat[key].attempts += p.attempts
-      byCat[key].correct  += p.correct
-      byCat[key].count    += 1
+      if (!byCat[vehicle.catKey]) byCat[vehicle.catKey] = { label: vehicle.cat, attempts: 0, correct: 0 }
+      byCat[vehicle.catKey].attempts += p.attempts
+      byCat[vehicle.catKey].correct  += p.correct
     })
     return byCat
   }
 
-  // Kategorien gruppieren
-  const CATS_GROUPED = ALL_VEHICLES.reduce((acc, v) => {
-    if (!acc[v.cat]) acc[v.cat] = []
-    acc[v.cat].push(v)
-    return acc
-  }, {})
+  // ── Gemeinsamer Header für classroom-detail + homework ──
+  function ClassroomHeader() {
+    return (
+      <>
+        <div style={{
+          background: dark ? '#0f1f35' : '#e8f0fe', border: `1px solid ${tc}40`,
+          borderRadius: 12, padding: '14px 20px', marginBottom: 20,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        }}>
+          <div>
+            <div style={{ fontSize: 11, color: tc, letterSpacing: '0.1em', marginBottom: 3 }}>KLASSEN-CODE</div>
+            <div style={{ fontSize: 28, fontWeight: 900, color: tc, fontFamily: 'monospace', letterSpacing: '0.2em' }}>
+              {selected.code}
+            </div>
+          </div>
+          <button onClick={() => navigator.clipboard.writeText(selected.code)} style={{
+            background: tc, border: 'none', borderRadius: 8, padding: '10px 16px',
+            color: '#fff', cursor: 'pointer', fontWeight: 700, fontSize: 13,
+          }}>📋 Code kopieren</button>
+        </div>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
+          {[
+            { key: 'classroom-detail', label: '👥 Schüler & Fortschritt' },
+            { key: 'homework', label: '📝 Hausaufgaben' },
+          ].map(t => (
+            <button key={t.key} onClick={() => { setView(t.key); setHwCat(null) }} style={{
+              padding: '9px 18px', borderRadius: 8, cursor: 'pointer',
+              fontWeight: 600, fontSize: 13,
+              background: view === t.key ? tc : 'transparent',
+              color: view === t.key ? '#fff' : dim,
+              border: `1px solid ${view === t.key ? tc : bord}`,
+            }}>{t.label}</button>
+          ))}
+        </div>
+      </>
+    )
+  }
 
-  // ── RENDER ─────────────────────────────────────────────────
+  // ── RENDER ──────────────────────────────────────────────────
   return (
-    <div style={{
-      minHeight: '100vh', background: bg, fontFamily: 'Arial',
-      color: text, transition: 'background 0.2s',
-    }}>
+    <div style={{ minHeight: '100vh', background: bg, fontFamily: 'Arial', color: text }}>
+
       {/* Topbar */}
       <div style={{
-        background: surf, borderBottom: `1px solid ${bord}`,
-        padding: '0 20px', display: 'flex', alignItems: 'center',
-        justifyContent: 'space-between', height: 52,
-        position: 'sticky', top: 0, zIndex: 100,
+        background: surf, borderBottom: `1px solid ${bord}`, padding: '0 20px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        height: 52, position: 'sticky', top: 0, zIndex: 100,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           {view !== 'classrooms' && (
             <button onClick={() => { setView('classrooms'); setLkVehicle(null); setLkSearch('') }} style={{
               background: 'transparent', border: `1px solid ${bord}`,
-              borderRadius: 7, padding: '5px 12px', cursor: 'pointer',
-              color: dim, fontSize: 13,
+              borderRadius: 7, padding: '5px 12px', cursor: 'pointer', color: dim, fontSize: 13,
             }}>← Zurück</button>
           )}
-          <span style={{ fontWeight: 700, fontSize: 15, letterSpacing: '0.07em' }}>
-            📋 LEHRER-DASHBOARD
-          </span>
-          {selected && view === 'classroom-detail' && (
+          <span style={{ fontWeight: 700, fontSize: 15, letterSpacing: '0.07em' }}>📋 LEHRER-DASHBOARD</span>
+          {selected && (view === 'classroom-detail' || view === 'homework') && (
             <span style={{ color: tc, fontSize: 13 }}>— {selected.name}</span>
           )}
         </div>
@@ -384,102 +328,49 @@ export default function TeacherDashboard({ user, onLogout }) {
 
       <div style={{ padding: '24px 20px', maxWidth: 900, margin: '0 auto' }}>
 
-        {/* ── KLASSENRAUM-ÜBERSICHT ─────────────────────────── */}
+        {/* ── KLASSENRAUM-ÜBERSICHT ─────────────────────── */}
         {view === 'classrooms' && (
           <>
             <div style={{ marginBottom: 24 }}>
               <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 4 }}>Meine Klassenräume</div>
-              <div style={{ fontSize: 13, color: dim }}>
-                Erstelle Klassenräume und teile den Code mit deinen Schülern.
-              </div>
+              <div style={{ fontSize: 13, color: dim }}>Erstelle Klassenräume und teile den Code mit deinen Schülern.</div>
             </div>
-
-            {/* Fehlermeldung */}
             {createErr && (
-              <div style={{
-                background: dark ? '#2a0a0a' : '#fde8e8',
-                border: `1px solid ${dark ? '#6b2200' : '#d93025'}`,
-                borderRadius: 10, padding: '12px 16px',
-                color: dark ? '#f87171' : '#b91c1c',
-                fontSize: 13, marginBottom: 14,
-              }}>⚠ {createErr}</div>
+              <div style={{ background: dark ? '#2a0a0a' : '#fde8e8', border: `1px solid ${dark ? '#6b2200' : '#d93025'}`, borderRadius: 10, padding: '12px 16px', color: dark ? '#f87171' : '#b91c1c', fontSize: 13, marginBottom: 14 }}>
+                ⚠ {createErr}
+              </div>
             )}
-
-            {/* Neue Klasse erstellen */}
-            <div style={{
-              background: surf, border: `1px solid ${bord}`, borderRadius: 12,
-              padding: '18px 20px', marginBottom: 20, display: 'flex', gap: 10,
-            }}>
-              <input
-                style={{
-                  flex: 1, background: inputBg, border: `1px solid ${bord}`,
-                  borderRadius: 8, padding: '10px 14px', color: text,
-                  fontSize: 14, outline: 'none', fontFamily: 'Arial',
-                }}
+            <div style={{ background: surf, border: `1px solid ${bord}`, borderRadius: 12, padding: '18px 20px', marginBottom: 20, display: 'flex', gap: 10 }}>
+              <input style={{ flex: 1, background: inputBg, border: `1px solid ${bord}`, borderRadius: 8, padding: '10px 14px', color: text, fontSize: 14, outline: 'none', fontFamily: 'Arial' }}
                 placeholder="Klassenraum-Name (z.B. Gruppe Alpha 2026)"
-                value={newName}
-                onChange={e => setNewName(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && createClassroom()}
-              />
+                value={newName} onChange={e => setNewName(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && createClassroom()} />
               <button onClick={createClassroom} disabled={creating || !newName.trim()} style={{
-                background: tc, border: 'none', borderRadius: 8,
-                padding: '10px 20px', color: '#fff', fontWeight: 700,
-                fontSize: 14, cursor: 'pointer', opacity: creating ? 0.6 : 1,
-                letterSpacing: '0.06em',
-              }}>
-                {creating ? '…' : '+ ERSTELLEN'}
-              </button>
+                background: tc, border: 'none', borderRadius: 8, padding: '10px 20px',
+                color: '#fff', fontWeight: 700, fontSize: 14, cursor: 'pointer',
+                opacity: creating ? 0.6 : 1, letterSpacing: '0.06em',
+              }}>{creating ? '…' : '+ ERSTELLEN'}</button>
             </div>
-
-            {/* Klassenliste */}
             {loading ? (
               <div style={{ textAlign: 'center', color: dim, padding: 40 }}>Laden …</div>
             ) : classrooms.length === 0 ? (
-              <div style={{
-                background: surf, border: `1px solid ${bord}`, borderRadius: 12,
-                padding: 40, textAlign: 'center', color: dim,
-              }}>
-                Noch keine Klassenräume erstellt.<br />
-                <span style={{ fontSize: 13 }}>Gib oben einen Namen ein und klicke "Erstellen".</span>
+              <div style={{ background: surf, border: `1px solid ${bord}`, borderRadius: 12, padding: 40, textAlign: 'center', color: dim }}>
+                Noch keine Klassenräume erstellt.
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {classrooms.map(c => (
-                  <div key={c.id} style={{
-                    background: surf, border: `1px solid ${bord}`, borderRadius: 12,
-                    padding: '16px 20px', display: 'flex', alignItems: 'center',
-                    justifyContent: 'space-between', cursor: 'pointer',
-                    transition: 'border-color 0.15s',
-                  }}
+                  <div key={c.id} style={{ background: surf, border: `1px solid ${bord}`, borderRadius: 12, padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}
                     onClick={() => loadClassroomDetail(c)}
                     onMouseEnter={e => e.currentTarget.style.borderColor = tc}
-                    onMouseLeave={e => e.currentTarget.style.borderColor = bord}
-                  >
+                    onMouseLeave={e => e.currentTarget.style.borderColor = bord}>
                     <div>
                       <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }}>{c.name}</div>
-                      <div style={{ fontSize: 12, color: dim }}>
-                        Klassen-Code: <span style={{ color: tc, fontWeight: 700, fontFamily: 'monospace', fontSize: 14 }}>{c.code}</span>
-                      </div>
+                      <div style={{ fontSize: 12, color: dim }}>Code: <span style={{ color: tc, fontWeight: 700, fontFamily: 'monospace', fontSize: 14 }}>{c.code}</span></div>
                     </div>
                     <div style={{ display: 'flex', gap: 8 }}>
-                      <button
-                        onClick={e => { e.stopPropagation(); navigator.clipboard.writeText(c.code) }}
-                        style={{
-                          background: 'transparent', border: `1px solid ${bord}`,
-                          borderRadius: 7, padding: '6px 12px', cursor: 'pointer',
-                          color: dim, fontSize: 12,
-                        }}
-                        title="Code kopieren"
-                      >📋 Kopieren</button>
-                      <button
-                        onClick={e => { e.stopPropagation(); deleteClassroom(c.id) }}
-                        style={{
-                          background: 'transparent', border: `1px solid ${dark ? '#6b2200' : '#fca5a5'}`,
-                          borderRadius: 7, padding: '6px 12px', cursor: 'pointer',
-                          color: dark ? '#f87171' : '#b91c1c', fontSize: 12,
-                        }}
-                        title="Löschen"
-                      >🗑</button>
+                      <button onClick={e => { e.stopPropagation(); navigator.clipboard.writeText(c.code) }} style={{ background: 'transparent', border: `1px solid ${bord}`, borderRadius: 7, padding: '6px 12px', cursor: 'pointer', color: dim, fontSize: 12 }}>📋 Kopieren</button>
+                      <button onClick={e => { e.stopPropagation(); deleteClassroom(c.id) }} style={{ background: 'transparent', border: `1px solid ${dark ? '#6b2200' : '#fca5a5'}`, borderRadius: 7, padding: '6px 12px', cursor: 'pointer', color: dark ? '#f87171' : '#b91c1c', fontSize: 12 }}>🗑</button>
                     </div>
                   </div>
                 ))}
@@ -488,74 +379,22 @@ export default function TeacherDashboard({ user, onLogout }) {
           </>
         )}
 
-        {/* ── KLASSENRAUM DETAIL ────────────────────────────── */}
+        {/* ── SCHÜLER & FORTSCHRITT ─────────────────────── */}
         {view === 'classroom-detail' && selected && (
           <>
-            {/* Code-Banner */}
-            <div style={{
-              background: dark ? '#0f1f35' : '#e8f0fe',
-              border: `1px solid ${tc}40`, borderRadius: 12,
-              padding: '14px 20px', marginBottom: 20,
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            }}>
-              <div>
-                <div style={{ fontSize: 11, color: tc, letterSpacing: '0.1em', marginBottom: 3 }}>
-                  KLASSEN-CODE (Schüler geben diesen beim Beitreten ein)
-                </div>
-                <div style={{ fontSize: 28, fontWeight: 900, color: tc, fontFamily: 'monospace', letterSpacing: '0.2em' }}>
-                  {selected.code}
-                </div>
-              </div>
-              <button
-                onClick={() => navigator.clipboard.writeText(selected.code)}
-                style={{
-                  background: tc, border: 'none', borderRadius: 8,
-                  padding: '10px 16px', color: '#fff', cursor: 'pointer',
-                  fontWeight: 700, fontSize: 13,
-                }}
-              >📋 Code kopieren</button>
-            </div>
-
-            {/* Tabs: Schüler / Hausaufgaben */}
-            <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
-              {[
-                { key: 'classroom-detail', label: '👥 Schüler & Fortschritt' },
-                { key: 'homework', label: '📝 Hausaufgaben' },
-              ].map(t => (
-                <button key={t.key} onClick={() => setView(t.key)} style={{
-                  padding: '9px 18px', borderRadius: 8, cursor: 'pointer',
-                  fontWeight: 600, fontSize: 13, letterSpacing: '0.05em',
-                  background: view === t.key ? tc : 'transparent',
-                  color: view === t.key ? '#fff' : dim,
-                  border: `1px solid ${view === t.key ? tc : bord}`,
-                }}>
-                  {t.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Schülerliste */}
+            <ClassroomHeader />
             {loading ? (
               <div style={{ textAlign: 'center', color: dim, padding: 40 }}>Laden …</div>
             ) : members.length === 0 ? (
-              <div style={{
-                background: surf, border: `1px solid ${bord}`, borderRadius: 12,
-                padding: 40, textAlign: 'center', color: dim,
-              }}>
+              <div style={{ background: surf, border: `1px solid ${bord}`, borderRadius: 12, padding: 40, textAlign: 'center', color: dim }}>
                 Noch keine Schüler beigetreten.<br />
                 <span style={{ fontSize: 13 }}>Teile den Code oben mit deinen Schülern.</span>
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <div style={{ fontSize: 12, color: dim }}>
-                    {members.length} Schüler in diesem Klassenraum
-                  </div>
-                  <button onClick={refreshProgress} style={{
-                    padding: '5px 12px', borderRadius: 7, border: `1px solid ${bord}`,
-                    background: 'transparent', color: dim, fontSize: 12, cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', gap: 5,
-                  }}>
+                  <div style={{ fontSize: 12, color: dim }}>{members.length} Schüler in diesem Klassenraum</div>
+                  <button onClick={refreshProgress} style={{ padding: '5px 12px', borderRadius: 7, border: `1px solid ${bord}`, background: 'transparent', color: dim, fontSize: 12, cursor: 'pointer' }}>
                     {loading ? '⏳' : '🔄'} Aktualisieren
                   </button>
                 </div>
@@ -564,68 +403,43 @@ export default function TeacherDashboard({ user, onLogout }) {
                   const catStats = studentCatStats(m.student_id)
                   const isOpen = expandedStudent === m.student_id
                   return (
-                    <div key={m.student_id} style={{
-                      background: surf, border: `1px solid ${isOpen ? tc : bord}`,
-                      borderRadius: 10, overflow: 'hidden',
-                      transition: 'border-color 0.2s',
-                    }}>
-                      {/* Kopfzeile — klickbar */}
-                      <div
-                        onClick={() => setExpandedStudent(isOpen ? null : m.student_id)}
-                        style={{
-                          padding: '14px 18px', display: 'flex', alignItems: 'center',
-                          justifyContent: 'space-between', cursor: 'pointer',
-                        }}
-                      >
+                    <div key={m.student_id} style={{ background: surf, border: `1px solid ${isOpen ? tc : bord}`, borderRadius: 10, overflow: 'hidden' }}>
+                      <div onClick={() => setExpandedStudent(isOpen ? null : m.student_id)}
+                        style={{ padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
                         <div>
-                          <div style={{ fontWeight: 700, fontSize: 14 }}>
-                            {m.profiles?.display_name || 'Unbekannt'}
-                          </div>
-                          <div style={{ fontSize: 11, color: dim, marginTop: 3 }}>
-                            Beigetreten: {new Date(m.joined_at).toLocaleDateString('de-DE')}
-                          </div>
+                          <div style={{ fontWeight: 700, fontSize: 14 }}>{m.profiles?.display_name || 'Unbekannt'}</div>
+                          <div style={{ fontSize: 11, color: dim, marginTop: 3 }}>Beigetreten: {new Date(m.joined_at).toLocaleDateString('de-DE')}</div>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                           <div style={{ textAlign: 'right' }}>
-                            <div style={{ fontSize: 20, fontWeight: 700, color: stats.pct >= 70 ? '#22c55e' : stats.pct >= 40 ? '#f59e0b' : dim }}>
-                              {stats.pct}%
-                            </div>
-                            <div style={{ fontSize: 10, color: dim }}>
-                              {stats.correct}/{stats.total} richtig · {stats.vehicles} Fzg.
-                            </div>
+                            <div style={{ fontSize: 20, fontWeight: 700, color: stats.pct >= 70 ? '#22c55e' : stats.pct >= 40 ? '#f59e0b' : dim }}>{stats.pct}%</div>
+                            <div style={{ fontSize: 10, color: dim }}>{stats.correct}/{stats.total} richtig · {stats.vehicles} Fzg.</div>
                           </div>
-                          <span style={{ color: dim, fontSize: 12, transition: 'transform 0.2s', display: 'inline-block', transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
+                          <span style={{ color: dim, fontSize: 12, display: 'inline-block', transform: isOpen ? 'rotate(180deg)' : 'none' }}>▼</span>
                         </div>
                       </div>
-
-                      {/* Kategorie-Dropdown */}
                       {isOpen && (
                         <div style={{ borderTop: `1px solid ${bord}`, padding: '16px 18px', background: surf2 }}>
-                          <div style={{ fontSize: 11, color: dim, marginBottom: 10, fontWeight: 600, letterSpacing: '0.06em' }}>
-                            FORTSCHRITT NACH KATEGORIE
-                          </div>
+                          <div style={{ fontSize: 11, color: dim, marginBottom: 10, fontWeight: 600, letterSpacing: '0.06em' }}>FORTSCHRITT NACH KATEGORIE</div>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                             {Object.entries(catStats).map(([key, cs]) => {
                               const pct = cs.attempts > 0 ? Math.round(cs.correct / cs.attempts * 100) : 0
                               const errPct = cs.attempts > 0 ? Math.round((cs.attempts - cs.correct) / cs.attempts * 100) : 0
-                              const color = cs.attempts === 0 ? dim : pct >= 70 ? '#22c55e' : pct >= 40 ? '#f59e0b' : '#ef4444'
                               return (
                                 <div key={key}>
-                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12, marginBottom: 5 }}>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 5 }}>
                                     <span style={{ color: text, fontWeight: 600 }}>{cs.label}</span>
-                                    {cs.attempts === 0 ? (
-                                      <span style={{ color: dim, fontSize: 11 }}>Noch nicht geübt</span>
-                                    ) : (
+                                    {cs.attempts === 0 ? <span style={{ color: dim, fontSize: 11 }}>Noch nicht geübt</span> : (
                                       <span style={{ display: 'flex', gap: 10, fontSize: 11 }}>
-                                        <span style={{ color: '#22c55e' }}>✓ {cs.correct} richtig ({pct}%)</span>
-                                        <span style={{ color: '#ef4444' }}>✗ {cs.attempts - cs.correct} falsch ({errPct}%)</span>
+                                        <span style={{ color: '#22c55e' }}>✓ {cs.correct} ({pct}%)</span>
+                                        <span style={{ color: '#ef4444' }}>✗ {cs.attempts - cs.correct} ({errPct}%)</span>
                                       </span>
                                     )}
                                   </div>
                                   <div style={{ height: 6, borderRadius: 3, background: bord, overflow: 'hidden', display: 'flex' }}>
                                     {cs.attempts > 0 && <>
-                                      <div style={{ height: '100%', width: `${pct}%`, background: '#22c55e', transition: 'width 0.4s' }} />
-                                      <div style={{ height: '100%', width: `${errPct}%`, background: '#ef4444', transition: 'width 0.4s' }} />
+                                      <div style={{ height: '100%', width: `${pct}%`, background: '#22c55e' }} />
+                                      <div style={{ height: '100%', width: `${errPct}%`, background: '#ef4444' }} />
                                     </>}
                                   </div>
                                 </div>
@@ -642,46 +456,165 @@ export default function TeacherDashboard({ user, onLogout }) {
           </>
         )}
 
-        {/* ── LERNKARTEN-TOOL ──────────────────────────────── */}
+        {/* ── HAUSAUFGABEN ──────────────────────────────── */}
+        {view === 'homework' && selected && (
+          <>
+            <ClassroomHeader />
+
+            {/* Aktuelle Hausaufgabe anzeigen */}
+            {homework && (
+              <div style={{ background: dark ? '#0d2a1a' : '#f0fdf4', border: `1px solid ${dark ? '#1e5f3e' : '#86efac'}`, borderRadius: 10, padding: '12px 16px', marginBottom: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{ fontSize: 11, color: '#22c55e', letterSpacing: '0.1em', marginBottom: 2 }}>AKTUELLE HAUSAUFGABE</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: text }}>{homework.title}</div>
+                  <div style={{ fontSize: 11, color: dim, marginTop: 2 }}>{homework.vehicle_ids?.length || 0} Fahrzeuge zugewiesen</div>
+                </div>
+                <div style={{ fontSize: 20 }}>✅</div>
+              </div>
+            )}
+
+            {/* Titel-Eingabe */}
+            <div style={{ marginBottom: 20 }}>
+              <label style={{ fontSize: 11, color: dim, letterSpacing: '0.1em' }}>TITEL DER HAUSAUFGABE</label>
+              <input value={hwTitle} onChange={e => setHwTitle(e.target.value)}
+                placeholder="z.B. Hausaufgabe Woche 3 — Kampfpanzer"
+                style={{ display: 'block', width: '100%', boxSizing: 'border-box', marginTop: 6, padding: '10px 14px', background: surf, border: `1px solid ${bord}`, borderRadius: 8, color: text, fontSize: 14, outline: 'none', fontFamily: 'Arial' }} />
+            </div>
+
+            {/* SCHRITT 1: Kategorien-Übersicht */}
+            {!hwCat ? (
+              <>
+                <div style={{ fontSize: 11, color: dim, letterSpacing: '0.1em', marginBottom: 12 }}>
+                  KATEGORIE WÄHLEN — {hwSelected.size} Fahrzeuge ausgewählt
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
+                  {Object.entries(CATS_GROUPED).map(([cat, vehicles]) => {
+                    const selCount = vehicles.filter(v => hwSelected.has(v.id)).length
+                    const allSel = selCount === vehicles.length
+                    const catKey = vehicles[0]?.catKey
+                    const catColor = catKey && CATS[catKey] ? CATS[catKey].color : tc
+                    return (
+                      <div key={cat} onClick={() => setHwCat(cat)} style={{
+                        background: surf, border: `1px solid ${selCount > 0 ? catColor : bord}`,
+                        borderRadius: 12, padding: '18px 16px', cursor: 'pointer',
+                        transition: 'all 0.15s', position: 'relative',
+                      }}
+                        onMouseEnter={e => e.currentTarget.style.borderColor = catColor}
+                        onMouseLeave={e => e.currentTarget.style.borderColor = selCount > 0 ? catColor : bord}>
+                        {selCount > 0 && (
+                          <div style={{ position: 'absolute', top: 10, right: 10, background: catColor, borderRadius: '50%', width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, color: '#fff', fontWeight: 700 }}>
+                            {selCount}
+                          </div>
+                        )}
+                        <div style={{ fontSize: 13, fontWeight: 700, color: text, marginBottom: 4 }}>{cat}</div>
+                        <div style={{ fontSize: 11, color: dim }}>{vehicles.length} Fahrzeuge</div>
+                        {selCount > 0 && (
+                          <div style={{ fontSize: 11, color: catColor, marginTop: 6, fontWeight: 600 }}>
+                            {allSel ? 'Alle ausgewählt' : `${selCount} ausgewählt`}
+                          </div>
+                        )}
+                        <div style={{ fontSize: 11, color: dim, marginTop: 8 }}>Klicken zum Auswählen →</div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </>
+            ) : (
+              /* SCHRITT 2: Fahrzeuge der Kategorie */
+              <>
+                <button onClick={() => setHwCat(null)} style={{ background: 'transparent', border: `1px solid ${bord}`, borderRadius: 7, padding: '6px 14px', cursor: 'pointer', color: dim, fontSize: 13, marginBottom: 16 }}>
+                  ← Zurück zu Kategorien
+                </button>
+
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                  <div>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: text }}>{hwCat}</div>
+                    <div style={{ fontSize: 12, color: dim, marginTop: 2 }}>
+                      {(CATS_GROUPED[hwCat] || []).filter(v => hwSelected.has(v.id)).length} von {(CATS_GROUPED[hwCat] || []).length} ausgewählt
+                    </div>
+                  </div>
+                  <button onClick={() => toggleAllInCat(hwCat)} style={{
+                    padding: '7px 14px', borderRadius: 8, border: `1px solid ${tc}`,
+                    background: 'transparent', color: tc, fontSize: 13, cursor: 'pointer', fontWeight: 600,
+                  }}>
+                    {(CATS_GROUPED[hwCat] || []).every(v => hwSelected.has(v.id)) ? '✗ Alle abwählen' : '✓ Alle wählen'}
+                  </button>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {(CATS_GROUPED[hwCat] || []).map(v => {
+                    const sel = hwSelected.has(v.id)
+                    return (
+                      <div key={v.id} onClick={() => toggleVehicle(v.id)} style={{
+                        background: sel ? tc + '12' : surf,
+                        border: `1px solid ${sel ? tc : bord}`,
+                        borderRadius: 9, padding: '12px 16px',
+                        display: 'flex', alignItems: 'center', gap: 14, cursor: 'pointer',
+                        transition: 'all 0.12s',
+                      }}>
+                        <div style={{
+                          width: 22, height: 22, borderRadius: 6, flexShrink: 0,
+                          border: `2px solid ${sel ? tc : bord}`,
+                          background: sel ? tc : 'transparent',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}>
+                          {sel && <span style={{ color: '#fff', fontSize: 13, lineHeight: 1 }}>✓</span>}
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 14, fontWeight: 600, color: text }}>{v.flag} {v.name}</div>
+                          <div style={{ fontSize: 11, color: dim, marginTop: 2 }}>{v.nation}</div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </>
+            )}
+
+            {/* Importieren-Button — sticky */}
+            <div style={{ position: 'sticky', bottom: 0, background: bg, paddingTop: 16, paddingBottom: 8, marginTop: 24, borderTop: `1px solid ${bord}` }}>
+              {savedMsg && (
+                <div style={{ fontSize: 13, fontWeight: 600, color: savedMsg.startsWith('⚠') ? '#ef4444' : '#22c55e', marginBottom: 10, textAlign: 'center' }}>
+                  {savedMsg}
+                </div>
+              )}
+              <button onClick={saveHomework} disabled={loading || hwSelected.size === 0} style={{
+                width: '100%', padding: '14px 0', background: hwSelected.size === 0 ? bord : tc,
+                border: 'none', borderRadius: 10, color: hwSelected.size === 0 ? dim : '#fff',
+                fontWeight: 700, fontSize: 15, letterSpacing: '0.06em',
+                cursor: hwSelected.size === 0 ? 'not-allowed' : 'pointer',
+              }}>
+                {loading ? '…' : `📤 IMPORTIEREN — ${hwSelected.size} Fahrzeuge an ${members.length} Schüler`}
+              </button>
+              <div style={{ fontSize: 11, color: dim, textAlign: 'center', marginTop: 6 }}>
+                Alle Schüler in „{selected.name}" erhalten diese Hausaufgabe sofort.
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* ── LERNKARTEN-TOOL ──────────────────────────── */}
         {view === 'lernkarten' && (
           <div>
             <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 4 }}>📝 Lernkarten bearbeiten</div>
-            <div style={{ fontSize: 13, color: dim, marginBottom: 20 }}>
-              Füge eigene Merkmale zu Fahrzeugen hinzu. Diese gelten für alle deine Klassenräume.
-            </div>
-
-            {/* Fahrzeug-Suche */}
+            <div style={{ fontSize: 13, color: dim, marginBottom: 20 }}>Füge eigene Merkmale zu Fahrzeugen hinzu.</div>
             {!lkVehicle ? (
-              <div>
-                <input
-                  value={lkSearch}
-                  onChange={e => setLkSearch(e.target.value)}
+              <>
+                <input value={lkSearch} onChange={e => setLkSearch(e.target.value)}
                   placeholder="Fahrzeug suchen (z.B. T-72, BMP-2 ...)"
-                  style={{
-                    width: '100%', boxSizing: 'border-box', padding: '10px 14px',
-                    background: surf, border: `1px solid ${bord}`, borderRadius: 8,
-                    color: text, fontSize: 14, marginBottom: 12, outline: 'none',
-                  }}
-                />
+                  style={{ width: '100%', boxSizing: 'border-box', padding: '10px 14px', background: surf, border: `1px solid ${bord}`, borderRadius: 8, color: text, fontSize: 14, marginBottom: 12, outline: 'none' }} />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  {ALL_VEHICLES
-                    .filter(v => !lkSearch || v.name.toLowerCase().includes(lkSearch.toLowerCase()))
-                    .slice(0, 20)
-                    .map(v => (
-                      <button key={v.id} onClick={async () => { setLkVehicle(v); await loadLkNotes(v.id) }}
-                        style={{
-                          background: surf, border: `1px solid ${bord}`, borderRadius: 8,
-                          padding: '10px 14px', cursor: 'pointer', textAlign: 'left',
-                          color: text, fontSize: 13, display: 'flex', justifyContent: 'space-between',
-                        }}>
-                        <span style={{ fontWeight: 600 }}>{v.name}</span>
-                        <span style={{ color: dim, fontSize: 11 }}>{v.cat}</span>
-                      </button>
-                    ))}
+                  {ALL_VEHICLES.filter(v => !lkSearch || v.name.toLowerCase().includes(lkSearch.toLowerCase())).slice(0, 20).map(v => (
+                    <button key={v.id} onClick={async () => { setLkVehicle(v); await loadLkNotes(v.id) }}
+                      style={{ background: surf, border: `1px solid ${bord}`, borderRadius: 8, padding: '10px 14px', cursor: 'pointer', textAlign: 'left', color: text, fontSize: 13, display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ fontWeight: 600 }}>{v.name}</span>
+                      <span style={{ color: dim, fontSize: 11 }}>{v.cat}</span>
+                    </button>
+                  ))}
                 </div>
-              </div>
+              </>
             ) : (
-              <div>
+              <>
                 <button onClick={() => { setLkVehicle(null); setLkNotes([]); setLkInput('') }}
                   style={{ background: 'transparent', border: `1px solid ${bord}`, borderRadius: 7, padding: '5px 12px', cursor: 'pointer', color: dim, fontSize: 12, marginBottom: 16 }}>
                   ← Anderes Fahrzeug wählen
@@ -689,42 +622,38 @@ export default function TeacherDashboard({ user, onLogout }) {
                 <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>{lkVehicle.name}</div>
                 <div style={{ fontSize: 12, color: dim, marginBottom: 16 }}>{lkVehicle.cat}</div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 16 }}>
-                  {lkNotes.length === 0 ? (
-                    <div style={{ color: dim, fontSize: 13, fontStyle: 'italic' }}>Noch keine eigenen Merkmale eingetragen.</div>
-                  ) : lkNotes.map((note, i) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, background: surf, border: `1px solid ${bord}`, borderRadius: 8, padding: '8px 12px' }}>
-                      <span style={{ flex: 1, fontSize: 13, color: text }}>• {note}</span>
-                      <button onClick={() => saveLkNotes(lkVehicle.id, lkNotes.filter((_, j) => j !== i))}
-                        style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: 16, padding: '0 4px' }}>×</button>
-                    </div>
-                  ))}
+                  {lkNotes.length === 0
+                    ? <div style={{ color: dim, fontSize: 13, fontStyle: 'italic' }}>Noch keine eigenen Merkmale.</div>
+                    : lkNotes.map((note, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, background: surf, border: `1px solid ${bord}`, borderRadius: 8, padding: '8px 12px' }}>
+                        <span style={{ flex: 1, fontSize: 13, color: text }}>• {note}</span>
+                        <button onClick={() => saveLkNotes(lkVehicle.id, lkNotes.filter((_, j) => j !== i))}
+                          style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: 16 }}>×</button>
+                      </div>
+                    ))}
                 </div>
                 <div style={{ display: 'flex', gap: 8 }}>
                   <input value={lkInput} onChange={e => setLkInput(e.target.value)}
-                    onKeyDown={e => { if (e.key === 'Enter' && lkInput.trim()) { saveLkNotes(lkVehicle.id, [...lkNotes, lkInput.trim()]); setLkInput('') }}}
+                    onKeyDown={e => { if (e.key === 'Enter' && lkInput.trim()) { saveLkNotes(lkVehicle.id, [...lkNotes, lkInput.trim()]); setLkInput('') } }}
                     placeholder="Neues Merkmal eingeben …"
                     style={{ flex: 1, padding: '9px 12px', background: surf, border: `1px solid ${bord}`, borderRadius: 7, color: text, fontSize: 13, outline: 'none' }} />
-                  <button onClick={() => { if (lkInput.trim()) { saveLkNotes(lkVehicle.id, [...lkNotes, lkInput.trim()]); setLkInput('') }}}
+                  <button onClick={() => { if (lkInput.trim()) { saveLkNotes(lkVehicle.id, [...lkNotes, lkInput.trim()]); setLkInput('') } }}
                     disabled={!lkInput.trim() || lkSaving}
                     style={{ padding: '9px 18px', background: tc, border: 'none', borderRadius: 7, color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: 13 }}>
                     + Hinzufügen
                   </button>
                 </div>
                 {lkMsg && <div style={{ fontSize: 12, color: dim, marginTop: 8 }}>{lkMsg}</div>}
-              </div>
+              </>
             )}
           </div>
         )}
 
-        {/* ── HINZUFÜGEN-TOOL ─────────────────────────────── */}
+        {/* ── HINZUFÜGEN-TOOL ──────────────────────────── */}
         {view === 'hinzufuegen' && (
-          <HvTool
-            hvList={hvList} hvEdit={hvEdit} setHvEdit={setHvEdit}
-            hvSaving={hvSaving} hvMsg={hvMsg}
-            saveHv={saveHv} deleteHv={deleteHv}
-            surf={surf} surf2={surf2} bord={bord} text={text} dim={dim} tc={tc}
-            CATS={CATS}
-          />
+          <HvTool hvList={hvList} hvEdit={hvEdit} setHvEdit={setHvEdit}
+            hvSaving={hvSaving} hvMsg={hvMsg} saveHv={saveHv} deleteHv={deleteHv}
+            surf={surf} surf2={surf2} bord={bord} text={text} dim={dim} tc={tc} CATS={CATS} />
         )}
 
       </div>
@@ -745,25 +674,18 @@ function HvTool({ hvList, hvEdit, setHvEdit, hvSaving, hvMsg, saveHv, deleteHv, 
   }, [hvEdit])
 
   if (!hvEdit) {
-    // ── LISTE ──
     return (
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
           <div>
             <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 4 }}>➕ Eigene Lernkarten</div>
-            <div style={{ fontSize: 13, color: dim }}>Erstelle neue Fahrzeug-Lernkarten. Diese sind für alle Lehrer sichtbar.</div>
+            <div style={{ fontSize: 13, color: dim }}>Erstelle neue Fahrzeug-Lernkarten für alle Lehrer.</div>
           </div>
-          <button onClick={() => setHvEdit('new')} style={{
-            padding: '9px 18px', background: tc, border: 'none', borderRadius: 8,
-            color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: 13,
-          }}>+ Neue Lernkarte</button>
+          <button onClick={() => setHvEdit('new')} style={{ padding: '9px 18px', background: tc, border: 'none', borderRadius: 8, color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: 13 }}>+ Neue Lernkarte</button>
         </div>
-        {hvList.length === 0 ? (
-          <div style={{ background: surf, border: `1px solid ${bord}`, borderRadius: 12, padding: 40, textAlign: 'center', color: dim }}>
-            Noch keine eigenen Lernkarten erstellt.
-          </div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {hvList.length === 0
+          ? <div style={{ background: surf, border: `1px solid ${bord}`, borderRadius: 12, padding: 40, textAlign: 'center', color: dim }}>Noch keine eigenen Lernkarten erstellt.</div>
+          : <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {hvList.map(hv => (
               <div key={hv.id} style={{ background: surf, border: `1px solid ${bord}`, borderRadius: 10, padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
@@ -776,79 +698,65 @@ function HvTool({ hvList, hvEdit, setHvEdit, hvSaving, hvMsg, saveHv, deleteHv, 
                 </div>
               </div>
             ))}
-          </div>
-        )}
+          </div>}
       </div>
     )
   }
 
-  // ── FORMULAR (Neu / Bearbeiten) ──
   const isNew = hvEdit === 'new'
   return (
     <div>
-      <button onClick={() => setHvEdit(null)} style={{ background: 'transparent', border: `1px solid ${bord}`, borderRadius: 7, padding: '5px 12px', cursor: 'pointer', color: dim, fontSize: 12, marginBottom: 20 }}>
-        ← Zurück zur Liste
-      </button>
+      <button onClick={() => setHvEdit(null)} style={{ background: 'transparent', border: `1px solid ${bord}`, borderRadius: 7, padding: '5px 12px', cursor: 'pointer', color: dim, fontSize: 12, marginBottom: 20 }}>← Zurück zur Liste</button>
       <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 20 }}>{isNew ? 'Neue Lernkarte erstellen' : `"${form.name}" bearbeiten`}</div>
 
-      {/* Name */}
       <label style={{ fontSize: 12, color: dim, letterSpacing: '0.06em' }}>FAHRZEUGNAME</label>
-      <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-        placeholder="z.B. T-55AM2"
+      <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="z.B. T-55AM2"
         style={{ display: 'block', width: '100%', boxSizing: 'border-box', padding: '10px 14px', background: surf, border: `1px solid ${bord}`, borderRadius: 8, color: text, fontSize: 14, marginTop: 6, marginBottom: 16, outline: 'none' }} />
 
-      {/* Kategorie */}
       <label style={{ fontSize: 12, color: dim, letterSpacing: '0.06em' }}>KATEGORIE</label>
-      <select value={form.cat_key} onChange={e => {
-        const key = e.target.value
-        setForm(f => ({ ...f, cat_key: key, category: CATS[key]?.label || key }))
-      }} style={{ display: 'block', width: '100%', padding: '10px 14px', background: surf, border: `1px solid ${bord}`, borderRadius: 8, color: text, fontSize: 14, marginTop: 6, marginBottom: 16, outline: 'none' }}>
+      <select value={form.cat_key} onChange={e => { const k = e.target.value; setForm(f => ({ ...f, cat_key: k, category: CATS[k]?.label || k })) }}
+        style={{ display: 'block', width: '100%', padding: '10px 14px', background: surf, border: `1px solid ${bord}`, borderRadius: 8, color: text, fontSize: 14, marginTop: 6, marginBottom: 16, outline: 'none' }}>
         <option value="">Kategorie wählen …</option>
         {Object.entries(CATS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
       </select>
 
-      {/* Merkmale */}
       <label style={{ fontSize: 12, color: dim, letterSpacing: '0.06em' }}>ERKENNUNGSMERKMALE</label>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 6, marginBottom: 8 }}>
         {form.features.map((f, i) => (
           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, background: surf, border: `1px solid ${bord}`, borderRadius: 7, padding: '7px 12px' }}>
             <span style={{ flex: 1, fontSize: 13, color: text }}>• {f}</span>
-            <button onClick={() => setForm(fm => ({ ...fm, features: fm.features.filter((_, j) => j !== i) }))}
-              style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: 16 }}>×</button>
+            <button onClick={() => setForm(fm => ({ ...fm, features: fm.features.filter((_, j) => j !== i) }))} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: 16 }}>×</button>
           </div>
         ))}
       </div>
       <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
         <input value={featInput} onChange={e => setFeatInput(e.target.value)}
-          onKeyDown={e => { if (e.key === 'Enter' && featInput.trim()) { setForm(f => ({ ...f, features: [...f.features, featInput.trim()] })); setFeatInput('') }}}
+          onKeyDown={e => { if (e.key === 'Enter' && featInput.trim()) { setForm(f => ({ ...f, features: [...f.features, featInput.trim()] })); setFeatInput('') } }}
           placeholder="Merkmal eingeben …"
           style={{ flex: 1, padding: '9px 12px', background: surf, border: `1px solid ${bord}`, borderRadius: 7, color: text, fontSize: 13, outline: 'none' }} />
-        <button onClick={() => { if (featInput.trim()) { setForm(f => ({ ...f, features: [...f.features, featInput.trim()] })); setFeatInput('') }}}
+        <button onClick={() => { if (featInput.trim()) { setForm(f => ({ ...f, features: [...f.features, featInput.trim()] })); setFeatInput('') } }}
           style={{ padding: '9px 14px', background: surf, border: `1px solid ${bord}`, borderRadius: 7, color: text, cursor: 'pointer', fontSize: 13 }}>+ Merkmal</button>
       </div>
 
-      {/* Bilder */}
       <label style={{ fontSize: 12, color: dim, letterSpacing: '0.06em' }}>BILD-LINKS (URLs)</label>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 6, marginBottom: 8 }}>
         {form.image_urls.map((url, i) => (
           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, background: surf, border: `1px solid ${bord}`, borderRadius: 7, padding: '7px 12px' }}>
-            <img src={url} alt="" style={{ width: 48, height: 36, objectFit: 'cover', borderRadius: 4, flexShrink: 0 }} onError={e => e.target.style.display='none'} />
+            <img src={url} alt="" style={{ width: 48, height: 36, objectFit: 'cover', borderRadius: 4, flexShrink: 0 }} onError={e => e.target.style.display = 'none'} />
             <span style={{ flex: 1, fontSize: 11, color: dim, wordBreak: 'break-all' }}>{url}</span>
-            <button onClick={() => setForm(fm => ({ ...fm, image_urls: fm.image_urls.filter((_, j) => j !== i) }))}
-              style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: 16 }}>×</button>
+            <button onClick={() => setForm(fm => ({ ...fm, image_urls: fm.image_urls.filter((_, j) => j !== i) }))} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: 16 }}>×</button>
           </div>
         ))}
       </div>
       <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
         <input value={imgInput} onChange={e => setImgInput(e.target.value)}
-          onKeyDown={e => { if (e.key === 'Enter' && imgInput.trim()) { setForm(f => ({ ...f, image_urls: [...f.image_urls, imgInput.trim()] })); setImgInput('') }}}
+          onKeyDown={e => { if (e.key === 'Enter' && imgInput.trim()) { setForm(f => ({ ...f, image_urls: [...f.image_urls, imgInput.trim()] })); setImgInput('') } }}
           placeholder="https://... Bild-URL einfügen"
           style={{ flex: 1, padding: '9px 12px', background: surf, border: `1px solid ${bord}`, borderRadius: 7, color: text, fontSize: 13, outline: 'none' }} />
-        <button onClick={() => { if (imgInput.trim()) { setForm(f => ({ ...f, image_urls: [...f.image_urls, imgInput.trim()] })); setImgInput('') }}}
+        <button onClick={() => { if (imgInput.trim()) { setForm(f => ({ ...f, image_urls: [...f.image_urls, imgInput.trim()] })); setImgInput('') } }}
           style={{ padding: '9px 14px', background: surf, border: `1px solid ${bord}`, borderRadius: 7, color: text, cursor: 'pointer', fontSize: 13 }}>+ Bild</button>
       </div>
 
-      {/* Speichern */}
       <button onClick={() => saveHv({ ...form, id: isNew ? undefined : hvEdit.id })}
         disabled={!form.name.trim() || !form.cat_key || hvSaving}
         style={{ width: '100%', padding: '12px 0', background: tc, border: 'none', borderRadius: 8, color: '#fff', fontWeight: 700, fontSize: 15, cursor: 'pointer' }}>
