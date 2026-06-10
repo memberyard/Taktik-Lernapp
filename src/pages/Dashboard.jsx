@@ -88,13 +88,25 @@ export default function Dashboard({ user, onLogout }) {
 
   useEffect(() => { loadCommunityVehicles() }, [])
 
-  // Fallback: Custom-Kategorie ohne Fahrzeuge → zurück zur ersten Kategorie
+  // Beim Filterwechsel (NATO/Russia): automatisch zur ersten Kategorie mit Fahrzeugen wechseln
   useEffect(() => {
-    if (!classroomLoaded && communityVehicles.length === 0) return
-    if (!CATS[activeCat] && !communityVehicles.some(v => v.catKey === activeCat)) {
-      setActiveCat(Object.keys(CATS)[0])
+    if (communityVehicles.length === 0 && !classroomLoaded) return
+    const currentBase = getPoolBase(activeCat, superCat)
+    if (currentBase.length > 0) return // aktuelle Kategorie hat Fahrzeuge — nichts tun
+
+    // Erste Kategorie mit Fahrzeugen für diesen Filter suchen
+    const allCatKeys = [
+      ...Object.keys(CATS),
+      ...communityVehicles.reduce((acc, v) => {
+        if (!CATS[v.catKey] && v.catKey && !acc.includes(v.catKey)) acc.push(v.catKey)
+        return acc
+      }, [])
+    ]
+    const firstWithVehicles = allCatKeys.find(k => getPoolBase(k, superCat).length > 0)
+    if (firstWithVehicles && firstWithVehicles !== activeCat) {
+      setActiveCat(firstWithVehicles)
     }
-  }, [communityVehicles, classroomLoaded])
+  }, [superCat, communityVehicles])
 
   // Alle Fahrzeuge (built-in + community) für aktive Kategorie
   function getPoolBase(catKey, superCatKey) {
