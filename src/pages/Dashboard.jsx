@@ -88,56 +88,62 @@ export default function Dashboard({ user, onLogout }) {
 
   useEffect(() => { loadCommunityVehicles() }, [])
 
-  // Beim Filterwechsel (NATO/Russia): automatisch zur ersten Kategorie mit Fahrzeugen wechseln
+  // Fallback: Custom-Kategorie ohne Fahrzeuge → zurück zur ersten Kategorie
   useEffect(() => {
-    if (communityVehicles.length === 0 && !classroomLoaded) return
-    const currentBase = getPoolBase(activeCat, superCat)
-    if (currentBase.length > 0) return // aktuelle Kategorie hat Fahrzeuge — nichts tun
-
-    // Erste Kategorie mit Fahrzeugen für diesen Filter suchen
-    const allCatKeys = [
-      ...Object.keys(CATS),
-      ...communityVehicles.reduce((acc, v) => {
-        if (!CATS[v.catKey] && v.catKey && !acc.includes(v.catKey)) acc.push(v.catKey)
-        return acc
-      }, [])
-    ]
-    const firstWithVehicles = allCatKeys.find(k => getPoolBase(k, superCat).length > 0)
-    if (firstWithVehicles && firstWithVehicles !== activeCat) {
-      setActiveCat(firstWithVehicles)
+    if (!classroomLoaded && communityVehicles.length === 0) return
+    if (!CATS[activeCat] && !communityVehicles.some(v => v.catKey === activeCat)) {
+      setActiveCat(Object.keys(CATS)[0])
     }
-  }, [superCat, communityVehicles])
+  }, [communityVehicles, classroomLoaded])
 
-  // Alle Fahrzeuge (built-in + community) für aktive Kategorie
-  function getPoolBase(catKey, superCatKey) {
-    const community = communityVehicles.filter(v =>
-      v.catKey === catKey && (v.superCat === superCatKey || v.superCat === 'all')
-    )
-    if (!CATS[catKey]) return community  // reine Custom-Kategorie
-    const builtIn = getFilteredVehicles(catKey, superCatKey)
+  // Alle Fahrzeuge einer Kategorie (unabhängig von Nation)
+  function getCatVehicles(catKey) {
+    const builtIn = DB[catKey] || []
+    const community = communityVehicles.filter(v => v.catKey === catKey)
     return [...builtIn, ...community]
+  }
+
+  // Nation-Klassifizierung
+  function isRussian(v) {
+    if (v.isCommunity) return v.superCat === 'russia' || v.superCat === 'all'
+    return SUPER_CATS.russia.nations.includes(v.nation)
+  }
+  function isNATO(v) {
+    if (v.isCommunity) return v.superCat === 'nato' || v.superCat === 'all'
+    return !SUPER_CATS.russia.nations.includes(v.nation)
+  }
+
+  // Quick-Select: alle IDs einer Nation (alle Kategorien)
+  function getAllRussianIds() {
+    const builtIn = Object.values(DB).flat().filter(isRussian).map(v => String(v.id))
+    const comm = communityVehicles.filter(v => v.superCat === 'russia' || v.superCat === 'all').map(v => String(v.id))
+    return [...new Set([...builtIn, ...comm])]
+  }
+  function getAllNATOIds() {
+    return communityVehicles.filter(v => v.superCat === 'nato' || v.superCat === 'all').map(v => String(v.id))
   }
 
   function getAllVehicles() {
     return [...Object.values(DB).flat(), ...communityVehicles]
   }
 
-  // Pool aufbauen
+  // Pool aufbauen (Kategorie-basiert, gefiltert nach Auswahl)
   useEffect(() => {
+    const catBase = getCatVehicles(activeCat)
     let base
     if (selectedIds && selectedIds.length > 0) {
-      const all = getAllVehicles()
-      base = all.filter(v => selectedIds.map(String).includes(String(v.id)))
-      if (base.length === 0) base = getPoolBase(activeCat, superCat)
+      base = catBase.filter(v => selectedIds.includes(String(v.id)))
+      // Fallback: Auswahl enthält keine Fahrzeuge dieser Kategorie
+      if (base.length === 0) base = []
     } else {
-      base = getPoolBase(activeCat, superCat)
+      base = catBase
     }
     const newPool = shuffle ? shuf(base) : [...base]
     setPool(newPool)
     setIdx(0); setChosen(null); setRevealed(false)
     setOpts(makeOpts(newPool, 0, newPool))
     setScore({ c: 0, t: 0 }); setImgIdx(0)
-  }, [activeCat, superCat, selectedIds, shuffle, communityVehicles])
+  }, [activeCat, selectedIds, shuffle, communityVehicles])
 
   async function loadClassroomData() {
     if (!user?.userId) return
@@ -180,10 +186,10 @@ export default function Dashboard({ user, onLogout }) {
 
   useEffect(() => {
     if (hwMode) return
-    const base = getPoolBase(activeCat, superCat)
-    let filtered = selectedIds ? base.filter(v => selectedIds.map(String).includes(String(v.id))) : base
-    if (filtered.length === 0) filtered = base
-    const newPool = shuffle ? shuf(filtered) : [...filtered]
+    const catBase = getCatVehicles(activeCat)
+    let base = selectedIds ? catBase.filter(v => selectedIds.includes(String(v.id))) : catBase
+    if (base.length === 0) base = catBase
+    const newPool = shuffle ? shuf(base) : [...base]
     setPool(newPool)
     setIdx(0); setChosen(null); setRevealed(false)
     setOpts(makeOpts(newPool, 0, newPool))
@@ -381,8 +387,8 @@ export default function Dashboard({ user, onLogout }) {
       <div style={{ minHeight: '100vh', background: bg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, fontFamily: 'Arial', fontSize }}>
         <div style={{ color: text, fontWeight: 700, fontSize: fontSize + 1 }}>Keine Fahrzeuge für diese Auswahl.</div>
         <div style={{ color: dim, fontSize: fontSize - 2 }}>Für diese Kategorie sind noch keine Fahrzeuge eingetragen.</div>
-        <button onClick={() => { setSuperCat('russia'); setActiveCat(Object.keys(CATS)[0]) }} style={{ marginTop: 8, padding: '10px 24px', background: '#1e3a5f', border: '1px solid #2d5080', borderRadius: 8, color: '#7eb8f0', fontSize, fontWeight: 700, cursor: 'pointer', fontFamily: 'Arial' }}>
-          Zurück zu Russland/GUS
+        <button onClick={() => { setSuperCat('all'); setSelectedIds(null); setActiveCat(Object.keys(CATS)[0]) }} style={{ marginTop: 8, padding: '10px 24px', background: '#1e3a5f', border: '1px solid #2d5080', borderRadius: 8, color: '#7eb8f0', fontSize, fontWeight: 700, cursor: 'pointer', fontFamily: 'Arial' }}>
+          🌐 Alle Nationen anzeigen
         </button>
       </div>
     )
@@ -399,34 +405,64 @@ export default function Dashboard({ user, onLogout }) {
           <div style={{ fontWeight: 700, fontSize: fontSize - 1, color: text, letterSpacing: '0.06em' }}>FAHRZEUG-AUSWAHL</div>
           <button onClick={() => setShowSidebar(false)} style={{ background: 'none', border: 'none', color: dim, fontSize: 20, cursor: 'pointer', lineHeight: 1 }}>×</button>
         </div>
-        <div style={{ padding: '10px 16px', borderBottom: `1px solid ${bord}`, display: 'flex', gap: 8 }}>
-          <button onClick={() => setSelectedIds(null)} style={{ ...btn(!selectedIds, tc, tl), flex: 1, fontSize: fontSize - 3 }}>ALLE</button>
-          <button onClick={() => setSelectedIds(null)} style={{ ...btn(false, bord, dim), flex: 1, fontSize: fontSize - 3 }}>AUFHEBEN</button>
+        <div style={{ padding: '8px 12px', borderBottom: `1px solid ${bord}`, display: 'flex', gap: 6 }}>
+          <button onClick={() => { setSuperCat('russia'); setSelectedIds(getAllRussianIds()) }} style={{ ...btn(superCat === 'russia' && !!selectedIds, '#4a6080', '#90b8d8'), flex: 1, fontSize: fontSize - 4, padding: '4px 4px' }}>🇷🇺 RUS</button>
+          <button onClick={() => { setSuperCat('nato'); setSelectedIds(getAllNATOIds()) }} style={{ ...btn(superCat === 'nato' && !!selectedIds, '#4a6080', '#90b8d8'), flex: 1, fontSize: fontSize - 4, padding: '4px 4px' }}>🌍 NATO</button>
+          <button onClick={() => { setSuperCat('all'); setSelectedIds(null) }} style={{ ...btn(!selectedIds, '#4a6080', '#90b8d8'), flex: 1, fontSize: fontSize - 4, padding: '4px 4px' }}>🌐 ALLE</button>
         </div>
-        <div style={{ flex: 1, padding: '8px 0' }}>
-          {getPoolBase(activeCat, superCat).map(v => {
-            const sel = !selectedIds || selectedIds.map(String).includes(String(v.id))
-            return (
-              <div key={String(v.id)} onClick={() => {
-                const base = getPoolBase(activeCat, superCat)
-                if (!selectedIds) {
-                  const all = base.map(x => x.id).filter(id => String(id) !== String(v.id))
-                  setSelectedIds(all.length ? all : null)
-                } else {
-                  const next = sel ? selectedIds.filter(id => String(id) !== String(v.id)) : [...selectedIds, v.id]
-                  setSelectedIds(next.length ? next : null)
-                }
-              }} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 16px', cursor: 'pointer', background: sel ? tc + '10' : 'transparent', borderLeft: `3px solid ${sel ? tc : 'transparent'}`, transition: 'all 0.12s' }}>
-                <div style={{ width: 16, height: 16, borderRadius: 4, border: `2px solid ${sel ? tc : bord}`, background: sel ? tc : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  {sel && <span style={{ color: '#fff', fontSize: 10, lineHeight: 1 }}>✓</span>}
+        <div style={{ flex: 1, overflowY: 'auto', display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
+          {/* Linke Spalte: RUS */}
+          <div style={{ borderRight: `1px solid ${bord}` }}>
+            <div style={{ padding: '6px 10px', fontSize: fontSize - 5, color: dim, letterSpacing: '0.1em', borderBottom: `1px solid ${bord}` }}>🇷🇺 RUS</div>
+            {getCatVehicles(activeCat).filter(isRussian).map(v => {
+              const sel = !selectedIds || selectedIds.includes(String(v.id))
+              return (
+                <div key={String(v.id)} onClick={() => {
+                  const all = getCatVehicles(activeCat)
+                  if (!selectedIds) {
+                    setSelectedIds(all.map(x => String(x.id)).filter(id => id !== String(v.id)))
+                  } else {
+                    const next = sel ? selectedIds.filter(id => id !== String(v.id)) : [...selectedIds, String(v.id)]
+                    setSelectedIds(next.length ? next : null)
+                  }
+                }} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 10px', cursor: 'pointer', background: sel ? tc + '10' : 'transparent', borderLeft: `2px solid ${sel ? tc : 'transparent'}` }}>
+                  <div style={{ width: 14, height: 14, borderRadius: 3, border: `2px solid ${sel ? tc : bord}`, background: sel ? tc : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    {sel && <span style={{ color: '#fff', fontSize: 9, lineHeight: 1 }}>✓</span>}
+                  </div>
+                  <span style={{ fontSize: fontSize - 3, color: sel ? tl : dim, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v.name}</span>
                 </div>
-                <span style={{ fontSize: fontSize - 2, color: sel ? tl : dim }}>
-                  {v.flag} {v.name}
-                  {v.isCommunity && <span style={{ fontSize: fontSize - 5, color: dim, marginLeft: 4 }}>(Community)</span>}
-                </span>
-              </div>
-            )
-          })}
+              )
+            })}
+            {getCatVehicles(activeCat).filter(isRussian).length === 0 && (
+              <div style={{ padding: '12px 10px', fontSize: fontSize - 4, color: dim, fontStyle: 'italic' }}>Keine RUS-Fahrzeuge</div>
+            )}
+          </div>
+          {/* Rechte Spalte: NATO */}
+          <div>
+            <div style={{ padding: '6px 10px', fontSize: fontSize - 5, color: dim, letterSpacing: '0.1em', borderBottom: `1px solid ${bord}` }}>🌍 NATO</div>
+            {getCatVehicles(activeCat).filter(isNATO).map(v => {
+              const sel = !selectedIds || selectedIds.includes(String(v.id))
+              return (
+                <div key={String(v.id)} onClick={() => {
+                  const all = getCatVehicles(activeCat)
+                  if (!selectedIds) {
+                    setSelectedIds(all.map(x => String(x.id)).filter(id => id !== String(v.id)))
+                  } else {
+                    const next = sel ? selectedIds.filter(id => id !== String(v.id)) : [...selectedIds, String(v.id)]
+                    setSelectedIds(next.length ? next : null)
+                  }
+                }} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 10px', cursor: 'pointer', background: sel ? tc + '10' : 'transparent', borderLeft: `2px solid ${sel ? tc : 'transparent'}` }}>
+                  <div style={{ width: 14, height: 14, borderRadius: 3, border: `2px solid ${sel ? tc : bord}`, background: sel ? tc : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    {sel && <span style={{ color: '#fff', fontSize: 9, lineHeight: 1 }}>✓</span>}
+                  </div>
+                  <span style={{ fontSize: fontSize - 3, color: sel ? tl : dim, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v.name}</span>
+                </div>
+              )
+            })}
+            {getCatVehicles(activeCat).filter(isNATO).length === 0 && (
+              <div style={{ padding: '12px 10px', fontSize: fontSize - 4, color: dim, fontStyle: 'italic' }}>Keine NATO-Fahrzeuge</div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -435,11 +471,18 @@ export default function Dashboard({ user, onLogout }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', flexWrap: 'wrap' }}>
           <div style={{ fontWeight: 700, fontSize: fontSize - 1, color: tl, letterSpacing: '0.08em', flexShrink: 0 }}>TAKTIK</div>
           <div style={{ display: 'flex', gap: 4, marginLeft: 4 }}>
-            {Object.entries(SUPER_CATS).map(([k, v]) => (
-              <button key={k} onClick={() => setSuperCat(k)} title={v.label} style={{ ...btn(superCat === k, '#4a6080', '#90b8d8'), padding: '5px 10px', fontSize: fontSize - 3, opacity: v.nations.length === 0 && k !== 'russia' ? 0.4 : 1 }}>
-                {v.emoji} {v.label}
-              </button>
-            ))}
+            <button onClick={() => { setSuperCat('russia'); setSelectedIds(getAllRussianIds()) }}
+              style={{ ...btn(superCat === 'russia' && !!selectedIds, '#4a6080', '#90b8d8'), padding: '5px 10px', fontSize: fontSize - 3 }}>
+              🇷🇺 RUS
+            </button>
+            <button onClick={() => { setSuperCat('nato'); setSelectedIds(getAllNATOIds()) }}
+              style={{ ...btn(superCat === 'nato' && !!selectedIds, '#4a6080', '#90b8d8'), padding: '5px 10px', fontSize: fontSize - 3 }}>
+              🌍 NATO
+            </button>
+            <button onClick={() => { setSuperCat('all'); setSelectedIds(null) }}
+              style={{ ...btn(!selectedIds || superCat === 'all', '#4a6080', '#90b8d8'), padding: '5px 10px', fontSize: fontSize - 3 }}>
+              🌐 ALLE
+            </button>
           </div>
           <div style={{ flex: 1 }} />
           <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
@@ -496,7 +539,7 @@ export default function Dashboard({ user, onLogout }) {
           <button style={{ ...btn(mode === 'quiz', tc, tl), opacity: !poolHasImages ? 0.45 : 1 }} onClick={() => { if (poolHasImages) { setMode('quiz'); setChosen(null); setRevealed(false) } }}>◉ BILD-QUIZ</button>
           <button style={{ ...btn(shuffle, tc, tl), fontSize: fontSize - 1 }} onClick={() => setShuffle(s => !s)}>⇌</button>
           <button onClick={() => setShowSidebar(true)} style={{ ...btn(!!selectedIds, '#4a6080', '#90b8d8'), display: 'flex', alignItems: 'center', gap: 5 }}>
-            ☑ Auswahl {selectedIds ? `(${selectedIds.length})` : '(alle)'}
+            ☑ {!selectedIds ? 'Alle Nationen' : superCat === 'russia' ? '🇷🇺 RUS' : superCat === 'nato' ? '🌍 NATO' : `Auswahl (${selectedIds.length})`}
           </button>
           <div style={{ flex: 1 }} />
           {score.t > 0 && (
