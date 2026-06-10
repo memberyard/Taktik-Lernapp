@@ -69,9 +69,13 @@ export default function Dashboard({ user, onLogout }) {
   const text    = dark ? '#c0d0e0' : '#1a2a3a'
   const dim     = dark ? '#3d5060' : '#7090a0'
   const inputBg = dark ? '#0d1117' : '#f8fafb'
-  const cat     = CATS[activeCat]
-  const tc      = cat.color
-  const tl      = cat.light
+  const _customCatFallback = communityVehicles.find(v => v.catKey === activeCat)
+  const cat = CATS[activeCat] || {
+    color: '#7c3aed', light: '#c4b5fd',
+    label: _customCatFallback?.cat || activeCat, sub: 'Community',
+  }
+  const tc = cat.color
+  const tl = cat.light
 
   const ansCorrect = { bg: dark ? '#0d2a1a' : '#d4f5e4', border: dark ? '#1e5f3e' : '#22a06b', col: dark ? '#4ade80' : '#166534' }
   const ansWrong   = { bg: dark ? '#2a0d08' : '#fde8e8', border: dark ? '#6b2200' : '#d93025', col: dark ? '#f87171' : '#b91c1c' }
