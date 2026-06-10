@@ -115,7 +115,7 @@ export default function Login({ onLogin }) {
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
           <div style={{ fontSize: 40, marginBottom: 8 }}>🪖</div>
           <div style={{ fontSize: 20, fontWeight: 700, color: text, letterSpacing: '0.07em' }}>
-            TAKTIK LERNAPP
+            MED LERNAPP
           </div>
           <div style={{ fontSize: 11, color: dim, letterSpacing: '0.14em', marginTop: 5 }}>
             FAHRZEUGKENNUNG · BUNDESWEHR

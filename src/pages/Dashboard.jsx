@@ -325,7 +325,7 @@ export default function Dashboard({ user, onLogout }) {
       <div style={{ minHeight: '100vh', background: bg, fontFamily: 'Arial', fontSize, color: text }}>
         <div style={{ background: surf, borderBottom: `1px solid ${bord}`, position: 'sticky', top: 0, zIndex: 20 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', flexWrap: 'wrap' }}>
-            <div style={{ fontWeight: 700, fontSize: fontSize - 1, color: '#22c55e', letterSpacing: '0.08em', flexShrink: 0 }}>TAKTIK</div>
+            <div style={{ fontWeight: 700, fontSize: fontSize - 1, color: '#22c55e', letterSpacing: '0.08em', flexShrink: 0 }}>MED</div>
             <div style={{ flex: 1 }} />
             {user?.name && <span style={{ fontSize: fontSize - 3, color: dim }}>{user.name}</span>}
             <button onClick={onLogout} style={{ ...btn(false, bord, dim), padding: '5px 10px', fontSize: fontSize - 3 }}>Abmelden</button>
@@ -469,7 +469,7 @@ export default function Dashboard({ user, onLogout }) {
       {/* HEADER */}
       <div style={{ background: surf, borderBottom: `1px solid ${bord}`, position: 'sticky', top: 0, zIndex: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', flexWrap: 'wrap' }}>
-          <div style={{ fontWeight: 700, fontSize: fontSize - 1, color: tl, letterSpacing: '0.08em', flexShrink: 0 }}>TAKTIK</div>
+          <div style={{ fontWeight: 700, fontSize: fontSize - 1, color: tl, letterSpacing: '0.08em', flexShrink: 0 }}>MED</div>
           <div style={{ display: 'flex', gap: 4, marginLeft: 4 }}>
             <button onClick={() => { setSuperCat('russia'); setSelectedIds(getAllRussianIds()) }}
               style={{ ...btn(superCat === 'russia' && !!selectedIds, '#4a6080', '#90b8d8'), padding: '5px 10px', fontSize: fontSize - 3 }}>
