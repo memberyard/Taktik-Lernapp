@@ -395,7 +395,7 @@ export default function Dashboard({ user, onLogout }) {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: bg, fontFamily: 'Arial', fontSize, color: text, position: 'relative' }}>
+    <div style={{ minHeight: '100vh', backgroundImage: 'linear-gradient(rgba(10,13,20,0.82), rgba(10,13,20,0.82)), url(https://bundeswehr-lexikon.de/wp-content/uploads/2017/06/banner.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed', fontFamily: 'Arial', fontSize, color: text, position: 'relative' }}>
 
       {showSidebar && <div onClick={() => setShowSidebar(false)} style={{ position: 'fixed', inset: 0, background: '#00000080', zIndex: 40 }} />}
 

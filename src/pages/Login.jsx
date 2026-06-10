@@ -95,7 +95,9 @@ export default function Login({ onLogin }) {
 
   return (
     <div style={{
-      minHeight: '100vh', background: bg,
+      minHeight: '100vh',
+      backgroundImage: 'url(https://bundeswehr-lexikon.de/wp-content/uploads/2017/06/banner.jpg)',
+      backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       padding: 20, fontFamily: 'Arial', transition: 'background 0.2s',
     }}>
@@ -113,7 +115,7 @@ export default function Login({ onLogin }) {
         borderRadius: 12, padding: '36px 32px', width: '100%', maxWidth: 400,
       }}>
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
-          <div style={{ fontSize: 40, marginBottom: 8 }}>🪖</div>
+          <img src="/med-logo.png" alt="MED Logo" style={{ width: 110, height: 110, objectFit: 'contain', marginBottom: 8 }} />
           <div style={{ fontSize: 20, fontWeight: 700, color: text, letterSpacing: '0.07em' }}>
             MED LERNAPP
           </div>
@@ -218,7 +220,7 @@ export default function Login({ onLogin }) {
         )}
 
         <div style={{ marginTop: 20, textAlign: 'center', fontSize: 11, color: dim }}>
-          Kein E-Mail erforderlich · Anonym · Bundeswehr
+          Kein E-Mail erforderlich · Anonym
         </div>
       </div>
     </div>
