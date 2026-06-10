@@ -113,6 +113,7 @@ export default function Dashboard({ user, onLogout }) {
   async function loadClassroomData() {
     if (!user?.userId) return
     setRefreshing(true)
+    await loadCommunityVehicles()
     const { data: membership } = await supabase
       .from('classroom_members')
       .select('classroom_id, classrooms(id, name, code, teacher_id)')
