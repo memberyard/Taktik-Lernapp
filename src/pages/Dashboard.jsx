@@ -274,10 +274,10 @@ export default function Dashboard({ user, onLogout }) {
 
   const btn = (active, color, lightColor) => ({
     padding: '8px 14px',
-    background: active ? color + '40' : (dark ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.90)'),
+    background: active ? color : (dark ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.90)'),
     border: `1px solid ${active ? color : bord}`,
-    color: active ? lightColor : (dark ? '#a0c0d8' : dim),
-    boxShadow: active ? 'none' : (dark ? 'inset 0 0 0 1px rgba(255,255,255,0.05)' : '0 1px 3px rgba(0,0,0,0.15)'),
+    color: active ? '#ffffff' : (dark ? '#a0c0d8' : dim),
+    boxShadow: active ? `0 0 8px ${color}66` : (dark ? 'none' : '0 1px 3px rgba(0,0,0,0.15)'),
     borderRadius: 7, fontSize: fontSize - 2,
     fontWeight: active ? 700 : 400,
     letterSpacing: '0.08em', cursor: 'pointer',
@@ -556,7 +556,7 @@ export default function Dashboard({ user, onLogout }) {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <button onClick={() => goTo(idx - 1)} style={{ ...btn(false, bord, dim), padding: '7px 16px', fontSize: fontSize - 1, background: dark ? 'rgba(255,255,255,0.10)' : 'rgba(255,255,255,0.92)', border: `1px solid ${bord}`, color: dark ? '#a0c0d8' : dim }}>← Zurück</button>
           <div style={{ color: dim, fontSize: fontSize - 3, letterSpacing: '0.1em' }}>{idx + 1} / {pool.length}</div>
-          <button onClick={() => goTo(idx + 1)} style={{ ...btn(false, tc, tl), padding: '7px 16px', fontSize: fontSize - 1, background: dark ? 'rgba(59,130,246,0.25)' : 'rgba(255,255,255,0.92)', border: `1px solid ${tc}`, color: dark ? tl : tc, fontWeight: 700 }}>Weiter →</button>
+          <button onClick={() => goTo(idx + 1)} style={{ ...btn(false, tc, tl), padding: '7px 16px', fontSize: fontSize - 1, background: dark ? '#1e4a8f' : '#2563eb', border: `1px solid ${tc}`, color: '#ffffff', fontWeight: 700 }}>Weiter →</button>
         </div>
 
         {/* CARD */}
