@@ -852,100 +852,33 @@ export default function Dashboard({ user, onLogout }) {
                 <div style={{ fontSize: fontSize - 4, color: dim, letterSpacing: '0.1em', marginBottom: 8 }}>
                   MEINE NOTIZEN
                 </div>
-                <textarea
-                  value={notes[cur.id] || ''}
-                  onChange={e => saveNote(cur.id, e.target.value)}
-                  placeholder="Eigene Notizen zu diesem Fahrzeug …"
-                  rows={3}
-                  style={{
-                    width: '100%',
-                    background: inputBg,
-                    border: `1px solid ${bord}`,
-                    borderRadius: 8,
-                    padding: '10px 12px',
-                    color: text,
-                    fontSize: fontSize - 2,
-                    fontFamily: 'Arial',
-                    lineHeight: 1.5,
-                    resize: 'vertical',
-                    outline: 'none',
-                    boxSizing: 'border-box',
-                  }}
-                  onFocus={e => e.target.style.borderColor = tc}
-                  onBlur={e => e.target.style.borderColor = bord}
-                />
+                  <textarea
+                    value={notes[cur.id] || ''}
+                    onChange={e => saveNote(cur.id, e.target.value)}
+                    placeholder="Eigene Notizen zu diesem Fahrzeug …"
+                    rows={3}
+                    style={{
+                      width: '100%',
+                      background: inputBg,
+                      border: `1px solid ${bord}`,
+                      borderRadius: 8,
+                      padding: '10px 12px',
+                      color: text,
+                      fontSize: fontSize - 2,
+                      fontFamily: 'Arial',
+                      lineHeight: 1.5,
+                      resize: 'vertical',
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                    }}
+                    onFocus={e => e.target.style.borderColor = tc}
+                    onBlur={e => e.target.style.borderColor = bord}
+                  />
               </div>
             </div>
-          )}
-        </div>
-
-        {/* Bottom nav */}
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={() => goTo(idx - 1)} style={{ ...btn(false, bord, dim), flex: 1, padding: '11px 0' }}>← Zurück</button>
-          {mode === 'quiz' && chosen !== null && (
-            <button onClick={() => goTo(idx + 1)} style={{ ...btn(true, tc, tl), flex: 1, padding: '11px 0', fontWeight: 700 }}>Weiter →</button>
-          )}
-          {mode === 'flash' && (
-            <button onClick={() => goTo(idx + 1)} style={{ ...btn(true, tc, tl), flex: 1, padding: '11px 0', fontWeight: 700 }}>Weiter →</button>
-          )}
-        </div>
-      </div>
-
-      {/* JOIN-MODAL */}
-      {showJoin && (
-        <div style={{
-          position: 'fixed', inset: 0, background: '#00000090',
-          zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }} onClick={() => setShowJoin(false)}>
-          <div onClick={e => e.stopPropagation()} style={{
-            background: surf, border: `1px solid ${bord}`, borderRadius: 14,
-            padding: '28px 28px', width: '100%', maxWidth: 360, fontFamily: 'Arial',
-          }}>
-            <div style={{ fontSize: 17, fontWeight: 700, color: text, marginBottom: 6 }}>
-              🏫 Klassenraum beitreten
-            </div>
-            <div style={{ fontSize: 12, color: dim, marginBottom: 18 }}>
-              Gib den Code ein, den du von deinem Lehrer erhalten hast.
-            </div>
-            {joinError && (
-              <div style={{
-                background: dark ? '#2a0a0a' : '#fde8e8', border: `1px solid ${dark ? '#6b2200' : '#d93025'}`,
-                borderRadius: 8, padding: '9px 14px', color: dark ? '#f87171' : '#b91c1c',
-                fontSize: 13, marginBottom: 12,
-              }}>{joinError}</div>
-            )}
-            <input
-              value={joinCode}
-              onChange={e => setJoinCode(e.target.value.toUpperCase())}
-              placeholder="z.B. AB12CD"
-              autoFocus
-              style={{
-                width: '100%', background: inputBg, border: `1px solid ${bord}`,
-                borderRadius: 8, padding: '12px 14px', color: text,
-                fontSize: 20, fontWeight: 700, letterSpacing: '0.2em',
-                fontFamily: 'monospace', outline: 'none', boxSizing: 'border-box',
-                textAlign: 'center', marginBottom: 14,
-              }}
-              onKeyDown={e => e.key === 'Enter' && joinClassroom()}
-            />
-            <div style={{ display: 'flex', gap: 8 }}>
-              <button onClick={() => setShowJoin(false)} style={{
-                flex: 1, padding: '10px 0', background: 'transparent',
-                border: `1px solid ${bord}`, borderRadius: 8, color: dim,
-                fontSize: 13, cursor: 'pointer',
-              }}>Abbrechen</button>
-              <button onClick={joinClassroom} disabled={joinLoading || !joinCode.trim()} style={{
-                flex: 2, padding: '10px 0', background: '#3b82f6',
-                border: 'none', borderRadius: 8, color: '#fff',
-                fontSize: 13, fontWeight: 700, cursor: 'pointer',
-                opacity: joinLoading ? 0.6 : 1,
-              }}>
-                {joinLoading ? '…' : 'BEITRETEN'}
-              </button>
-            </div>
           </div>
-        </div>
-      )}
+        )
+      })}
     </div>
   )
 }
