@@ -65,9 +65,9 @@ export default function Dashboard({ user, onLogout }) {
 
   const bg      = dark ? '#080b10' : '#f0f4f8'
   const surf    = dark ? '#0a0d14' : '#ffffff'
-  const bord    = dark ? '#1c2430' : '#8090a8'
-  const text    = dark ? '#c0d0e0' : '#1a2a3a'
-  const dim     = dark ? '#3d5060' : '#3a5060'
+  const bord    = dark ? '#2e4258' : '#8090a8'
+  const text    = dark ? '#d8e8f8' : '#1a2a3a'
+  const dim     = dark ? '#7090b0' : '#3a5060'
   const inputBg = dark ? '#0d1117' : '#f8fafb'
   const _customCatFallback = communityVehicles.find(v => v.catKey === activeCat)
   const cat = CATS[activeCat] || {
@@ -274,10 +274,10 @@ export default function Dashboard({ user, onLogout }) {
 
   const btn = (active, color, lightColor) => ({
     padding: '8px 14px',
-    background: active ? color + '28' : (dark ? 'transparent' : 'rgba(255,255,255,0.85)'),
+    background: active ? color + '40' : (dark ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.90)'),
     border: `1px solid ${active ? color : bord}`,
-    color: active ? lightColor : dim,
-    boxShadow: (!dark && !active) ? '0 1px 3px rgba(0,0,0,0.15)' : 'none',
+    color: active ? lightColor : (dark ? '#a0c0d8' : dim),
+    boxShadow: active ? 'none' : (dark ? 'inset 0 0 0 1px rgba(255,255,255,0.05)' : '0 1px 3px rgba(0,0,0,0.15)'),
     borderRadius: 7, fontSize: fontSize - 2,
     fontWeight: active ? 700 : 400,
     letterSpacing: '0.08em', cursor: 'pointer',
@@ -554,9 +554,9 @@ export default function Dashboard({ user, onLogout }) {
 
         {/* Nav */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-          <button onClick={() => goTo(idx - 1)} style={{ ...btn(false, bord, dim), padding: '7px 16px', fontSize: fontSize - 1 }}>← Zurück</button>
+          <button onClick={() => goTo(idx - 1)} style={{ ...btn(false, bord, dim), padding: '7px 16px', fontSize: fontSize - 1, background: dark ? 'rgba(255,255,255,0.10)' : 'rgba(255,255,255,0.92)', border: `1px solid ${bord}`, color: dark ? '#a0c0d8' : dim }}>← Zurück</button>
           <div style={{ color: dim, fontSize: fontSize - 3, letterSpacing: '0.1em' }}>{idx + 1} / {pool.length}</div>
-          <button onClick={() => goTo(idx + 1)} style={{ ...btn(false, tc, tl), padding: '7px 16px', fontSize: fontSize - 1 }}>Weiter →</button>
+          <button onClick={() => goTo(idx + 1)} style={{ ...btn(false, tc, tl), padding: '7px 16px', fontSize: fontSize - 1, background: dark ? 'rgba(59,130,246,0.25)' : 'rgba(255,255,255,0.92)', border: `1px solid ${tc}`, color: dark ? tl : tc, fontWeight: 700 }}>Weiter →</button>
         </div>
 
         {/* CARD */}
