@@ -27,6 +27,8 @@ function cvToVehicle(cv) {
     m: cv.features || [],
     images: cv.image_urls || [],
     catKey: cv.cat_key,
+    cat: cv.category || cv.cat_key,
+    superCat: cv.super_cat || 'russia',
     isCommunity: true,
   }
 }
@@ -83,9 +85,12 @@ export default function Dashboard({ user, onLogout }) {
   useEffect(() => { loadCommunityVehicles() }, [])
 
   // Alle Fahrzeuge (built-in + community) für aktive Kategorie
-  function getPoolBase(catKey, superCatKey, selIds) {
+  function getPoolBase(catKey, superCatKey) {
+    const community = communityVehicles.filter(v =>
+      v.catKey === catKey && (v.superCat === superCatKey || v.superCat === 'all')
+    )
+    if (!CATS[catKey]) return community  // reine Custom-Kategorie
     const builtIn = getFilteredVehicles(catKey, superCatKey)
-    const community = communityVehicles.filter(v => v.catKey === catKey)
     return [...builtIn, ...community]
   }
 
@@ -224,6 +229,14 @@ export default function Dashboard({ user, onLogout }) {
   const pct = score.t > 0 ? Math.round(score.c / score.t * 100) : null
 
   // Alle Bilder: eingebaut + Lehrer-Bilder
+  // Custom-Kategorien aus Community-Fahrzeugen ableiten
+  const customCats = communityVehicles.reduce((acc, v) => {
+    if (!CATS[v.catKey] && v.catKey && !acc[v.catKey]) {
+      acc[v.catKey] = { label: v.cat || v.catKey, sub: 'Community', color: '#7c3aed', light: '#c4b5fd' }
+    }
+    return acc
+  }, {})
+
   const teacherImgs = cur ? (teacherImages[String(cur.id)] || []) : []
   const allImages = [...(cur?.images || []), ...teacherImgs]
   const hasImages = allImages.length > 0
@@ -414,6 +427,11 @@ export default function Dashboard({ user, onLogout }) {
         </div>
         <div style={{ display: 'flex', overflowX: 'auto', borderTop: `1px solid ${bord}` }}>
           {Object.entries(CATS).map(([k, v]) => (
+            <button key={k} onClick={() => { setActiveCat(k); setHwMode(false) }} style={{ flex: '0 0 auto', padding: '8px 10px', background: !hwMode && activeCat === k ? v.color + '22' : 'transparent', border: 'none', borderBottom: `2px solid ${!hwMode && activeCat === k ? v.color : 'transparent'}`, color: !hwMode && activeCat === k ? v.light : dim, fontSize: fontSize - 3, fontWeight: !hwMode && activeCat === k ? 700 : 400, letterSpacing: '0.06em', cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'Arial' }}>
+              {v.label}<br /><span style={{ fontSize: fontSize - 5, opacity: 0.6 }}>{v.sub}</span>
+            </button>
+          ))}
+          {Object.entries(customCats).map(([k, v]) => (
             <button key={k} onClick={() => { setActiveCat(k); setHwMode(false) }} style={{ flex: '0 0 auto', padding: '8px 10px', background: !hwMode && activeCat === k ? v.color + '22' : 'transparent', border: 'none', borderBottom: `2px solid ${!hwMode && activeCat === k ? v.color : 'transparent'}`, color: !hwMode && activeCat === k ? v.light : dim, fontSize: fontSize - 3, fontWeight: !hwMode && activeCat === k ? 700 : 400, letterSpacing: '0.06em', cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'Arial' }}>
               {v.label}<br /><span style={{ fontSize: fontSize - 5, opacity: 0.6 }}>{v.sub}</span>
             </button>

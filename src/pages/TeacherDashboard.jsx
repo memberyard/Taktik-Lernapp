@@ -161,12 +161,12 @@ export default function TeacherDashboard({ user, onLogout }) {
     let error
     if (hv.id) {
       const { error: e } = await supabase.from('community_vehicles').update(
-        { name: hv.name, category: hv.category, cat_key: hv.cat_key, features: hv.features, image_urls: hv.image_urls, updated_at: new Date().toISOString() }
+        { name: hv.name, category: hv.category, cat_key: hv.cat_key, features: hv.features, image_urls: hv.image_urls, super_cat: hv.super_cat || 'russia', updated_at: new Date().toISOString() }
       ).eq('id', hv.id)
       error = e
     } else {
       const { error: e } = await supabase.from('community_vehicles').insert(
-        { created_by: user.userId, name: hv.name, category: hv.category, cat_key: hv.cat_key, features: hv.features, image_urls: hv.image_urls }
+        { created_by: user.userId, name: hv.name, category: hv.category, cat_key: hv.cat_key, features: hv.features, image_urls: hv.image_urls, super_cat: hv.super_cat || 'russia' }
       )
       error = e
     }
@@ -594,7 +594,7 @@ export default function TeacherDashboard({ user, onLogout }) {
 
 // ── HINZUFÜGEN COMPONENT ──────────────────────────────────────
 function HvTool({ allCommunity, hvEdit, setHvEdit, hvSaving, hvMsg, saveHv, deleteHv, userId, surf, surf2, bord, text, dim, tc, CATS }) {
-  const emptyForm = { name: '', category: '', cat_key: '', features: [], image_urls: [] }
+  const emptyForm = { name: '', category: '', cat_key: '', features: [], image_urls: [], super_cat: 'russia' }
   const [form, setForm] = React.useState(emptyForm)
   const [featInput, setFeatInput] = React.useState('')
   const [imgInput, setImgInput] = React.useState('')
@@ -657,11 +657,47 @@ function HvTool({ allCommunity, hvEdit, setHvEdit, hvSaving, hvMsg, saveHv, dele
         style={{ display: 'block', width: '100%', boxSizing: 'border-box', padding: '10px 14px', background: surf, border: `1px solid ${bord}`, borderRadius: 8, color: text, fontSize: 14, marginTop: 6, marginBottom: 16, outline: 'none' }} />
 
       <label style={{ fontSize: 12, color: dim, letterSpacing: '0.06em' }}>KATEGORIE</label>
-      <select value={form.cat_key} onChange={e => { const k = e.target.value; setForm(f => ({ ...f, cat_key: k, category: CATS[k]?.label || k })) }}
-        style={{ display: 'block', width: '100%', padding: '10px 14px', background: surf, border: `1px solid ${bord}`, borderRadius: 8, color: text, fontSize: 14, marginTop: 6, marginBottom: 16, outline: 'none' }}>
+      <select value={form.cat_key === '__custom__' ? '__custom__' : (CATS[form.cat_key] ? form.cat_key : (form.cat_key ? '__custom__' : ''))}
+        onChange={e => {
+          const k = e.target.value
+          if (k === '__custom__') {
+            setForm(f => ({ ...f, cat_key: '__custom__', category: '' }))
+          } else {
+            setForm(f => ({ ...f, cat_key: k, category: CATS[k]?.label || k }))
+          }
+        }}
+        style={{ display: 'block', width: '100%', padding: '10px 14px', background: surf, border: `1px solid ${bord}`, borderRadius: 8, color: text, fontSize: 14, marginTop: 6, marginBottom: 8, outline: 'none' }}>
         <option value="">Kategorie wählen …</option>
         {Object.entries(CATS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+        <option value="__custom__">➕ Neue Kategorie erstellen …</option>
       </select>
+      {(form.cat_key === '__custom__' || (form.cat_key && !CATS[form.cat_key])) && (
+        <input
+          value={form.category}
+          onChange={e => {
+            const label = e.target.value
+            const key = label.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_äöüß]/g, '').replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss')
+            setForm(f => ({ ...f, category: label, cat_key: key || '__custom__' }))
+          }}
+          placeholder="z.B. Infanteriefahrzeuge"
+          style={{ display: 'block', width: '100%', boxSizing: 'border-box', padding: '10px 14px', background: surf, border: `1px solid ${tc}`, borderRadius: 8, color: text, fontSize: 14, marginBottom: 16, outline: 'none' }}
+        />
+      )}
+      {!(form.cat_key === '__custom__' || (form.cat_key && !CATS[form.cat_key])) && <div style={{ marginBottom: 8 }} />}
+
+      <label style={{ fontSize: 12, color: dim, letterSpacing: '0.06em' }}>ANZEIGEN BEI</label>
+      <div style={{ display: 'flex', gap: 8, marginTop: 6, marginBottom: 16 }}>
+        {[
+          { val: 'russia', label: '🇷🇺 Russland / GUS' },
+          { val: 'nato', label: '🌍 NATO' },
+          { val: 'all', label: '🌐 Beide' },
+        ].map(opt => (
+          <button key={opt.val} onClick={() => setForm(f => ({ ...f, super_cat: opt.val }))}
+            style={{ flex: 1, padding: '8px 4px', borderRadius: 8, border: `1px solid ${form.super_cat === opt.val ? tc : bord}`, background: form.super_cat === opt.val ? tc + '22' : 'transparent', color: form.super_cat === opt.val ? tc : dim, fontSize: 12, cursor: 'pointer', fontWeight: form.super_cat === opt.val ? 700 : 400 }}>
+            {opt.label}
+          </button>
+        ))}
+      </div>
 
       <label style={{ fontSize: 12, color: dim, letterSpacing: '0.06em' }}>ERKENNUNGSMERKMALE</label>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 6, marginBottom: 8 }}>
@@ -700,8 +736,8 @@ function HvTool({ allCommunity, hvEdit, setHvEdit, hvSaving, hvMsg, saveHv, dele
           style={{ padding: '9px 14px', background: surf, border: `1px solid ${bord}`, borderRadius: 7, color: text, cursor: 'pointer', fontSize: 13 }}>+ Bild</button>
       </div>
 
-      <button onClick={() => saveHv({ ...form, id: isNew ? undefined : hvEdit.id })}
-        disabled={!form.name.trim() || !form.cat_key || hvSaving}
+      <button onClick={() => saveHv({ ...form, cat_key: form.cat_key === '__custom__' ? '' : form.cat_key, id: isNew ? undefined : hvEdit.id })}
+        disabled={!form.name.trim() || (!form.cat_key || form.cat_key === '__custom__') || !form.category || hvSaving}
         style={{ width: '100%', padding: '12px 0', background: tc, border: 'none', borderRadius: 8, color: '#fff', fontWeight: 700, fontSize: 15, cursor: 'pointer' }}>
         {hvSaving ? 'Speichern …' : isNew ? '✅ Lernkarte erstellen' : '✅ Änderungen speichern'}
       </button>
