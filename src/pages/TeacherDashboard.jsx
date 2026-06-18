@@ -1004,3 +1004,73 @@ function HvTool({ dark, surf, bord, text, dim, tc, inputBg }) {
     </div>
   )
 }
+.f, category: label, cat_key: key || '__custom__' }))
+          }}
+          placeholder="z.B. Infanteriefahrzeuge"
+          style={{ display: 'block', width: '100%', boxSizing: 'border-box', padding: '10px 14px', background: surf, border: `1px solid ${tc}`, borderRadius: 8, color: text, fontSize: 14, marginBottom: 16, outline: 'none' }}
+        />
+      )}
+      {!(form.cat_key === '__custom__' || (form.cat_key && !CATS[form.cat_key])) && <div style={{ marginBottom: 8 }} />}
+
+      <label style={{ fontSize: 12, color: dim, letterSpacing: '0.06em' }}>ANZEIGEN BEI</label>
+      <div style={{ display: 'flex', gap: 8, marginTop: 6, marginBottom: 16 }}>
+        {[
+          { val: 'russia', label: '🇷🇺 Russland / GUS' },
+          { val: 'nato', label: '🌍 NATO' },
+          { val: 'all', label: '🌐 Beide' },
+        ].map(opt => (
+          <button key={opt.val} onClick={() => setForm(f => ({ ...f, super_cat: opt.val }))}
+            style={{ flex: 1, padding: '8px 4px', borderRadius: 8, border: `1px solid ${form.super_cat === opt.val ? tc : bord}`, background: form.super_cat === opt.val ? tc + '22' : 'transparent', color: form.super_cat === opt.val ? tc : dim, fontSize: 12, cursor: 'pointer', fontWeight: form.super_cat === opt.val ? 700 : 400 }}>
+            {opt.label}
+          </button>
+        ))}
+      </div>
+
+      <label style={{ fontSize: 12, color: dim, letterSpacing: '0.06em' }}>ERKENNUNGSMERKMALE</label>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 6, marginBottom: 8 }}>
+        {form.features.map((f, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, background: surf, border: `1px solid ${bord}`, borderRadius: 7, padding: '7px 12px' }}>
+            <span style={{ flex: 1, fontSize: 13, color: text }}>• {f}</span>
+            <button onClick={() => setForm(fm => ({ ...fm, features: fm.features.filter((_, j) => j !== i) }))} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: 16 }}>×</button>
+          </div>
+        ))}
+      </div>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+        <input value={featInput} onChange={e => setFeatInput(e.target.value)}
+          onKeyDown={e => { if (e.key === 'Enter' && featInput.trim()) { setForm(f => ({ ...f, features: [...f.features, featInput.trim()] })); setFeatInput('') } }}
+          placeholder="Merkmal eingeben …"
+          style={{ flex: 1, padding: '9px 12px', background: surf, border: `1px solid ${bord}`, borderRadius: 7, color: text, fontSize: 13, outline: 'none' }} />
+        <button onClick={() => { if (featInput.trim()) { setForm(f => ({ ...f, features: [...f.features, featInput.trim()] })); setFeatInput('') } }}
+          style={{ padding: '9px 14px', background: surf, border: `1px solid ${bord}`, borderRadius: 7, color: text, cursor: 'pointer', fontSize: 13 }}>+ Merkmal</button>
+      </div>
+
+      <label style={{ fontSize: 12, color: dim, letterSpacing: '0.06em' }}>BILD-LINKS (URLs)</label>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 6, marginBottom: 8 }}>
+        {form.image_urls.map((url, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, background: surf, border: `1px solid ${bord}`, borderRadius: 7, padding: '7px 12px' }}>
+            <img src={url} alt="" style={{ width: 48, height: 36, objectFit: 'cover', borderRadius: 4, flexShrink: 0 }} onError={e => { e.target.style.display = 'none' }} />
+            <span style={{ flex: 1, fontSize: 11, color: dim, wordBreak: 'break-all' }}>{url}</span>
+            <button onClick={() => setForm(fm => ({ ...fm, image_urls: fm.image_urls.filter((_, j) => j !== i) }))} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: 16 }}>×</button>
+          </div>
+        ))}
+      </div>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
+        <input value={imgInput} onChange={e => setImgInput(e.target.value)}
+          onKeyDown={e => { if (e.key === 'Enter' && imgInput.trim()) { setForm(f => ({ ...f, image_urls: [...f.image_urls, imgInput.trim()] })); setImgInput('') } }}
+          placeholder="https://... Bild-URL einfügen"
+          style={{ flex: 1, padding: '9px 12px', background: surf, border: `1px solid ${bord}`, borderRadius: 7, color: text, fontSize: 13, outline: 'none' }} />
+        <button onClick={() => { if (imgInput.trim()) { setForm(f => ({ ...f, image_urls: [...f.image_urls, imgInput.trim()] })); setImgInput('') } }}
+          style={{ padding: '9px 14px', background: surf, border: `1px solid ${bord}`, borderRadius: 7, color: text, cursor: 'pointer', fontSize: 13 }}>+ Bild</button>
+      </div>
+
+      <button onClick={() => saveHv({ ...form, cat_key: form.cat_key === '__custom__' ? '' : form.cat_key, id: isNew ? undefined : hvEdit.id })}
+        disabled={!form.name.trim() || (!form.cat_key || form.cat_key === '__custom__') || !form.category || hvSaving}
+        style={{ width: '100%', padding: '12px 0', background: tc, border: 'none', borderRadius: 8, color: '#fff', fontWeight: 700, fontSize: 15, cursor: 'pointer' }}>
+        {hvSaving ? 'Speichern …' : isNew ? '✅ Lernkarte erstellen' : '✅ Änderungen speichern'}
+      </button>
+      {hvMsg && <div style={{ fontSize: 13, color: hvMsg.startsWith('❌') ? '#ef4444' : '#22c55e', marginTop: 10, textAlign: 'center' }}>{hvMsg}</div>}
+    </div>
+  )
+}
+
+            
