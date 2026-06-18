@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { CATS, SUPER_CATS, DB, getFilteredVehicles, getRecomonkeyUrl } from '../lib/vehicles'
 import { supabase } from '../lib/supabase'
 
@@ -63,11 +63,23 @@ export default function Dashboard({ user, onLogout }) {
   const [hwMode, setHwMode]             = useState(false)
   const [refreshing, setRefreshing]     = useState(false)
 
+  // Prüfungsmodus (Schüler)
+  const [activeExam, setActiveExam]     = useState(null)
+  const [examStudId, setExamStudId]     = useState(null)
+  const [examVehicles, setExamVehicles] = useState([])
+  const [examIdx, setExamIdx]           = useState(0)
+  const [examRunning, setExamRunning]   = useState(false)
+  const [examConfirm, setExamConfirm]   = useState(false)
+  const [examDone, setExamDone]         = useState(false)
+  const [examTimer, setExamTimer]       = useState(0)
+  const [examStarting, setExamStarting] = useState(false)
+  const examIdxRef                      = useRef(0)
+
   const bg      = dark ? '#080b10' : '#f0f4f8'
   const surf    = dark ? '#0a0d14' : '#ffffff'
-  const bord    = dark ? '#2e4258' : '#8090a8'
-  const text    = dark ? '#d8e8f8' : '#1a2a3a'
-  const dim     = dark ? '#7090b0' : '#3a5060'
+  const bord    = dark ? '#1c2430' : '#d0dce8'
+  const text    = dark ? '#c0d0e0' : '#1a2a3a'
+  const dim     = dark ? '#3d5060' : '#7090a0'
   const inputBg = dark ? '#0d1117' : '#f8fafb'
   const _customCatFallback = communityVehicles.find(v => v.catKey === activeCat)
   const cat = CATS[activeCat] || {
@@ -184,6 +196,83 @@ export default function Dashboard({ user, onLogout }) {
 
   useEffect(() => { loadClassroomData() }, [user?.userId])
 
+  // Prüfung: beim Laden prüfen ob eine aktive Zuweisung existiert
+  async function checkForExam() {
+    if (!user?.userId) return
+    const { data } = await supabase
+      .from('exam_students')
+      .select('id, status, exams(id, title, vehicle_sequence, total_shown, show_seconds)')
+      .eq('student_id', user.userId)
+      .in('status', ['pending', 'confirmed', 'in_progress'])
+      .maybeSingle()
+    if (data?.exams) {
+      setActiveExam(data.exams)
+      setExamStudId(data.id)
+      setExamVehicles(data.exams.vehicle_sequence || [])
+      if (data.status === 'in_progress') {
+        setExamRunning(true)
+      }
+    }
+  }
+  useEffect(() => { checkForExam() }, [user?.userId])
+
+  // Prüfung starten (nach Bestätigung)
+  async function beginExam() {
+    if (examStarting) return
+    setExamStarting(true)
+    setExamConfirm(false)
+    await supabase.from('exam_students')
+      .update({ status: 'in_progress', started_at: new Date().toISOString() })
+      .eq('id', examStudId)
+    setExamIdx(0)
+    examIdxRef.current = 0
+    setExamTimer(0)
+    setExamRunning(true)
+  }
+
+  // Prüfung abschließen
+  async function completeExam() {
+    setExamRunning(false)
+    await supabase.from('exam_students')
+      .update({ status: 'completed', completed_at: new Date().toISOString() })
+      .eq('id', examStudId)
+    setExamDone(true)
+  }
+
+  function resetExam() {
+    setActiveExam(null); setExamStudId(null); setExamVehicles([])
+    setExamIdx(0); examIdxRef.current = 0
+    setExamRunning(false); setExamConfirm(false); setExamDone(false)
+    setExamTimer(0); setExamStarting(false)
+  }
+
+  // Timer + auto-advance in einem Effect.
+  // Lokale Variable t (keine State-Dependency) → kein Stale-Closure, kein Doppel-Fire.
+  // Effect läuft neu wenn examIdx wechselt → altes Interval wird via Cleanup gestoppt.
+  useEffect(() => {
+    if (!examRunning || !activeExam) return
+    const showSecs = activeExam.show_seconds || 20
+    const totalVehicles = examVehicles.length
+    let t = 0
+    setExamTimer(0)
+    const tick = setInterval(() => {
+      t++
+      setExamTimer(t)
+      if (t >= showSecs) {
+        t = 0
+        const ni = examIdxRef.current + 1
+        if (ni >= totalVehicles) {
+          clearInterval(tick)
+          completeExam()
+        } else {
+          examIdxRef.current = ni
+          setExamIdx(ni)   // triggert Effect-Re-run → Cleanup → neues Interval
+        }
+      }
+    }, 1000)
+    return () => clearInterval(tick)
+  }, [examRunning, examIdx])
+
   useEffect(() => {
     if (hwMode) return
     const catBase = getCatVehicles(activeCat)
@@ -274,10 +363,9 @@ export default function Dashboard({ user, onLogout }) {
 
   const btn = (active, color, lightColor) => ({
     padding: '8px 14px',
-    background: active ? color : (dark ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.90)'),
+    background: active ? color + '28' : 'transparent',
     border: `1px solid ${active ? color : bord}`,
-    color: active ? '#ffffff' : (dark ? '#a0c0d8' : dim),
-    boxShadow: active ? `0 0 8px ${color}66` : (dark ? 'none' : '0 1px 3px rgba(0,0,0,0.15)'),
+    color: active ? lightColor : dim,
     borderRadius: 7, fontSize: fontSize - 2,
     fontWeight: active ? 700 : 400,
     letterSpacing: '0.08em', cursor: 'pointer',
@@ -287,7 +375,7 @@ export default function Dashboard({ user, onLogout }) {
   // ── JOIN-SCREEN ─────────────────────────────────────────────
   if (classroomLoaded && !classroom) {
     return (
-      <div style={{ minHeight: '100vh', backgroundImage: `linear-gradient(${dark ? 'rgba(10,13,20,0.82)' : 'rgba(220,228,236,0.60)'}, ${dark ? 'rgba(10,13,20,0.82)' : 'rgba(220,228,236,0.60)'}), url(https://i.pinimg.com/564x/66/10/4c/66104cd228d8925efbfdf8bbd612050d.jpg)`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed', fontFamily: 'Arial', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+      <div style={{ minHeight: '100vh', background: bg, fontFamily: 'Arial', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
         <div style={{ background: surf, border: `1px solid ${bord}`, borderRadius: 14, padding: '40px 36px', width: '100%', maxWidth: 420, textAlign: 'center' }}>
           <div style={{ fontSize: 44, marginBottom: 12 }}>🏫</div>
           <div style={{ fontSize: 20, fontWeight: 700, color: text, marginBottom: 8 }}>Klassenraum beitreten</div>
@@ -323,7 +411,7 @@ export default function Dashboard({ user, onLogout }) {
     }
 
     return (
-      <div style={{ minHeight: '100vh', backgroundImage: `linear-gradient(${dark ? 'rgba(10,13,20,0.82)' : 'rgba(220,228,236,0.60)'}, ${dark ? 'rgba(10,13,20,0.82)' : 'rgba(220,228,236,0.60)'}), url(https://i.pinimg.com/564x/66/10/4c/66104cd228d8925efbfdf8bbd612050d.jpg)`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed', fontFamily: 'Arial', fontSize, color: text }}>
+      <div style={{ minHeight: '100vh', background: bg, fontFamily: 'Arial', fontSize, color: text }}>
         <div style={{ background: surf, borderBottom: `1px solid ${bord}`, position: 'sticky', top: 0, zIndex: 20 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', flexWrap: 'wrap' }}>
             <div style={{ fontWeight: 700, fontSize: fontSize - 1, color: '#22c55e', letterSpacing: '0.08em', flexShrink: 0 }}>MED</div>
@@ -379,13 +467,13 @@ export default function Dashboard({ user, onLogout }) {
     // Noch beim Laden — kurz warten bevor Fehlermeldung
     if (refreshing) {
       return (
-        <div style={{ minHeight: '100vh', backgroundImage: `linear-gradient(${dark ? 'rgba(10,13,20,0.82)' : 'rgba(220,228,236,0.60)'}, ${dark ? 'rgba(10,13,20,0.82)' : 'rgba(220,228,236,0.60)'}), url(https://i.pinimg.com/564x/66/10/4c/66104cd228d8925efbfdf8bbd612050d.jpg)`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Arial', color: dim, fontSize }}>
+        <div style={{ minHeight: '100vh', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Arial', color: dim, fontSize }}>
           Laden …
         </div>
       )
     }
     return (
-      <div style={{ minHeight: '100vh', backgroundImage: `linear-gradient(${dark ? 'rgba(10,13,20,0.82)' : 'rgba(220,228,236,0.60)'}, ${dark ? 'rgba(10,13,20,0.82)' : 'rgba(220,228,236,0.60)'}), url(https://i.pinimg.com/564x/66/10/4c/66104cd228d8925efbfdf8bbd612050d.jpg)`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, fontFamily: 'Arial', fontSize }}>
+      <div style={{ minHeight: '100vh', background: bg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, fontFamily: 'Arial', fontSize }}>
         <div style={{ color: text, fontWeight: 700, fontSize: fontSize + 1 }}>Keine Fahrzeuge für diese Auswahl.</div>
         <div style={{ color: dim, fontSize: fontSize - 2 }}>Für diese Kategorie sind noch keine Fahrzeuge eingetragen.</div>
         <button onClick={() => { setSuperCat('all'); setSelectedIds(null); setActiveCat(Object.keys(CATS)[0]) }} style={{ marginTop: 8, padding: '10px 24px', background: '#1e3a5f', border: '1px solid #2d5080', borderRadius: 8, color: '#7eb8f0', fontSize, fontWeight: 700, cursor: 'pointer', fontFamily: 'Arial' }}>
@@ -396,9 +484,73 @@ export default function Dashboard({ user, onLogout }) {
   }
 
   return (
-    <div style={{ minHeight: '100vh', backgroundImage: `linear-gradient(${dark ? 'rgba(10,13,20,0.82)' : 'rgba(220,228,236,0.60)'}, ${dark ? 'rgba(10,13,20,0.82)' : 'rgba(220,228,236,0.60)'}), url(https://i.pinimg.com/564x/66/10/4c/66104cd228d8925efbfdf8bbd612050d.jpg)`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed', fontFamily: 'Arial', fontSize, color: text, position: 'relative' }}>
+    <div style={{ minHeight: '100vh', background: bg, fontFamily: 'Arial', fontSize, color: text, position: 'relative' }}>
 
       {showSidebar && <div onClick={() => setShowSidebar(false)} style={{ position: 'fixed', inset: 0, background: '#00000080', zIndex: 40 }} />}
+
+      {/* ── PRÜFUNG: Bestätigungs-Dialog ── */}
+      {examConfirm && activeExam && (
+        <div style={{ position: 'fixed', inset: 0, background: '#000000cc', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ background: surf, border: `1px solid ${bord}`, borderRadius: 14, padding: '40px 32px', maxWidth: 380, width: '90%', textAlign: 'center' }}>
+            <div style={{ fontSize: 40, marginBottom: 16 }}>📋</div>
+            <div style={{ fontSize: 18, fontWeight: 700, color: text, marginBottom: 8 }}>{activeExam.title || 'Prüfung'}</div>
+            <div style={{ fontSize: 13, color: dim, marginBottom: 20, lineHeight: 1.6 }}>
+              {examVehicles.length} Fahrzeuge · {activeExam.show_seconds || 20}s pro Bild
+            </div>
+            <div style={{ fontSize: 14, color: text, marginBottom: 28, padding: '14px', background: dark ? '#0f1e30' : '#eef3fa', borderRadius: 8, lineHeight: 1.6 }}>
+              Schreibbereitschaft hergestellt?<br />
+              <span style={{ fontSize: 12, color: dim }}>Halte Stift und Papier bereit.</span>
+            </div>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={() => setExamConfirm(false)} style={{ flex: 1, padding: '12px 0', background: 'transparent', border: `1px solid ${bord}`, borderRadius: 8, color: dim, fontSize: 14, cursor: 'pointer' }}>Abbrechen</button>
+              <button onClick={beginExam} disabled={examStarting} style={{ flex: 1, padding: '12px 0', background: '#7c3aed', border: 'none', borderRadius: 8, color: '#fff', fontSize: 14, fontWeight: 700, cursor: examStarting ? 'wait' : 'pointer', opacity: examStarting ? 0.6 : 1 }}>{examStarting ? '…' : 'STARTEN'}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── PRÜFUNG: Laufende Prüfung ── */}
+      {examRunning && examVehicles.length > 0 && (() => {
+        const entry = examVehicles[examIdx]
+        const showSecs = activeExam?.show_seconds || 20
+        const pct = Math.min(100, (examTimer / showSecs) * 100)
+        return (
+          <div style={{ position: 'fixed', inset: 0, background: '#000', zIndex: 200, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+            {/* Fortschrittsbalken oben */}
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 5, background: '#1a1a2e' }}>
+              <div style={{ height: '100%', width: `${pct}%`, background: '#7c3aed', transition: 'width 1s linear' }} />
+            </div>
+            {/* Zähler & Timer */}
+            <div style={{ position: 'absolute', top: 12, left: 16, color: '#666', fontSize: 13 }}>
+              {showSecs - examTimer}s
+            </div>
+            <div style={{ position: 'absolute', top: 12, right: 16, color: '#666', fontSize: 13 }}>
+              {examIdx + 1} / {examVehicles.length}
+            </div>
+            {/* Fahrzeugbild */}
+            {entry?.imageUrl
+              ? <img src={entry.imageUrl} alt={entry.vehicleName || ''} style={{ maxWidth: '95vw', maxHeight: '88vh', objectFit: 'contain' }} />
+              : <div style={{ color: '#444', fontSize: 16 }}>Kein Bild verfügbar</div>
+            }
+          </div>
+        )
+      })()}
+
+      {/* ── PRÜFUNG: Abschlussbildschirm ── */}
+      {examDone && (
+        <div style={{ position: 'fixed', inset: 0, background: '#000000cc', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ background: surf, border: `1px solid ${bord}`, borderRadius: 14, padding: '40px 32px', maxWidth: 380, width: '90%', textAlign: 'center' }}>
+            <div style={{ fontSize: 52, marginBottom: 16 }}>✅</div>
+            <div style={{ fontSize: 20, fontWeight: 700, color: text, marginBottom: 8 }}>Prüfung beendet</div>
+            <div style={{ fontSize: 14, color: dim, marginBottom: 28, lineHeight: 1.6 }}>
+              {examVehicles.length} Fahrzeuge wurden gezeigt.
+            </div>
+            <button onClick={resetExam} style={{ width: '100%', padding: '13px 0', background: '#3b82f6', border: 'none', borderRadius: 8, color: '#fff', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>
+              Zurück
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* SIDEBAR */}
       <div style={{ position: 'fixed', top: 0, left: showSidebar ? 0 : '-320px', bottom: 0, width: 300, background: surf, borderRight: `1px solid ${bord}`, zIndex: 50, transition: 'left 0.2s ease', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
@@ -486,6 +638,14 @@ export default function Dashboard({ user, onLogout }) {
             </button>
           </div>
           <div style={{ flex: 1 }} />
+          {activeExam && !examDone && !examRunning && (
+            <button onClick={() => setExamConfirm(true)} style={{
+              background: '#7c3aed', border: 'none', borderRadius: 7,
+              padding: '5px 16px', color: '#fff', fontWeight: 700,
+              fontSize: fontSize - 2, cursor: 'pointer', letterSpacing: '0.08em',
+            }}>📋 PRÜFUNG</button>
+          )}
+          <div style={{ flex: 1 }} />
           <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
             <button onClick={() => setFontSize(f => Math.max(14, f - 1))} style={{ ...btn(false, bord, dim), padding: '4px 8px', fontSize: 12 }}>A−</button>
             <button onClick={() => setFontSize(f => Math.min(17, f + 1))} style={{ ...btn(false, bord, dim), padding: '4px 8px', fontSize: 14 }}>A+</button>
@@ -554,9 +714,9 @@ export default function Dashboard({ user, onLogout }) {
 
         {/* Nav */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-          <button onClick={() => goTo(idx - 1)} style={{ ...btn(false, bord, dim), padding: '7px 16px', fontSize: fontSize - 1, background: dark ? 'rgba(255,255,255,0.10)' : 'rgba(255,255,255,0.92)', border: `1px solid ${bord}`, color: dark ? '#a0c0d8' : dim }}>← Zurück</button>
+          <button onClick={() => goTo(idx - 1)} style={{ ...btn(false, bord, dim), padding: '7px 16px', fontSize: fontSize - 1 }}>← Zurück</button>
           <div style={{ color: dim, fontSize: fontSize - 3, letterSpacing: '0.1em' }}>{idx + 1} / {pool.length}</div>
-          <button onClick={() => goTo(idx + 1)} style={{ ...btn(false, tc, tl), padding: '7px 16px', fontSize: fontSize - 1, background: dark ? '#1e4a8f' : '#2563eb', border: `1px solid ${tc}`, color: '#ffffff', fontWeight: 700 }}>Weiter →</button>
+          <button onClick={() => goTo(idx + 1)} style={{ ...btn(false, tc, tl), padding: '7px 16px', fontSize: fontSize - 1 }}>Weiter →</button>
         </div>
 
         {/* CARD */}
@@ -633,6 +793,7 @@ export default function Dashboard({ user, onLogout }) {
                   <div style={{ fontSize: fontSize - 4, color: dim, letterSpacing: '0.1em', marginBottom: 10 }}>WELCHES FAHRZEUG IST ABGEBILDET?</div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                     {opts.map(o => {
+     
                       const isCorrect = String(o.id) === String(cur.id)
                       const isPicked = String(chosen) === String(o.id)
                       const showResult = chosen !== null
@@ -694,7 +855,6 @@ export default function Dashboard({ user, onLogout }) {
                   </button>
                 </>
               )}
-              {/* NOTIZFELD */}
               <div style={{ marginTop: 16, borderTop: `1px solid ${bord}`, paddingTop: 14 }}>
                 <div style={{ fontSize: fontSize - 4, color: dim, letterSpacing: '0.1em', marginBottom: 8 }}>MEINE NOTIZEN</div>
                 <textarea
@@ -709,7 +869,6 @@ export default function Dashboard({ user, onLogout }) {
           )}
         </div>
 
-        {/* Bottom nav */}
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={() => goTo(idx - 1)} style={{ ...btn(false, bord, dim), flex: 1, padding: '11px 0' }}>← Zurück</button>
           {mode === 'quiz' && chosen !== null && <button onClick={() => goTo(idx + 1)} style={{ ...btn(true, tc, tl), flex: 1, padding: '11px 0', fontWeight: 700 }}>Weiter →</button>}
@@ -717,7 +876,6 @@ export default function Dashboard({ user, onLogout }) {
         </div>
       </div>
 
-      {/* JOIN-MODAL */}
       {showJoin && (
         <div style={{ position: 'fixed', inset: 0, background: '#00000090', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setShowJoin(false)}>
           <div onClick={e => e.stopPropagation()} style={{ background: surf, border: `1px solid ${bord}`, borderRadius: 14, padding: '28px', width: '100%', maxWidth: 360, fontFamily: 'Arial' }}>

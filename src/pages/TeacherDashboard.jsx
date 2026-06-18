@@ -34,6 +34,7 @@ export default function TeacherDashboard({ user, onLogout }) {
   // Lernkarten-Tool
   const [lkVehicle, setLkVehicle]   = useState(null)
   const [lkSearch, setLkSearch]     = useState('')
+  const [lkOpenCats, setLkOpenCats] = useState({})
   const [lkNotes, setLkNotes]       = useState([])
   const [lkImages, setLkImages]     = useState([])
   const [lkInput, setLkInput]       = useState('')
@@ -42,11 +43,27 @@ export default function TeacherDashboard({ user, onLogout }) {
   const [lkMsg, setLkMsg]           = useState('')
 
   // Community-Fahrzeuge
-  const [allCommunity, setAllCommunity]   = useState([])  // alle Lehrer
-  const [hvList, setHvList]               = useState([])  // eigene
+  const [allCommunity, setAllCommunity]   = useState([])
+  const [hvList, setHvList]               = useState([])
   const [hvEdit, setHvEdit]               = useState(null)
   const [hvSaving, setHvSaving]           = useState(false)
   const [hvMsg, setHvMsg]                 = useState('')
+
+  // Prüfungsmodus
+  const [exams, setExams]                   = useState([])
+  const [examSubView, setExamSubView]       = useState('list') // 'list'|'create'|'assign'|'monitor'|'sequence'
+  const [currentExam, setCurrentExam]       = useState(null)
+  const [examTitle, setExamTitle]           = useState('Prüfung')
+  const [examClassroom, setExamClassroom]   = useState(null)
+  const [examTotalShown, setExamTotalShown] = useState(10)
+  const [examSelVeh, setExamSelVeh]         = useState({}) // { id: { name, repeat, imageUrl, catKey } }
+  const [examCatOpen, setExamCatOpen]       = useState({})
+  const [examError, setExamError]           = useState('')
+  const [examStudents, setExamStudents]     = useState([])   // classroom_members
+  const [assignedIds, setAssignedIds]       = useState(new Set())
+  const [monitorData, setMonitorData]       = useState([])
+  const [vehicleSeq, setVehicleSeq]         = useState(null)
+  const [examSaving, setExamSaving]         = useState(false)
 
   const bg      = dark ? '#080b10' : '#f0f4f8'
   const surf    = dark ? '#0a0d14' : '#ffffff'
@@ -254,6 +271,89 @@ export default function TeacherDashboard({ user, onLogout }) {
     return byCat
   }
 
+  // ── PRÜFUNGS-FUNKTIONEN ──────────────────────────────────────
+  async function loadExams() {
+    const { data } = await supabase.from('exams')
+      .select('*, classrooms(name)').eq('teacher_id', user.userId)
+      .order('created_at', { ascending: false })
+    if (data) setExams(data)
+  }
+
+  function totalSelShows() {
+    return Object.values(examSelVeh).reduce((s, v) => s + v.repeat, 0)
+  }
+
+  async function createExam() {
+    const total = totalSelShows()
+    if (!examClassroom) { setExamError('Bitte Klassenraum wählen.'); return }
+    if (Object.keys(examSelVeh).length === 0) { setExamError('Keine Fahrzeuge ausgewählt.'); return }
+    if (total !== examTotalShown) {
+      const diff = total - examTotalShown
+      setExamError(diff > 0
+        ? `Du hast ${diff} Fahrzeug-Wiederholungen zu viel (${total} statt ${examTotalShown}).`
+        : `Es fehlen noch ${-diff} Fahrzeug-Wiederholungen (${total} statt ${examTotalShown}).`)
+      return
+    }
+    setExamSaving(true); setExamError('')
+    const { data: exam, error } = await supabase.from('exams').insert({
+      teacher_id: user.userId, classroom_id: examClassroom.id,
+      title: examTitle, total_shown: examTotalShown, status: 'draft'
+    }).select().single()
+    if (error || !exam) { setExamError('Fehler beim Erstellen.'); setExamSaving(false); return }
+    const vehicles = Object.entries(examSelVeh).map(([id, v]) => ({
+      exam_id: exam.id, vehicle_id: id, vehicle_name: v.name,
+      cat_key: v.catKey, image_url: v.imageUrl || '', repeat_count: v.repeat
+    }))
+    await supabase.from('exam_vehicles').insert(vehicles)
+    const { data: mems } = await supabase.from('classroom_members')
+      .select('*, profiles(display_name)').eq('classroom_id', examClassroom.id)
+    if (mems) setExamStudents(mems)
+    setCurrentExam(exam); setExamSubView('assign'); setExamSaving(false)
+  }
+
+  async function startExam() {
+    if (assignedIds.size === 0) { setExamError('Keine Schüler ausgewählt.'); return }
+    setExamSaving(true)
+    // Sequenz generieren & mischen
+    const seq = []
+    Object.entries(examSelVeh).forEach(([id, v]) => {
+      for (let i = 0; i < v.repeat; i++) seq.push({ vehicleId: id, vehicleName: v.name, imageUrl: v.imageUrl || '' })
+    })
+    for (let i = seq.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [seq[i], seq[j]] = [seq[j], seq[i]]
+    }
+    await supabase.from('exams').update({ status: 'active', vehicle_sequence: seq }).eq('id', currentExam.id)
+    const students = examStudents.filter(m => assignedIds.has(m.student_id)).map(m => ({
+      exam_id: currentExam.id, student_id: m.student_id,
+      student_name: m.profiles?.display_name || '?', status: 'pending'
+    }))
+    await supabase.from('exam_students').insert(students)
+    setVehicleSeq(seq); setCurrentExam(e => ({ ...e, status: 'active', vehicle_sequence: seq }))
+    await loadMonitorData(currentExam.id); setExamSubView('monitor'); setExamSaving(false)
+  }
+
+  async function loadMonitorData(examId) {
+    const { data } = await supabase.from('exam_students').select('*').eq('exam_id', examId)
+    if (data) setMonitorData(data)
+  }
+
+  function openExamMonitor(exam) {
+    setCurrentExam(exam)
+    setVehicleSeq(exam.vehicle_sequence || null)
+    loadMonitorData(exam.id)
+    setExamSubView('monitor')
+    setView('pruefung')
+  }
+
+  function resetExamCreate() {
+    setExamSubView('list'); setExamTitle('Prüfung'); setExamClassroom(null)
+    setExamTotalShown(10); setExamSelVeh({}); setExamCatOpen({})
+    setExamError(''); setAssignedIds(new Set()); setExamStudents([])
+    setCurrentExam(null); setVehicleSeq(null)
+  }
+  // ─────────────────────────────────────────────────────────────
+
   function ClassroomHeader() {
     return (
       <>
@@ -292,6 +392,7 @@ export default function TeacherDashboard({ user, onLogout }) {
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <button onClick={() => setView('lernkarten')} style={{ background: view === 'lernkarten' ? tc + '22' : 'transparent', border: `1px solid ${view === 'lernkarten' ? tc : bord}`, borderRadius: 7, padding: '5px 12px', cursor: 'pointer', color: view === 'lernkarten' ? tc : dim, fontSize: 12 }}>📝 Lernkarten</button>
           <button onClick={() => { setView('hinzufuegen'); loadAllCommunity() }} style={{ background: view === 'hinzufuegen' ? tc + '22' : 'transparent', border: `1px solid ${view === 'hinzufuegen' ? tc : bord}`, borderRadius: 7, padding: '5px 12px', cursor: 'pointer', color: view === 'hinzufuegen' ? tc : dim, fontSize: 12 }}>➕ Hinzufügen</button>
+          <button onClick={() => { setView('pruefung'); resetExamCreate(); loadExams() }} style={{ background: view === 'pruefung' ? '#7c3aed22' : 'transparent', border: `1px solid ${view === 'pruefung' ? '#7c3aed' : bord}`, borderRadius: 7, padding: '5px 12px', cursor: 'pointer', color: view === 'pruefung' ? '#a78bfa' : dim, fontSize: 12, fontWeight: view === 'pruefung' ? 700 : 400 }}>📋 Prüfung</button>
           <span style={{ fontSize: 12, color: dim }}>{user.name}</span>
           <button onClick={toggleDark} style={{ background: 'transparent', border: `1px solid ${bord}`, borderRadius: 7, padding: '4px 9px', cursor: 'pointer', color: dim, fontSize: 14 }}>{dark ? '☀️' : '🌙'}</button>
           <button onClick={onLogout} style={{ background: 'transparent', border: `1px solid ${bord}`, borderRadius: 7, padding: '5px 12px', cursor: 'pointer', color: dim, fontSize: 12 }}>ABMELDEN</button>
@@ -492,22 +593,61 @@ export default function TeacherDashboard({ user, onLogout }) {
             {!lkVehicle ? (
               <>
                 <input value={lkSearch} onChange={e => setLkSearch(e.target.value)} placeholder="Fahrzeug suchen …"
-                  style={{ width: '100%', boxSizing: 'border-box', padding: '10px 14px', background: surf, border: `1px solid ${bord}`, borderRadius: 8, color: text, fontSize: 14, marginBottom: 12, outline: 'none' }} />
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  {ALL_LERNKARTEN
-                    .filter(v => !lkSearch || v.name.toLowerCase().includes(lkSearch.toLowerCase()))
-                    .slice(0, 25)
-                    .map(v => (
-                      <button key={String(v.id)} onClick={async () => { setLkVehicle(v); await loadLkData(v.id) }}
-                        style={{ background: surf, border: `1px solid ${bord}`, borderRadius: 8, padding: '10px 14px', cursor: 'pointer', textAlign: 'left', color: text, fontSize: 13, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontWeight: 600 }}>{v.name}</span>
-                        <span style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                          {v.isCommunity && <span style={{ fontSize: 10, background: tc + '30', color: tc, padding: '1px 6px', borderRadius: 4 }}>Community</span>}
-                          <span style={{ color: dim, fontSize: 11 }}>{v.cat}</span>
-                        </span>
-                      </button>
-                    ))}
-                </div>
+                  style={{ width: '100%', boxSizing: 'border-box', padding: '10px 14px', background: surf, border: `1px solid ${bord}`, borderRadius: 8, color: text, fontSize: 14, marginBottom: 16, outline: 'none' }} />
+
+                {lkSearch ? (
+                  /* Suchergebnisse — flache Liste */
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {ALL_LERNKARTEN
+                      .filter(v => v.name.toLowerCase().includes(lkSearch.toLowerCase()))
+                      .map(v => (
+                        <button key={String(v.id)} onClick={async () => { setLkVehicle(v); await loadLkData(v.id) }}
+                          style={{ background: surf, border: `1px solid ${bord}`, borderRadius: 8, padding: '10px 14px', cursor: 'pointer', textAlign: 'left', color: text, fontSize: 13, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontWeight: 600 }}>{v.name}</span>
+                          <span style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                            {v.isCommunity && <span style={{ fontSize: 10, background: tc + '30', color: tc, padding: '1px 6px', borderRadius: 4 }}>Community</span>}
+                            <span style={{ color: dim, fontSize: 11 }}>{v.cat}</span>
+                          </span>
+                        </button>
+                      ))}
+                  </div>
+                ) : (
+                  /* Kategorien-Ansicht */
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    {Object.entries(CATS_GROUPED).map(([catLabel, { vehicles, catKey }]) => {
+                      const catColor = CATS[catKey]?.color || '#3b82f6'
+                      const catLight = CATS[catKey]?.light || '#90c0f0'
+                      const isOpen = lkOpenCats[catLabel] !== false  // standardmäßig offen
+                      return (
+                        <div key={catLabel} style={{ border: `1px solid ${bord}`, borderRadius: 10, overflow: 'hidden' }}>
+                          {/* Kategorie-Header */}
+                          <button onClick={() => setLkOpenCats(prev => ({ ...prev, [catLabel]: !isOpen }))}
+                            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: catColor + '22', border: 'none', cursor: 'pointer', textAlign: 'left' }}>
+                            <span style={{ fontWeight: 700, color: catLight, fontSize: 13, letterSpacing: '0.06em' }}>
+                              {CATS[catKey]?.icon || '●'} {catLabel.toUpperCase()}
+                            </span>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                              <span style={{ fontSize: 11, color: dim }}>{vehicles.length} Fzg.</span>
+                              <span style={{ color: dim, fontSize: 12 }}>{isOpen ? '▲' : '▼'}</span>
+                            </span>
+                          </button>
+                          {/* Fahrzeug-Liste */}
+                          {isOpen && (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 1, background: surf }}>
+                              {vehicles.map(v => (
+                                <button key={String(v.id)} onClick={async () => { setLkVehicle(v); await loadLkData(v.id) }}
+                                  style={{ background: 'transparent', border: 'none', borderBottom: `1px solid ${bord}`, padding: '9px 16px', cursor: 'pointer', textAlign: 'left', color: text, fontSize: 13, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                  <span style={{ fontWeight: 500 }}>{v.name} {v.flag}</span>
+                                  {v.isCommunity && <span style={{ fontSize: 10, background: tc + '30', color: tc, padding: '1px 6px', borderRadius: 4 }}>Community</span>}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
               </>
             ) : (
               <div>
@@ -577,171 +717,290 @@ export default function TeacherDashboard({ user, onLogout }) {
           </div>
         )}
 
-        {/* ── HINZUFÜGEN ── */}
-        {view === 'hinzufuegen' && (
-          <HvTool
-            allCommunity={allCommunity} hvEdit={hvEdit} setHvEdit={setHvEdit}
-            hvSaving={hvSaving} hvMsg={hvMsg} saveHv={saveHv} deleteHv={deleteHv}
-            userId={user.userId}
-            surf={surf} surf2={surf2} bord={bord} text={text} dim={dim} tc={tc} CATS={CATS}
-          />
-        )}
+        {/* ── PRÜFUNGSMODUS ── */}
+        {view === 'pruefung' && (() => {
+          const purple = '#7c3aed', purpleL = '#a78bfa'
 
+          // ── LISTE ──
+          if (examSubView === 'list') return (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                <div>
+                  <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 4 }}>📋 Prüfungen</div>
+                  <div style={{ fontSize: 13, color: dim }}>Erstelle und verwalte Prüfungen für deine Klassenräume.</div>
+                </div>
+                <button onClick={() => setExamSubView('create')} style={{ padding: '9px 18px', background: purple, border: 'none', borderRadius: 8, color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: 13 }}>+ Neue Prüfung</button>
+              </div>
+              {exams.length === 0
+                ? <div style={{ background: surf, border: `1px solid ${bord}`, borderRadius: 12, padding: 40, textAlign: 'center', color: dim }}>Noch keine Prüfungen erstellt.</div>
+                : exams.map(ex => (
+                  <div key={ex.id} style={{ background: surf, border: `1px solid ${bord}`, borderRadius: 10, padding: '14px 18px', marginBottom: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: 14 }}>{ex.title}</div>
+                      <div style={{ fontSize: 12, color: dim, marginTop: 2 }}>{ex.classrooms?.name} · {ex.total_shown} Fahrzeuge · {ex.status === 'draft' ? '📝 Entwurf' : ex.status === 'active' ? '🟢 Aktiv' : '✅ Abgeschlossen'}</div>
+                    </div>
+                    <button onClick={() => openExamMonitor(ex)} style={{ padding: '7px 14px', background: purple + '22', border: `1px solid ${purple}`, borderRadius: 7, color: purpleL, fontSize: 12, cursor: 'pointer', fontWeight: 600 }}>
+                      {ex.status === 'draft' ? 'Öffnen' : 'Monitor'}
+                    </button>
+                  </div>
+                ))
+              }
+            </div>
+          )
+
+          // ── ERSTELLEN ──
+          if (examSubView === 'create') {
+            const totalSel = totalSelShows()
+            const diff = totalSel - examTotalShown
+            return (
+              <div>
+                <button onClick={() => setExamSubView('list')} style={{ background: 'transparent', border: `1px solid ${bord}`, borderRadius: 7, padding: '5px 12px', cursor: 'pointer', color: dim, fontSize: 12, marginBottom: 20 }}>← Zurück</button>
+                <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 20 }}>Neue Prüfung erstellen</div>
+
+                {/* Basisdaten */}
+                <div style={{ background: surf, border: `1px solid ${bord}`, borderRadius: 10, padding: '16px 18px', marginBottom: 16 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                    <div>
+                      <div style={{ fontSize: 11, color: dim, letterSpacing: '0.08em', marginBottom: 6 }}>TITEL</div>
+                      <input value={examTitle} onChange={e => setExamTitle(e.target.value)}
+                        style={{ width: '100%', boxSizing: 'border-box', padding: '9px 12px', background: inputBg, border: `1px solid ${bord}`, borderRadius: 7, color: text, fontSize: 14, outline: 'none' }} />
+                                </div>
+
+                    <div>
+                      <div style={{ fontSize: 11, color: dim, letterSpacing: '0.08em', marginBottom: 6 }}>SEKUNDEN PRO FAHRZEUG</div>
+                      <input type="number" min="5" max="120" value={examShowSecs} onChange={e => setExamShowSecs(Number(e.target.value))}
+                        style={{ width: '100%', boxSizing: 'border-box', padding: '9px 12px', background: inputBg, border: `1px solid ${bord}`, borderRadius: 7, color: text, fontSize: 14, outline: 'none' }} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Klassenraum-Selector */}
+                <div style={{ background: surf, border: `1px solid ${bord}`, borderRadius: 10, padding: '16px 18px', marginBottom: 16 }}>
+                  <div style={{ fontSize: 11, color: dim, letterSpacing: '0.08em', marginBottom: 10 }}>KLASSENRAUM</div>
+                  {classrooms.length === 0 ? (
+                    <div style={{ color: dim, fontSize: 13 }}>Keine Klassenräume vorhanden.</div>
+                  ) : (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                      {classrooms.map(cr => (
+                        <button key={cr.id} onClick={() => setExamClassroomId(cr.id)}
+                          style={{ padding: '7px 14px', borderRadius: 7, border: `1px solid ${examClassroomId === cr.id ? tc : bord}`, background: examClassroomId === cr.id ? tc + '20' : 'transparent', color: examClassroomId === cr.id ? tc : dim, fontWeight: examClassroomId === cr.id ? 700 : 400, cursor: 'pointer', fontSize: 13 }}>
+                          {cr.name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Fahrzeug-Picker */}
+                <div style={{ background: surf, border: `1px solid ${bord}`, borderRadius: 10, padding: '16px 18px', marginBottom: 16 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                    <div style={{ fontSize: 11, color: dim, letterSpacing: '0.08em' }}>FAHRZEUGE ({totalSel} ausgewählt)</div>
+                    <div style={{ fontSize: 12, color: diff > 0 ? '#f59e0b' : diff < 0 ? '#ef4444' : dim }}>
+                      {examTotalShown > 0 && `Ziel: ${examTotalShown} | ${diff > 0 ? `${diff} zu wenig` : diff < 0 ? `${Math.abs(diff)} zu viel` : '✓ genau richtig'}`}
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {Object.values(DB).flat().map(v => {
+                      const sel = examVehiclePool.find(p => p.vehicleId === v.id)
+                      return (
+                        <div key={v.id} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          <button onClick={() => {
+                            if (sel) setExamVehiclePool(p => p.filter(x => x.vehicleId !== v.id))
+                            else setExamVehiclePool(p => [...p, { vehicleId: v.id, vehicleName: v.name, imageUrl: v.images?.[0] || '', repeat: 1 }])
+                          }} style={{ width: 24, height: 24, borderRadius: 5, border: `1px solid ${sel ? tc : bord}`, background: sel ? tc : 'transparent', color: '#fff', fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            {sel ? '✓' : ''}
+                          </button>
+                          <div style={{ flex: 1, fontSize: 13, color: text }}>{v.flag} {v.name}</div>
+                          {sel && (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                              <span style={{ fontSize: 11, color: dim }}>×</span>
+                              <input type="number" min="1" max="10" value={sel.repeat || 1}
+                                onChange={e => setExamVehiclePool(p => p.map(x => x.vehicleId === v.id ? { ...x, repeat: Number(e.target.value) } : x))}
+                                style={{ width: 42, padding: '3px 6px', background: inputBg, border: `1px solid ${bord}`, borderRadius: 5, color: text, fontSize: 12, outline: 'none', textAlign: 'center' }} />
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                {/* Schüler-Picker */}
+                {examClassroomId && (() => {
+                  const crStudents = students.filter(s => s.classroom_id === examClassroomId)
+                  return crStudents.length > 0 ? (
+                    <div style={{ background: surf, border: `1px solid ${bord}`, borderRadius: 10, padding: '16px 18px', marginBottom: 16 }}>
+                      <div style={{ fontSize: 11, color: dim, letterSpacing: '0.08em', marginBottom: 10 }}>SCHÜLER ({assignedIds.size} ausgewählt)</div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                        {crStudents.map(s => {
+                          const on = assignedIds.has(s.id)
+                          return (
+                            <button key={s.id} onClick={() => setAssignedIds(prev => { const n = new Set(prev); on ? n.delete(s.id) : n.add(s.id); return n })}
+                              style={{ padding: '6px 14px', borderRadius: 7, border: `1px solid ${on ? '#22c55e' : bord}`, background: on ? '#22c55e20' : 'transparent', color: on ? '#22c55e' : dim, fontWeight: on ? 700 : 400, cursor: 'pointer', fontSize: 13 }}>
+                              {s.name}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  ) : null
+                })()}
+
+                {examError && (
+                  <div style={{ background: dark ? '#2a0a0a' : '#fde8e8', border: `1px solid ${dark ? '#6b2200' : '#d93025'}`, borderRadius: 8, padding: '9px 14px', color: dark ? '#f87171' : '#b91c1c', fontSize: 13, marginBottom: 12 }}>{examError}</div>
+                )}
+
+                <button onClick={createExam} style={{ width: '100%', padding: '12px 0', background: tc, border: 'none', borderRadius: 9, color: '#fff', fontWeight: 700, fontSize: 15, cursor: 'pointer', letterSpacing: '0.05em' }}>
+                  PRÜFUNG ERSTELLEN
+                </button>
+              </div>
+            )
+          }
+
+          // ── MONITOR ──
+          if (examSubView === 'monitor' && selectedExam) {
+            const examStudList = examStudents.filter(es => es.exam_id === selectedExam.id)
+            return (
+              <div>
+                <button onClick={() => setExamSubView('list')} style={{ background: 'transparent', border: `1px solid ${bord}`, borderRadius: 7, padding: '5px 12px', cursor: 'pointer', color: dim, fontSize: 12, marginBottom: 16 }}>← Zurück</button>
+                <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>{selectedExam.title}</div>
+                <div style={{ fontSize: 12, color: dim, marginBottom: 16 }}>{selectedExam.total_shown} Fahrzeuge · {selectedExam.show_seconds}s je Fahrzeug</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {examStudList.length === 0 ? (
+                    <div style={{ color: dim, fontSize: 13 }}>Noch keine Schüler zugewiesen.</div>
+                  ) : examStudList.map(es => {
+                    const statusColor = es.status === 'completed' ? '#22c55e' : es.status === 'in_progress' ? '#f59e0b' : dim
+                    const statusLabel = es.status === 'completed' ? '✓ Fertig' : es.status === 'in_progress' ? '▶ Läuft' : '⏳ Ausstehend'
+                    return (
+                      <div key={es.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: surf, border: `1px solid ${bord}`, borderRadius: 8, padding: '10px 14px' }}>
+                        <div style={{ fontSize: 14, color: text }}>{es.student_name || es.student_id}</div>
+                        <div style={{ fontSize: 12, color: statusColor, fontWeight: 700 }}>{statusLabel}</div>
+                      </div>
+                    )
+                  })}
+                </div>
+                <button onClick={loadExamData} style={{ marginTop: 16, padding: '8px 16px', background: 'transparent', border: `1px solid ${bord}`, borderRadius: 7, color: dim, fontSize: 12, cursor: 'pointer' }}>↻ Aktualisieren</button>
+              </div>
+            )
+          }
+
+          // ── SEQUENZ ──
+          if (examSubView === 'sequence' && selectedExam) {
+            const seq = selectedExam.vehicle_sequence || []
+            return (
+              <div>
+                <button onClick={() => setExamSubView('list')} style={{ background: 'transparent', border: `1px solid ${bord}`, borderRadius: 7, padding: '5px 12px', cursor: 'pointer', color: dim, fontSize: 12, marginBottom: 16 }}>← Zurück</button>
+                <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>Fahrzeugreihenfolge: {selectedExam.title}</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {seq.map((item, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, background: surf, border: `1px solid ${bord}`, borderRadius: 8, padding: '9px 14px' }}>
+                      <div style={{ width: 28, height: 28, borderRadius: '50%', background: tc + '20', border: `1px solid ${tc}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: tc, flexShrink: 0 }}>{i + 1}</div>
+                      {item.imageUrl && <img src={item.imageUrl} alt="" style={{ width: 48, height: 36, objectFit: 'cover', borderRadius: 5, flexShrink: 0 }} />}
+                      <div style={{ fontSize: 13, color: text }}>{item.vehicleName}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )
+          }
+
+          return null
+        })()}
       </div>
     </div>
   )
 }
 
-// ── HINZUFÜGEN COMPONENT ──────────────────────────────────────
-function HvTool({ allCommunity, hvEdit, setHvEdit, hvSaving, hvMsg, saveHv, deleteHv, userId, surf, surf2, bord, text, dim, tc, CATS }) {
-  const emptyForm = { name: '', category: '', cat_key: '', features: [], image_urls: [], super_cat: 'russia' }
-  const [form, setForm] = React.useState(emptyForm)
-  const [featInput, setFeatInput] = React.useState('')
-  const [imgInput, setImgInput] = React.useState('')
+// ═══════════════════════════════════════════════════════════
+// HvTool — Handout-Verwaltung
+// ═══════════════════════════════════════════════════════════
+function HvTool({ dark, surf, bord, text, dim, tc, inputBg }) {
+  const [vehicles, setVehicles] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [editId, setEditId] = useState(null)
+  const [editFields, setEditFields] = useState({})
+  const [saving, setSaving] = useState(false)
 
-  React.useEffect(() => {
-    if (hvEdit === 'new') setForm(emptyForm)
-    else if (hvEdit) setForm({ ...hvEdit, features: hvEdit.features || [], image_urls: hvEdit.image_urls || [] })
-  }, [hvEdit])
-
-  if (!hvEdit) {
-    return (
-      <div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-          <div>
-            <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 4 }}>➕ Community-Lernkarten</div>
-            <div style={{ fontSize: 13, color: dim }}>Alle von Lehrern erstellten Fahrzeuge. Eigene Karten kannst du bearbeiten und löschen.</div>
-          </div>
-          <button onClick={() => setHvEdit('new')} style={{ padding: '9px 18px', background: tc, border: 'none', borderRadius: 8, color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: 13 }}>+ Neue Lernkarte</button>
-        </div>
-        {allCommunity.length === 0 ? (
-          <div style={{ background: surf, border: `1px solid ${bord}`, borderRadius: 12, padding: 40, textAlign: 'center', color: dim }}>Noch keine Community-Lernkarten erstellt.</div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {allCommunity.map(hv => {
-              const isOwn = hv.created_by === userId
-              return (
-                <div key={hv.id} style={{ background: surf, border: `1px solid ${isOwn ? tc + '40' : bord}`, borderRadius: 10, padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
-                      <div style={{ fontWeight: 700, fontSize: 14, color: text }}>{hv.name}</div>
-                      {isOwn && <span style={{ fontSize: 10, background: tc + '25', color: tc, padding: '1px 6px', borderRadius: 4 }}>Meine</span>}
-                    </div>
-                    <div style={{ fontSize: 11, color: dim }}>
-                      {CATS[hv.cat_key]?.label || hv.category} · {hv.features?.length || 0} Merkmale · {hv.image_urls?.length || 0} Bilder
-                    </div>
-                  </div>
-                  {isOwn && (
-                    <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
-                      <button onClick={() => setHvEdit(hv)} style={{ padding: '5px 12px', borderRadius: 7, border: `1px solid ${bord}`, background: 'transparent', color: dim, fontSize: 12, cursor: 'pointer' }}>✏️ Bearbeiten</button>
-                      <button onClick={() => deleteHv(hv.id)} style={{ padding: '5px 12px', borderRadius: 7, border: '1px solid #ef4444', background: 'transparent', color: '#ef4444', fontSize: 12, cursor: 'pointer' }}>🗑️</button>
-                    </div>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        )}
-      </div>
-    )
+  async function load() {
+    setLoading(true)
+    const { data } = await supabase.from('community_vehicles').select('*').order('name')
+    if (data) setVehicles(data)
+    setLoading(false)
   }
 
-  const isNew = hvEdit === 'new'
+  useEffect(() => { load() }, [])
+
+  function startEdit(v) {
+    setEditId(v.id)
+    setEditFields({ name: v.name, category: v.category, cat_key: v.cat_key, super_cat: v.super_cat, features: (v.features || []).join('\n'), image_urls: (v.image_urls || []).join('\n') })
+  }
+
+  async function saveEdit(id) {
+    setSaving(true)
+    const { error } = await supabase.from('community_vehicles').update({
+      name: editFields.name,
+      category: editFields.category,
+      cat_key: editFields.cat_key,
+      super_cat: editFields.super_cat,
+      features: editFields.features.split('\n').map(s => s.trim()).filter(Boolean),
+      image_urls: editFields.image_urls.split('\n').map(s => s.trim()).filter(Boolean),
+    }).eq('id', id)
+    setSaving(false)
+    if (!error) { setEditId(null); load() }
+  }
+
+  async function deleteVehicle(id) {
+    if (!window.confirm('Fahrzeug wirklich löschen?')) return
+    await supabase.from('community_vehicles').delete().eq('id', id)
+    load()
+  }
+
+  if (loading) return <div style={{ color: dim, padding: 20 }}>Lade…</div>
+
   return (
-    <div>
-      <button onClick={() => setHvEdit(null)} style={{ background: 'transparent', border: `1px solid ${bord}`, borderRadius: 7, padding: '5px 12px', cursor: 'pointer', color: dim, fontSize: 12, marginBottom: 20 }}>← Zurück</button>
-      <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 20 }}>{isNew ? 'Neue Lernkarte erstellen' : `"${form.name}" bearbeiten`}</div>
-
-      <label style={{ fontSize: 12, color: dim, letterSpacing: '0.06em' }}>FAHRZEUGNAME</label>
-      <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="z.B. T-55AM2"
-        style={{ display: 'block', width: '100%', boxSizing: 'border-box', padding: '10px 14px', background: surf, border: `1px solid ${bord}`, borderRadius: 8, color: text, fontSize: 14, marginTop: 6, marginBottom: 16, outline: 'none' }} />
-
-      <label style={{ fontSize: 12, color: dim, letterSpacing: '0.06em' }}>KATEGORIE</label>
-      <select value={form.cat_key === '__custom__' ? '__custom__' : (CATS[form.cat_key] ? form.cat_key : (form.cat_key ? '__custom__' : ''))}
-        onChange={e => {
-          const k = e.target.value
-          if (k === '__custom__') {
-            setForm(f => ({ ...f, cat_key: '__custom__', category: '' }))
-          } else {
-            setForm(f => ({ ...f, cat_key: k, category: CATS[k]?.label || k }))
-          }
-        }}
-        style={{ display: 'block', width: '100%', padding: '10px 14px', background: surf, border: `1px solid ${bord}`, borderRadius: 8, color: text, fontSize: 14, marginTop: 6, marginBottom: 8, outline: 'none' }}>
-        <option value="">Kategorie wählen …</option>
-        {Object.entries(CATS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
-        <option value="__custom__">➕ Neue Kategorie erstellen …</option>
-      </select>
-      {(form.cat_key === '__custom__' || (form.cat_key && !CATS[form.cat_key])) && (
-        <input
-          value={form.category}
-          onChange={e => {
-            const label = e.target.value
-            const key = label.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_äöüß]/g, '').replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss')
-            setForm(f => ({ ...f, category: label, cat_key: key || '__custom__' }))
-          }}
-          placeholder="z.B. Infanteriefahrzeuge"
-          style={{ display: 'block', width: '100%', boxSizing: 'border-box', padding: '10px 14px', background: surf, border: `1px solid ${tc}`, borderRadius: 8, color: text, fontSize: 14, marginBottom: 16, outline: 'none' }}
-        />
-      )}
-      {!(form.cat_key === '__custom__' || (form.cat_key && !CATS[form.cat_key])) && <div style={{ marginBottom: 8 }} />}
-
-      <label style={{ fontSize: 12, color: dim, letterSpacing: '0.06em' }}>ANZEIGEN BEI</label>
-      <div style={{ display: 'flex', gap: 8, marginTop: 6, marginBottom: 16 }}>
-        {[
-          { val: 'russia', label: '🇷🇺 Russland / GUS' },
-          { val: 'nato', label: '🌍 NATO' },
-          { val: 'all', label: '🌐 Beide' },
-        ].map(opt => (
-          <button key={opt.val} onClick={() => setForm(f => ({ ...f, super_cat: opt.val }))}
-            style={{ flex: 1, padding: '8px 4px', borderRadius: 8, border: `1px solid ${form.super_cat === opt.val ? tc : bord}`, background: form.super_cat === opt.val ? tc + '22' : 'transparent', color: form.super_cat === opt.val ? tc : dim, fontSize: 12, cursor: 'pointer', fontWeight: form.super_cat === opt.val ? 700 : 400 }}>
-            {opt.label}
-          </button>
-        ))}
-      </div>
-
-      <label style={{ fontSize: 12, color: dim, letterSpacing: '0.06em' }}>ERKENNUNGSMERKMALE</label>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 6, marginBottom: 8 }}>
-        {form.features.map((f, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, background: surf, border: `1px solid ${bord}`, borderRadius: 7, padding: '7px 12px' }}>
-            <span style={{ flex: 1, fontSize: 13, color: text }}>• {f}</span>
-            <button onClick={() => setForm(fm => ({ ...fm, features: fm.features.filter((_, j) => j !== i) }))} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: 16 }}>×</button>
-          </div>
-        ))}
-      </div>
-      <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
-        <input value={featInput} onChange={e => setFeatInput(e.target.value)}
-          onKeyDown={e => { if (e.key === 'Enter' && featInput.trim()) { setForm(f => ({ ...f, features: [...f.features, featInput.trim()] })); setFeatInput('') } }}
-          placeholder="Merkmal eingeben …"
-          style={{ flex: 1, padding: '9px 12px', background: surf, border: `1px solid ${bord}`, borderRadius: 7, color: text, fontSize: 13, outline: 'none' }} />
-        <button onClick={() => { if (featInput.trim()) { setForm(f => ({ ...f, features: [...f.features, featInput.trim()] })); setFeatInput('') } }}
-          style={{ padding: '9px 14px', background: surf, border: `1px solid ${bord}`, borderRadius: 7, color: text, cursor: 'pointer', fontSize: 13 }}>+ Merkmal</button>
-      </div>
-
-      <label style={{ fontSize: 12, color: dim, letterSpacing: '0.06em' }}>BILD-LINKS (URLs)</label>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 6, marginBottom: 8 }}>
-        {form.image_urls.map((url, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, background: surf, border: `1px solid ${bord}`, borderRadius: 7, padding: '7px 12px' }}>
-            <img src={url} alt="" style={{ width: 48, height: 36, objectFit: 'cover', borderRadius: 4, flexShrink: 0 }} onError={e => { e.target.style.display = 'none' }} />
-            <span style={{ flex: 1, fontSize: 11, color: dim, wordBreak: 'break-all' }}>{url}</span>
-            <button onClick={() => setForm(fm => ({ ...fm, image_urls: fm.image_urls.filter((_, j) => j !== i) }))} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: 16 }}>×</button>
-          </div>
-        ))}
-      </div>
-      <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
-        <input value={imgInput} onChange={e => setImgInput(e.target.value)}
-          onKeyDown={e => { if (e.key === 'Enter' && imgInput.trim()) { setForm(f => ({ ...f, image_urls: [...f.image_urls, imgInput.trim()] })); setImgInput('') } }}
-          placeholder="https://... Bild-URL einfügen"
-          style={{ flex: 1, padding: '9px 12px', background: surf, border: `1px solid ${bord}`, borderRadius: 7, color: text, fontSize: 13, outline: 'none' }} />
-        <button onClick={() => { if (imgInput.trim()) { setForm(f => ({ ...f, image_urls: [...f.image_urls, imgInput.trim()] })); setImgInput('') } }}
-          style={{ padding: '9px 14px', background: surf, border: `1px solid ${bord}`, borderRadius: 7, color: text, cursor: 'pointer', fontSize: 13 }}>+ Bild</button>
-      </div>
-
-      <button onClick={() => saveHv({ ...form, cat_key: form.cat_key === '__custom__' ? '' : form.cat_key, id: isNew ? undefined : hvEdit.id })}
-        disabled={!form.name.trim() || (!form.cat_key || form.cat_key === '__custom__') || !form.category || hvSaving}
-        style={{ width: '100%', padding: '12px 0', background: tc, border: 'none', borderRadius: 8, color: '#fff', fontWeight: 700, fontSize: 15, cursor: 'pointer' }}>
-        {hvSaving ? 'Speichern …' : isNew ? '✅ Lernkarte erstellen' : '✅ Änderungen speichern'}
-      </button>
-      {hvMsg && <div style={{ fontSize: 13, color: hvMsg.startsWith('❌') ? '#ef4444' : '#22c55e', marginTop: 10, textAlign: 'center' }}>{hvMsg}</div>}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      {vehicles.map(v => (
+        <div key={v.id} style={{ background: surf, border: `1px solid ${bord}`, borderRadius: 10, padding: '14px 16px' }}>
+          {editId === v.id ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {[['Name', 'name'], ['Kategorie', 'category'], ['Cat-Key', 'cat_key'], ['Super-Cat', 'super_cat']].map(([label, field]) => (
+                <div key={field}>
+                  <div style={{ fontSize: 11, color: dim, marginBottom: 4 }}>{label}</div>
+                  <input value={editFields[field] || ''} onChange={e => setEditFields(f => ({ ...f, [field]: e.target.value }))}
+                    style={{ width: '100%', boxSizing: 'border-box', padding: '8px 10px', background: inputBg, border: `1px solid ${bord}`, borderRadius: 6, color: text, fontSize: 13, outline: 'none' }} />
+                </div>
+              ))}
+              <div>
+                <div style={{ fontSize: 11, color: dim, marginBottom: 4 }}>Merkmale (eine pro Zeile)</div>
+                <textarea value={editFields.features || ''} onChange={e => setEditFields(f => ({ ...f, features: e.target.value }))} rows={4}
+                  style={{ width: '100%', boxSizing: 'border-box', padding: '8px 10px', background: inputBg, border: `1px solid ${bord}`, borderRadius: 6, color: text, fontSize: 13, outline: 'none', resize: 'vertical' }} />
+              </div>
+              <div>
+                <div style={{ fontSize: 11, color: dim, marginBottom: 4 }}>Bild-URLs (eine pro Zeile)</div>
+                <textarea value={editFields.image_urls || ''} onChange={e => setEditFields(f => ({ ...f, image_urls: e.target.value }))} rows={3}
+                  style={{ width: '100%', boxSizing: 'border-box', padding: '8px 10px', background: inputBg, border: `1px solid ${bord}`, borderRadius: 6, color: text, fontSize: 13, outline: 'none', resize: 'vertical' }} />
+              </div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button onClick={() => saveEdit(v.id)} disabled={saving} style={{ flex: 1, padding: '9px 0', background: tc, border: 'none', borderRadius: 7, color: '#fff', fontWeight: 700, fontSize: 13, cursor: 'pointer', opacity: saving ? 0.6 : 1 }}>
+                  {saving ? 'Speichern…' : 'Speichern'}
+                </button>
+                <button onClick={() => setEditId(null)} style={{ padding: '9px 16px', background: 'transparent', border: `1px solid ${bord}`, borderRadius: 7, color: dim, fontSize: 13, cursor: 'pointer' }}>Abbrechen</button>
+              </div>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: text, marginBottom: 2 }}>{v.name}</div>
+                <div style={{ fontSize: 11, color: dim }}>{v.category} · {v.cat_key} · {v.super_cat}</div>
+              </div>
+              <div style={{ display: 'flex', gap: 6 }}>
+                <button onClick={() => startEdit(v)} style={{ padding: '6px 12px', background: 'transparent', border: `1px solid ${bord}`, borderRadius: 6, color: dim, fontSize: 12, cursor: 'pointer' }}>Bearbeiten</button>
+                <button onClick={() => deleteVehicle(v.id)} style={{ padding: '6px 12px', background: 'transparent', border: '1px solid #ef4444', borderRadius: 6, color: '#ef4444', fontSize: 12, cursor: 'pointer' }}>Löschen</button>
+              </div>
+            </div>
+          )}
+        </div>
+      ))}
     </div>
   )
 }
