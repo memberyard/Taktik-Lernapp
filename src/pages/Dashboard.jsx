@@ -897,3 +897,4 @@ export default function Dashboard({ user, onLogout }) {
     </div>
   )
 }
+}
